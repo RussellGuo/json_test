@@ -123,11 +123,27 @@ public:
 
 };
 
-int main(void)
-{
-	{
-		adf_t adf;
-    		adf.flip();
-	}
-	return 0;
+namespace  {
+adf_t adf;
 }
+
+extern "C" bool initAdfDevice(void **fb_ptr, uint32_t *width, uint32_t *height, uint32_t *linelen)
+{
+
+    bool ret = adf.getAdfInfo(fb_ptr, width, height, linelen);
+    return ret;
+}
+
+extern "C" void deinitAdfDevice(void)
+{
+    // adf.deinit();
+}
+
+extern "C" void AdfFlip(void)
+{
+    adf.flip();
+}
+
+
+
+
