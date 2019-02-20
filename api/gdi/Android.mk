@@ -12,7 +12,7 @@ LOCAL_C_INCLUDES +=\
 LOCAL_WHOLE_STATIC_LIBRARIES += libadf
 
 LOCAL_MODULE := libgdi
-LOCAL_CPPFLAGS += -std=c++11
+LOCAL_CPPFLAGS += -std=c++11 -DFONT_PATH=\"/system/vendor/huaqin/fonts/\"
 
 include $(BUILD_SHARED_LIBRARY)
 

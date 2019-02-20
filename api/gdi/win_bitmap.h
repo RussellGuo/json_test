@@ -33,6 +33,10 @@ class WinBmpFile {
 public:
     explicit WinBmpFile(const char *bmp_name): map(bmp_name), image_data(nullptr), width(0), height(0), line_len(0), bpp(0) {
         const uint8_t *base = reinterpret_cast<const uint8_t *>(map.Memory());
+        if (base == nullptr) {
+            return;
+        }
+
         const BITMAPFILEHEADER *bmp_file_header = reinterpret_cast<const BITMAPFILEHEADER *>(base);
         const BITMAPINFOHEADER *bmp_info_header = reinterpret_cast<const BITMAPINFOHEADER *>(base + sizeof(BITMAPFILEHEADER));
 

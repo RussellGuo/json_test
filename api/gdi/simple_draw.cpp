@@ -145,7 +145,9 @@ extern "C" int DisplayGetDirection(DisplayOrientation *Dir)
 
 namespace {
 
-#define FONT_PATH "/system/vendor/huaqin/fonts/"
+#ifndef FONT_PATH
+#define FONT_PATH
+#endif
 const ChineseFont gb_font_24(FONT_PATH "gb_font_24.bin", 24);
 const ChineseFont gb_font_32(FONT_PATH "gb_font_32.bin", 32);
 const ChineseFont gb_font_16(FONT_PATH "gb_font_16.bin", 16);
@@ -232,7 +234,24 @@ extern "C" void freeWinBmpObject(bmpHandler bmpHandler)
     delete reinterpret_cast<WinBmpFile *>(bmpHandler.ptr_to_win_bmp_file_object);
 }
 
-void drawMemBmp(const uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0)
+extern "C" void drawMemBmp(const uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0)
+{
+    const uint8_t * image_data = raw_data;
+    auto const _line_len = line_len ? line_len : (width * bpp + 31) / 32 * 4;
+    if (bpp != 16 || image_data == nullptr) {
+        fprintf(stderr, "BMP unrecognized (not 16 BPP?)\n");
+        return;
+    }
+    for (int y = 0; y < int(height); y++) {
+        const color_t *line = reinterpret_cast<const color_t *>(image_data);
+        for (int x = 0; x < int(width); x++) {
+            drawPoint(line[x], x0 + x, y0 + y);
+        }
+        image_data += _line_len;
+    }
+}
+
+static inline void drawFileBmp(const uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0)
 {
     const uint8_t * image_data = raw_data;
     auto const _line_len = line_len ? line_len : (width * bpp + 31) / 32 * 4;
@@ -249,7 +268,7 @@ void drawMemBmp(const uint8_t *const raw_data, uint32_t bpp, uint32_t width, uin
     }
 }
 
-bool saveScreenIntoMemBmp(uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0)
+extern "C" bool saveScreenIntoMemBmp(uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0)
 {
     uint8_t * image_data = raw_data;
     auto const _line_len = line_len ? line_len : (width * bpp + 31) / 32 * 4;
@@ -257,7 +276,7 @@ bool saveScreenIntoMemBmp(uint8_t *const raw_data, uint32_t bpp, uint32_t width,
         fprintf(stderr, "BMP unrecognized (not 16 BPP?)\n");
         return false;
     }
-    for (int y = int(height -1); y >= 0; y--) {
+    for (int y = 0; y < int(height); y++) {
         color_t *line = reinterpret_cast<color_t *>(image_data);
         for (int x = 0; x < int(width); x++) {
             line[x] = getPoint(x0 + x, y0 + y);
@@ -267,8 +286,11 @@ bool saveScreenIntoMemBmp(uint8_t *const raw_data, uint32_t bpp, uint32_t width,
     return true;
 }
 
-void drawWinBmpObject(bmpHandler bmpHandler, coord_t x0, coord_t y0)
+extern "C" void drawWinBmpObject(bmpHandler bmpHandler, coord_t x0, coord_t y0)
 {
+    if (bmpHandler.ptr_to_win_bmp_file_object == nullptr) {
+        return;
+    }
     const WinBmpFile *bmp = reinterpret_cast<WinBmpFile *>(bmpHandler.ptr_to_win_bmp_file_object);
     auto bpp        = bmp->get_bpp();
     auto width      = bmp->get_width();
@@ -276,10 +298,10 @@ void drawWinBmpObject(bmpHandler bmpHandler, coord_t x0, coord_t y0)
     auto line_len   = bmp->get_line_len();
     auto image_data = bmp->get_image_data();
 
-    drawMemBmp(image_data, bpp, width, height, line_len, x0, y0);
+    drawFileBmp(image_data, bpp, width, height, line_len, x0, y0);
 }
 
-void drawLine(color_t color, coord_t x1, coord_t y1, coord_t x2, coord_t y2)
+extern "C" void drawLine(color_t color, coord_t x1, coord_t y1, coord_t x2, coord_t y2)
 {
     int xdelta;		/* width of rectangle around line */
     int ydelta;		/* height of rectangle around line */
