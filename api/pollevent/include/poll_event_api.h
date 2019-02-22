@@ -10,14 +10,28 @@ extern "C" {
 #include <stdbool.h>
 #include <unistd.h>
 
-bool PollEventInit(void);
-bool PollEventDeinit(void);
+void PollEventInit(void);
+void PollEventDeinit(void);
 
-bool PollEventDectect(bool key_event, bool bar_scan_event, bool net_event, bool timer_event);
-bool PollEventHasKeyEvent(void);
-bool PollEventHasBarScanEvent(void);
-bool PollEventHasNetEvent(void);
-bool PollEventHasTimerEvent(void);
+typedef enum {
+    event_idx_timer = 0,
+    event_idx_key,
+    event_idx_touch,
+    event_idx_bar_scan,
+    event_idx_wifi,
+    event_idx_4g,
+    event_idx_tts,
+    event_idx_reseved_0,
+    event_idx_max = 31,
+} event_idx_t;
+
+bool PollEventSetFd(event_idx_t idx, int fd);
+bool PollEventDectect(const bool event_vector[], event_idx_t vector_size);
+bool HasKeyEvent(void);
+bool HasBarScanEvent(void);
+bool HasWiFiEvent(void);
+bool Has4gEvent(void);
+bool hasGenericEvent(event_idx_t idx);
 
 
 #ifdef __cplusplus
