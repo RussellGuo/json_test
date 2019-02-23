@@ -16,10 +16,6 @@ bool RemoteTtsSetting(uint16_t pitch, uint16_t rate, uint16_t volume);
 bool RemoteTtsPlay(bool isGBK, const char *txt);
 bool RemoteTtsBeep(uint16_t freq, uint16_t mesc);
 
-int getRemoteTtsIpcFd(void);
-
-int RemoteTtsMsgFromService(void *msg, uint16_t max_msg_len);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

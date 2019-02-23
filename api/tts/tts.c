@@ -90,7 +90,7 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
     }
     pcm_begin();
     for(int i = 0; i < SAMPLE_RATE * msec / 1000; i += 2 * half_period_in_sample_count) {
-        if (has_msg_from_remote(0)) {
+        if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
             break;
         }
@@ -126,7 +126,7 @@ static bool tts_play(bool isGBK, char *buf)
         short pSpeechFrame[400];
         unsigned int nSampleNumber;
 
-        if (has_msg_from_remote(0)) {
+        if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
             break;
         }
@@ -175,18 +175,11 @@ void tts_cmd_loop(void)
     }
     tty_setting(pitch, rate, volume);
 
-    signal(SIG_MAIN_TO_SUBTASK, sub_signal_handler);
-    enable_ipc_signal(true);
-
-
     for (;;) {
-        if (!has_msg_from_remote(0)) {
-            sleep(10);
-        } else {
             char buf[4096];
             char cmd;
             memset(buf, 0, sizeof buf);
-            int len = recv_msg_from_remote(0, buf, sizeof buf);
+            int len = recv_ipc_cmd(buf, sizeof buf);
             if (len < 0) {
                 perror("recv_msg_from maintask");
                 fprintf(stderr, "\r\n");
@@ -234,9 +227,9 @@ void tts_cmd_loop(void)
                 }
                 break;
 
-            case 0:
+            case 'T':
                 {
-                    send_msg_to_remote(0, "Nothing?", 8, parent_pid);
+                    send_ipc_reply("Nothing?", 8);
                 }
                 break;
 
@@ -244,7 +237,6 @@ void tts_cmd_loop(void)
                 fprintf(stderr, "Unknown cmd: %s\r\n", buf);
                 break;
             }
-        }
     }
 }
 

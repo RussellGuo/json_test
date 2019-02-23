@@ -19,7 +19,6 @@ bool modifyTimer(timer_id_t timer_id, int flags, const struct itimerspec *itimer
 bool enableTimer(timer_id_t timer_id, bool enabled);
 bool delTimer(timer_id_t timer_id);
 
-int PollEventSpinOnce(void);
 
 
 #ifdef __cplusplus

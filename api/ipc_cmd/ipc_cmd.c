@@ -16,19 +16,19 @@
 
 #include <assert.h>
 
-void enable_ipc_signal(bool enable)
+static void ipc_comm_callback(int id, uint64_t arg)
 {
-    sigset_t sigset, old_sigset;
-    sigemptyset(&sigset);
-    sigaddset(&sigset, SIG_MAIN_TO_SUBTASK);
-    sigprocmask(enable ? SIG_UNBLOCK : SIG_BLOCK, &sigset, &old_sigset);
+    uint8_t buf[4096 + 1];
+    memset(buf, 0, sizeof (buf));
+    ssize_t ret = recv(id, buf, sizeof (buf), 0);
+    fprintf(stderr, "recv ipc callback msg: '%s'\r\n", buf);
 }
 
-bool start_subtask(subtask_proc_t proc, int *ipc_fd, pid_t *pid)
+bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc, subtask_notifiy_callback_t subtask_notifiy_callback)
 {
     int pipe_fds[2];
 
-    enable_ipc_signal(false);
+    memset(ipc_task, 0, sizeof(struct ipc_task_t));
     // pipe
     if (socketpair(AF_UNIX, SOCK_DGRAM, 0, pipe_fds) < 0) {
         perror("start_subtask socketpair");
@@ -41,19 +41,21 @@ bool start_subtask(subtask_proc_t proc, int *ipc_fd, pid_t *pid)
     }
 
     // fork
-    *pid = fork();
-    if (*pid < 0) {
+    ipc_task->pid = fork();
+    if (ipc_task->pid < 0) {
         perror("start_subtask fork");
         fprintf(stderr, "\r\n");
         close(pipe_fds[0]);
         close(pipe_fds[1]);
         return false;
-    } else if(*pid > 0) {
+    } else if(ipc_task->pid > 0) {
         // main process
         // main should not use pipe reading
         close(pipe_fds[0]);
-        *ipc_fd = pipe_fds[1];
-        return true;
+        ipc_task->ipc_fd = pipe_fds[1];
+        ipc_task->subtask_notifiy_callback = subtask_notifiy_callback;
+        bool ret = setPollEventFd(ipc_task->ipc_fd, ipc_comm_callback, (uint64_t)(uint32_t)ipc_task, true);
+        return ret;
 
     } else {
         // sub process
@@ -69,47 +71,52 @@ bool start_subtask(subtask_proc_t proc, int *ipc_fd, pid_t *pid)
     }
 }
 
-void stop_subtask(int ipc_fd, pid_t pid)
+void stop_subtask(struct ipc_task_t *ipc_task)
 {
     fprintf(stderr, "main process ending the subprocess...\r\n");
     // wait sub-process
-    if (pid > 0) {
+    if (ipc_task->pid > 0) {
         int status;
-        waitpid(pid, &status, 0);
+        waitpid(ipc_task->pid, &status, 0);
     }
     // close pipe
-    close(ipc_fd);
+    close(ipc_task->ipc_fd);
+    ipc_task->ipc_fd = -1;
+    ipc_task->pid = 0;
 }
 
-bool send_msg_to_remote(int ipc_fd, const void *msg, uint16_t msg_len, pid_t sub_pid)
+bool send_ipc_cmd(struct ipc_task_t *ipc_task, const void *msg, uint16_t msg_len)
 {
-    ssize_t ret = send(ipc_fd, msg, msg_len, 0);
+    ssize_t ret = send(ipc_task->ipc_fd, msg, msg_len, 0);
     if (ret < 0) {
-        perror("send_msg_to_remote");
+        perror("send_ipc_cmd");
         fprintf(stderr, "\r\n");
     }
     if (ret == msg_len) {
-        if (sub_pid > 0) {
-            kill(sub_pid, ipc_fd != 0 ? SIG_MAIN_TO_SUBTASK : SIG_SUB_TO_MAINTASK);
-        }
         return true;
     }
     return false;
 }
 
-int recv_msg_from_remote(int ipc_fd, void *msg, uint16_t max_msg_len)
+int recv_ipc_cmd(void *msg, uint16_t max_msg_len)
 {
-    ssize_t ret = recv(ipc_fd, msg, max_msg_len, 0);
+    ssize_t ret = recv(0, msg, max_msg_len, 0);
     return (int)ret;
 }
 
-bool has_msg_from_remote(int ipc_fd)
+bool has_ipc_cmd_from_caller(int msec)
 {
     int ret;
     struct pollfd p;
-    p.fd = ipc_fd;
+    p.fd = 0;
     p.events = POLL_IN;
     p.revents = 0;
-    ret = poll(&p, 1, 0);
+    ret = poll(&p, 1, msec);
     return ret > 0;
+}
+
+bool send_ipc_reply(const void *msg, uint16_t msg_len)
+{
+    ssize_t ret = send(0, msg, msg_len, 0);
+    return ret == msg_len;
 }

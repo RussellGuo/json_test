@@ -28,6 +28,8 @@ extern "C" timer_id_t createTimer(clockid_t clockid, int flags,  const itimerspe
     bool set_timer_succeed = false;
     id = timerfd_create(clockid, TFD_NONBLOCK | TFD_CLOEXEC);
     if (id <= 0) {
+        perror("createTimer");
+        fprintf(stderr,"\r\n");
         goto error;
     }
     registered = setPollEventFd(id, timer_callback, reinterpret_cast<uint64_t>(callback), enabled);
@@ -54,10 +56,10 @@ error:
 
 extern "C" bool modifyTimer(timer_id_t timer_id, int flags, const struct itimerspec *itimerspec)
 {
-    struct itimerspec old;
-    int ret = timerfd_settime(timer_id, flags, itimerspec, &old);
+    int ret = timerfd_settime(timer_id, flags, itimerspec, nullptr);
     if (ret < 0) {
         perror("modifyTimer");
+        fprintf(stderr,"\r\n");
     }
     return ret == 0;
 }
