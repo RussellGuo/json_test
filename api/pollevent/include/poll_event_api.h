@@ -6,32 +6,28 @@
 extern "C" {
 #endif
 
+#include <unistd.h>
+#include <sys/time.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <unistd.h>
+
+// timer part
+typedef int32_t msec_t;
+typedef uint64_t callback_arg_t;
+typedef void (*callback_t)(int id, uint64_t arg);
+
+
+// event part
 
 void PollEventInit(void);
 void PollEventDeinit(void);
 
-typedef enum {
-    event_idx_timer = 0,
-    event_idx_key,
-    event_idx_touch,
-    event_idx_bar_scan,
-    event_idx_wifi,
-    event_idx_4g,
-    event_idx_tts,
-    event_idx_reseved_0,
-    event_idx_max = 31,
-} event_idx_t;
+#define POLL_EVENT_MAX 32
 
-bool PollEventSetFd(event_idx_t idx, int fd);
-bool PollEventDectect(const bool event_vector[], event_idx_t vector_size);
-bool HasKeyEvent(void);
-bool HasBarScanEvent(void);
-bool HasWiFiEvent(void);
-bool Has4gEvent(void);
-bool hasGenericEvent(event_idx_t idx);
+bool setPollEventFd(int fd, callback_t callback, uint64_t arg, bool enabled);
+bool enablePollEventFd(int fd, bool enabled);
+bool delPollEventFd(int fd);
+int PollEventSpinOnce(void);
 
 
 #ifdef __cplusplus

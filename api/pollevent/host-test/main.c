@@ -24,6 +24,17 @@ static void restore_tty(void)
     }
 }
 
+static volatile bool ctrl_c_pressed = false;
+static void tty_read_proc(int fd, uint64_t arg)
+{
+    char c;
+    ssize_t ret = read(fd, &c, 1);
+    fprintf(stderr, "ret, c: %zd, %c, arg: %lx\r\n", ret, c, arg);
+    if (ret == 1 && c == 3) {
+        ctrl_c_pressed = true;
+    }
+}
+
 int main(void)
 {
     struct termios tty_attr;
@@ -51,20 +62,13 @@ int main(void)
     }
 
     PollEventInit();
-    PollEventSetFd(event_idx_key, tty_fd);
-    bool event_fd_set[event_idx_max];
-    memset(event_fd_set, 0, sizeof event_fd_set);
-    event_fd_set[event_idx_key] = true;
+    setPollEventFd(tty_fd, tty_read_proc, 0x19710829U, true);
 
-    for (;;) {
-        bool ret = PollEventDectect(event_fd_set, event_idx_key + 1);
-        if (ret) {
-            char c;
-            ret = read(tty_fd, &c, 1);
-            fprintf(stderr, "ret, c: %d, %c\r\n", ret, c);
-            if (ret == 1 && c == 3) {
-                break;
-            }
+    while (!ctrl_c_pressed) {
+        int ret = PollEventSpinOnce();
+        if (ret < 0) {
+            perror("PollEventSpinOnce");
+            break;
         }
     }
     fprintf(stderr, "closing\r\n");
