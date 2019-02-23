@@ -13,6 +13,8 @@
 #include <map>
 #include <vector>
 
+namespace {
+
 struct event_info_t {
     event_info_t(){}
     event_info_t(int _fd, callback_t _callback, uint64_t _arg, bool _enabled):fd(_fd), callback(_callback), arg(_arg), enabled(_enabled)
@@ -28,13 +30,7 @@ struct event_info_t {
     }
 };
 
-static std::map<int, event_info_t> event_info_map;
-
-extern "C" void PollEventInit(void)
-{
-}
-extern "C" void PollEventDeinit(void)
-{
+std::map<int, event_info_t> event_info_map;
 
 }
 

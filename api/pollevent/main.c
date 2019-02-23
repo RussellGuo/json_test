@@ -12,6 +12,7 @@
 #include <linux/input.h>
 
 #include "poll_event_api.h"
+#include "timer_api.h"
 
 static struct termios backup_tty_attr;
 static int tty_fd;
@@ -33,6 +34,11 @@ static void tty_read_proc(int fd, uint64_t arg)
     if (ret == 1 && c == 3) {
         ctrl_c_pressed = true;
     }
+}
+
+static void timeout(timer_id_t fd)
+{
+    fprintf(stderr, "timer %d is timeout\r\n", fd);
 }
 
 int main(void)
@@ -61,8 +67,14 @@ int main(void)
         exit(1);
     }
 
-    PollEventInit();
     setPollEventFd(tty_fd, tty_read_proc, 0x19710829U, true);
+    struct itimerspec spec;
+    spec.it_interval.tv_sec  = 3;
+    spec.it_interval.tv_nsec = 0;
+    spec.it_value.tv_sec = 5;
+    spec.it_value.tv_nsec = 0;
+
+    createTimer(CLOCK_MONOTONIC, 0, &spec, timeout, true);
 
     while (!ctrl_c_pressed) {
         int ret = PollEventSpinOnce();
