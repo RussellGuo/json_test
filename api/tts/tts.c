@@ -92,6 +92,7 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
     for(int i = 0; i < SAMPLE_RATE * msec / 1000; i += 2 * half_period_in_sample_count) {
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
+            pcm_abort();
             break;
         }
         pcm_feed(sample, half_period_in_sample_count * 2 * 2);
@@ -128,6 +129,7 @@ static bool tts_play(bool isGBK, char *buf)
 
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
+            pcm_abort();
             break;
         }
         nReturn = yt_tts_get_speech_frame(pSpeechFrame,&nSampleNumber);

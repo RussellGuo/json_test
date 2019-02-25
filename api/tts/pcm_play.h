@@ -7,4 +7,7 @@ void pcm_begin(void);
 void pcm_feed(const void *buf, unsigned size);
 void pcm_end(void);
 
+void pcm_abort(void);
+
+
 #endif // PCM_PLAY_H

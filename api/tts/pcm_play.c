@@ -74,15 +74,23 @@ void pcm_begin(void)
 void pcm_feed(const void *buf, unsigned size)
 {
 
-    int len;
+    ssize_t len;
     // write pipe
     if (pcm_pipe_fds[1] < 0) {
         fprintf(stderr, "Calling feed_pcm without beginning it\r\n");
         return;
     }
     len = write(pcm_pipe_fds[1], buf, size);
-    if (len != size) {
+    if (len != (ssize_t)size) {
         fprintf(stderr, "pcm pipe write error ret = %d\r\n", len);
+    }
+}
+
+void pcm_abort(void)
+{
+    fprintf(stderr, "pcm main process aborting...\r\n");
+    if (pid >= 0) {
+        kill(pid, SIGQUIT);
     }
 }
 
@@ -99,7 +107,6 @@ void pcm_end(void)
     // wait sub-process
     if (pid >= 0) {
         int status;
-        kill(pid, SIGQUIT);
         waitpid(pid, &status, 0);
         pid = -1;
     }
@@ -138,7 +145,7 @@ void play_sample(FILE *file, unsigned int card, unsigned int device)
         pcm_close(pcm);
         return;
     }
-    fprintf(stderr, "PCM buffer: allocated %d bytes\r\n", size);
+    // fprintf(stderr, "PCM buffer: allocated %d bytes\r\n", size);
 
     do {
         num_read = fread(buffer, 1, size, file);
@@ -147,7 +154,7 @@ void play_sample(FILE *file, unsigned int card, unsigned int device)
                 fprintf(stderr, "Error playing sample\r\n");
                 break;
             }
-             fprintf(stderr, "PCM read %d bytes\r\n", num_read);
+            // fprintf(stderr, "PCM read %d bytes\r\n", num_read);
         }
     } while (num_read > 0);
 
