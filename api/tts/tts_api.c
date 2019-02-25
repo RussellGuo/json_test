@@ -24,7 +24,7 @@ static void tts_notifiy_callback(struct ipc_task_t *ipc_task, const uint8_t msg[
     }
 
     if (tts_callback) {
-        tts_callback(result, (char *)msg);
+        tts_callback(result, info);
     }
 }
 
