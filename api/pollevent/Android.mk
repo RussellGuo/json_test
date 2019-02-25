@@ -22,15 +22,14 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
 LOCAL_EXPORT_C_INCLUDE_DIRS += $(LOCAL_PATH)/include
 LOCAL_EXPORT_CPP_INCLUDE_DIRS += $(LOCAL_PATH)/include
 
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := main.c
 
-LOCAL_STATIC_LIBRARIES := libtimer_api
-LOCAL_SHARED_LIBRARIES := libpoll_event_api
+LOCAL_SHARED_LIBRARIES := libpoll_event_api libtimer_api libipc_cmd
 LOCAL_MODULE := poll_event_api_test
 LOCAL_CFLAGS += -std=c99
 
