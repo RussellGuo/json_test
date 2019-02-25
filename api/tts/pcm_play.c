@@ -66,7 +66,7 @@ void pcm_begin(void)
             play_sample(read_file, 0, 0);
             fprintf(stderr, "pcm sub process closing...\r\n");
             fclose(read_file);
-            exit(0);
+            _exit(0);
         }
     }
 }

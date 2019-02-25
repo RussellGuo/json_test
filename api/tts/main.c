@@ -7,12 +7,11 @@
 #include <time.h>
 #include <errno.h>
 #include <string.h>
-#include "tts_api.h"
 
+#include "tts_api.h"
 #include "poll_event_api.h"
 #include "timer_api.h"
-
-#include <linux/input.h>
+#include "key_api.h"
 
 static struct termios backup_tty_attr;
 static int tty_fd;
@@ -21,7 +20,7 @@ static void restore_tty(void)
     if (tcsetattr(tty_fd, TCSANOW, &backup_tty_attr) < 0) {
         fprintf(stderr, "error in restore the attribute of tty\r\n");
     } else {
-        fprintf(stderr, "exitting\r\n");
+        fprintf(stderr, "restore_tty exitting\r\n");
     }
 }
 
@@ -29,7 +28,7 @@ static void init_tty(void)
 {
     struct termios tty_attr;
 
-    tty_fd = open("/dev/tty", O_RDWR | O_NDELAY, 0);
+    tty_fd = open("/dev/tty", O_RDONLY | O_NDELAY, 0);
     if (tty_fd < 0) {
         fprintf(stderr, "Unable to open tty\r\n");
         exit(1);
@@ -95,12 +94,19 @@ static void timeout(timer_id_t fd, uint64_t timeout_count)
     fprintf(stderr, "timer %d is timeout, count: %llu\r\n", fd, timeout_count);
 }
 
+static void key_event_callback (unsigned key_value, bool pressed)
+{
+    fprintf(stderr, "Key '%d' %s\r\n", key_value, pressed ? "pressed" : "released");
+}
+
+
 int main(int argc, char **argv)
 {
     init_tty();
     setPollEventFd(tty_fd, tty_read_proc, 0xdeadbeef, true);
     RemoteTtsinit(tts_callback);
     timer_id_t timer_id = createSimpleTimer(3000, false, timeout);
+    initKeyEvent(key_event_callback);
 
 
     while (!ctrl_c_pressed) {
@@ -121,9 +127,10 @@ int main(int argc, char **argv)
     }
 
     fprintf(stderr, "closing\r\n");
+    delPollEventFd(tty_fd);
     RemoteTtsclose();
     delTimer(timer_id);
-    delPollEventFd(tty_fd);
+    deinitKeyEvent();
 
     return 0;
 }

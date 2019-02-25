@@ -29,7 +29,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	main.c
 
-LOCAL_SHARED_LIBRARIES := libtts libtinyalsa libipc_cmd libpoll_event_api libtimer_api
+LOCAL_SHARED_LIBRARIES := libtts libtinyalsa libipc_cmd libpoll_event_api libtimer_api libkey_api
 LOCAL_MODULE := tts_test
 LOCAL_CFLAGS += -std=c99
 
