@@ -42,11 +42,6 @@
 
 #include "ipc_cmd.h"
 
-static void sub_signal_handler(int sig)
-{
-    write(2, "tts process be notified\r\n", 25);
-}
-
 static bool tts_init(void)
 {
     char *pMemoryBufferForTTS = malloc(YT_TTS_MEM_SIZE_IN_BYTE);
@@ -93,12 +88,15 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
             pcm_abort();
-            break;
+            pcm_end();
+            send_ipc_reply("ERR USERCANCELLED", 0);
+            return;
         }
         pcm_feed(sample, half_period_in_sample_count * 2 * 2);
     }
 
     pcm_end();
+    send_ipc_reply("ERR OK", 0);
 }
 
 static bool tts_play(bool isGBK, char *buf)
@@ -119,6 +117,7 @@ static bool tts_play(bool isGBK, char *buf)
     }
     if (nReturn != 0) {
         fprintf(stderr, "start tts playing error\r\n");
+        send_ipc_reply("ERR INIT", 0);
         return false;
     }
     pcm_begin();
@@ -130,7 +129,9 @@ static bool tts_play(bool isGBK, char *buf)
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
             pcm_abort();
-            break;
+            pcm_end();
+            send_ipc_reply("ERR USERCANCELLED", 0);
+            return true;
         }
         nReturn = yt_tts_get_speech_frame(pSpeechFrame,&nSampleNumber);
         if(nSampleNumber > 0) {
@@ -152,6 +153,7 @@ static bool tts_play(bool isGBK, char *buf)
     }
 
     pcm_end();
+    send_ipc_reply("ERR OK", 0);
     return true;
 
 }
@@ -231,7 +233,7 @@ void tts_cmd_loop(void)
 
             case 'T':
                 {
-                    send_ipc_reply("Nothing?", 8);
+                fprintf(stderr, "STOP cmd received\r\n");
                 }
                 break;
 

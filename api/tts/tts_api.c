@@ -6,10 +6,26 @@
 #include <stdint.h>
 
 #include "ipc_cmd.h"
+#include "tts_api.h"
 
+tts_callback_t tts_callback;
 static void tts_notifiy_callback(struct ipc_task_t *ipc_task, const uint8_t msg[], uint16_t len)
 {
-    fprintf(stderr, "tts_notifiy_callback: '%s'\r\n", msg);
+    tts_playing_result_t result = tts_playing_other;
+    const char *info = (const char *)msg;
+    if (strcmp(info, "ERR OK") == 0) {
+        result = tts_playing_normal_finished;
+    } else if (strcmp(info, "ERR INIT") == 0) {
+        result = tts_playing_initiation_failed;
+    } else if (strcmp(info, "ERR USERCANCELLED") == 0) {
+        result = tts_playing_user_cancelled;
+    } else {
+        result = tts_playing_other;
+    }
+
+    if (tts_callback) {
+        tts_callback(result, (char *)msg);
+    }
 }
 
 static struct ipc_task_t tts_task = {
@@ -19,11 +35,14 @@ static struct ipc_task_t tts_task = {
 };
 
 
-bool RemoteTtsinit(void)
+bool RemoteTtsinit(tts_callback_t callback)
 {
     bool ret;
     void tts_cmd_loop(void);
     ret = start_subtask(&tts_task, tts_cmd_loop);
+    if (ret) {
+        tts_callback = callback;
+    }
     return ret;
 }
 
@@ -32,6 +51,7 @@ bool RemoteTtsclose(void)
     bool ret;
     ret = send_ipc_cmd(&tts_task, "Q", 1);
     stop_subtask(&tts_task);
+    tts_callback = NULL;
     return ret;
 }
 

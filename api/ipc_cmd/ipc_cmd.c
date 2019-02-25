@@ -129,6 +129,6 @@ bool has_ipc_cmd_from_caller(int msec)
 
 bool send_ipc_reply(const void *msg, uint16_t msg_len)
 {
-    ssize_t ret = send(0, msg, msg_len, 0);
+    ssize_t ret = send(0, msg, msg_len ? msg_len : strlen(msg), 0);
     return ret == msg_len;
 }

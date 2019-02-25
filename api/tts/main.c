@@ -25,46 +25,7 @@ static void restore_tty(void)
     }
 }
 
-static volatile bool ctrl_c_pressed = false;
-static void tty_read_proc(int fd, uint64_t arg)
-{
-    char c;
-    ssize_t ret = read(fd, &c, 1);
-    if (ret != 1) {
-        ctrl_c_pressed = true;
-        perror("read tty raw mode");
-        fprintf(stderr, "\r\n");
-    }
-    fprintf(stderr, "ret, c: %zd, %c, arg: %llx\r\n", ret, c, arg);
-    switch(c) {
-    case '1':
-        RemoteTtsPlay(false, "To be, or not to be, that is a question: Whether it's nobler in the mind to suffer, "
-                             "The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles");
-        break;
-    case '2':
-        RemoteTtsPlay(false, "生存还是毁灭，这是一个值得考虑的问题；默然忍受命运暴虐的毒箭，或是挺身反抗人世无涯的苦难,通过斗争把它们扫个干净？");
-        break;
-    case '3':
-    case '4':
-        RemoteTtsBeep(c == '3' ? 300 : 1000, 10000);
-        break;
-    case '5':
-        RemoteTtsStopPlaying();
-        break;
-    case 'Q':
-    case 'q':
-    case 3:
-        ctrl_c_pressed = true;
-    }
-}
-
-static void timeout(timer_id_t fd, uint64_t timeout_count)
-{
-    fprintf(stderr, "timer %d is timeout, count: %llu\r\n", fd, timeout_count);
-}
-
-
-int main(int argc, char **argv)
+static void init_tty(void)
 {
     struct termios tty_attr;
 
@@ -89,9 +50,57 @@ int main(int argc, char **argv)
         fprintf(stderr, "Unable to set the attribute of the tty\r\n");
         exit(1);
     }
-    setPollEventFd(tty_fd, tty_read_proc, 0x19710829U, true);
-    RemoteTtsinit();
-    timer_id_t timer_id = createSimpleTimer(2000, false, timeout);
+}
+
+static volatile bool ctrl_c_pressed = false;
+static void tty_read_proc(int fd, uint64_t arg)
+{
+    char c;
+    ssize_t ret = read(fd, &c, 1);
+    if (ret != 1) {
+        ctrl_c_pressed = true;
+        perror("read tty raw mode");
+        fprintf(stderr, "\r\n");
+    }
+    fprintf(stderr, "c: '%c', arg: %llX\r\n", c, arg);
+    switch(c) {
+    case '1':
+        RemoteTtsPlay(false, "To be, or not to be, that is a question: Whether it's nobler in the mind to suffer, "
+                             "The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles");
+        break;
+    case '2':
+        RemoteTtsPlay(false, "生存还是毁灭，这是一个值得考虑的问题；默然忍受命运暴虐的毒箭，或是挺身反抗人世无涯的苦难,通过斗争把它们扫个干净？");
+        break;
+    case '3':
+    case '4':
+        RemoteTtsBeep(c == '3' ? 300 : 1000, 10000);
+        break;
+    case '5':
+        RemoteTtsStopPlaying();
+        break;
+    case 'Q':
+    case 'q':
+    case 3:
+        ctrl_c_pressed = true;
+    }
+}
+
+static void tts_callback(tts_playing_result_t result, const char *msg)
+{
+    fprintf(stderr, "tts_notifiy_callback: %d, '%s'\r\n", result, msg);
+}
+
+static void timeout(timer_id_t fd, uint64_t timeout_count)
+{
+    fprintf(stderr, "timer %d is timeout, count: %llu\r\n", fd, timeout_count);
+}
+
+int main(int argc, char **argv)
+{
+    init_tty();
+    setPollEventFd(tty_fd, tty_read_proc, 0xdeadbeef, true);
+    RemoteTtsinit(tts_callback);
+    timer_id_t timer_id = createSimpleTimer(3000, false, timeout);
 
 
     while (!ctrl_c_pressed) {
