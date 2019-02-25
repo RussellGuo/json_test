@@ -54,6 +54,19 @@ error:
     return -1;
 }
 
+timer_id_t createSimpleTimer(uint32_t msec, bool one_shot, timer_callback_t callback)
+{
+    //
+    itimerspec itimerspec;
+    timer_id_t id;
+    itimerspec.it_value.tv_sec  = msec / 1000;
+    itimerspec.it_value.tv_nsec = (msec % 1000) * 1000000; // one ms means 10**6 nano second
+    itimerspec.it_interval.tv_sec  = one_shot ? 0 : itimerspec.it_value.tv_sec;
+    itimerspec.it_interval.tv_nsec = one_shot ? 0 : itimerspec.it_value.tv_nsec;
+    id = createTimer(CLOCK_MONOTONIC, 0, &itimerspec, callback, true);
+    return id;
+}
+
 extern "C" bool modifyTimer(timer_id_t timer_id, int flags, const struct itimerspec *itimerspec)
 {
     int ret = timerfd_settime(timer_id, flags, itimerspec, nullptr);

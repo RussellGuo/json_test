@@ -90,6 +90,7 @@ void stop_subtask(struct ipc_task_t *ipc_task)
         int status;
         waitpid(ipc_task->pid, &status, 0);
     }
+    delPollEventFd(ipc_task->ipc_fd);
     // close pipe
     close(ipc_task->ipc_fd);
     ipc_task->ipc_fd = -1;
