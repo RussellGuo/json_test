@@ -7,13 +7,23 @@
 
 #include "ipc_cmd.h"
 
-static struct ipc_task_t tts_task;
+static void tts_notifiy_callback(struct ipc_task_t *ipc_task, const uint8_t msg[], uint16_t len)
+{
+    fprintf(stderr, "tts_notifiy_callback: '%s'\r\n", msg);
+}
+
+static struct ipc_task_t tts_task = {
+    -1,                   // fd
+    0,                    // sub process ID
+    tts_notifiy_callback, // will be call
+};
+
 
 bool RemoteTtsinit(void)
 {
     bool ret;
     void tts_cmd_loop(void);
-    ret = start_subtask(&tts_task, tts_cmd_loop, NULL);
+    ret = start_subtask(&tts_task, tts_cmd_loop);
     return ret;
 }
 

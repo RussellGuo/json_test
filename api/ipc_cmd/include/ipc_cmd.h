@@ -21,10 +21,10 @@ struct ipc_task_t {
     subtask_notifiy_callback_t subtask_notifiy_callback;
 };
 
-bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc, subtask_notifiy_callback_t subtask_notifiy_callback);
+bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc);
+bool send_ipc_cmd(struct ipc_task_t *ipc_task, const void *msg, uint16_t msg_len);
 
 bool has_ipc_cmd_from_caller(int msec);
-bool send_ipc_cmd(struct ipc_task_t *ipc_task, const void *msg, uint16_t msg_len);
 bool send_ipc_reply(const void *msg, uint16_t msg_len);
 int recv_ipc_cmd(void *msg, uint16_t max_msg_len);
 

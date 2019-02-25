@@ -13,7 +13,7 @@ extern "C" {
 #include <sys/timerfd.h>
 
 typedef int timer_id_t;
-typedef void (*timer_callback_t)(timer_id_t id);
+typedef void (*timer_callback_t)(timer_id_t id, uint64_t timeout_count);
 timer_id_t createTimer(clockid_t clockid, int flags, const struct itimerspec *itimerspec, timer_callback_t callback, bool enabled);
 bool modifyTimer(timer_id_t timer_id, int flags, const struct itimerspec *itimerspec);
 bool enableTimer(timer_id_t timer_id, bool enabled);

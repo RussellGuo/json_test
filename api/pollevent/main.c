@@ -36,9 +36,9 @@ static void tty_read_proc(int fd, uint64_t arg)
     }
 }
 
-static void timeout(timer_id_t fd)
+static void timeout(timer_id_t fd, uint64_t timeout_count)
 {
-    fprintf(stderr, "timer %d is timeout\r\n", fd);
+    fprintf(stderr, "timer %d is timeout, count: %lu\r\n", fd, timeout_count);
 }
 
 int main(void)

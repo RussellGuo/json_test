@@ -16,19 +16,31 @@
 
 #include <assert.h>
 
-static void ipc_comm_callback(int id, uint64_t arg)
+static void ipc_generic_callback(int id, uint64_t arg)
 {
     uint8_t buf[4096 + 1];
     memset(buf, 0, sizeof (buf));
     ssize_t ret = recv(id, buf, sizeof (buf), 0);
-    fprintf(stderr, "recv ipc callback msg: '%s'\r\n", buf);
+    if (ret < 0) {
+        perror("ipc_generic_callback");
+        fprintf(stderr, "\r\n");
+    } else {
+        if (arg) {
+            struct ipc_task_t *ipc_task = (struct ipc_task_t *)arg;
+            subtask_notifiy_callback_t callback = ipc_task->subtask_notifiy_callback;
+            if (callback) {
+                callback(ipc_task, buf, ret);
+            }
+        }
+    }
 }
 
-bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc, subtask_notifiy_callback_t subtask_notifiy_callback)
+bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc)
 {
     int pipe_fds[2];
 
-    memset(ipc_task, 0, sizeof(struct ipc_task_t));
+    ipc_task->ipc_fd = -1;
+    ipc_task->pid = 0;
     // pipe
     if (socketpair(AF_UNIX, SOCK_DGRAM, 0, pipe_fds) < 0) {
         perror("start_subtask socketpair");
@@ -53,8 +65,7 @@ bool start_subtask(struct ipc_task_t *ipc_task, subtask_proc_t proc, subtask_not
         // main should not use pipe reading
         close(pipe_fds[0]);
         ipc_task->ipc_fd = pipe_fds[1];
-        ipc_task->subtask_notifiy_callback = subtask_notifiy_callback;
-        bool ret = setPollEventFd(ipc_task->ipc_fd, ipc_comm_callback, (uint64_t)(uint32_t)ipc_task, true);
+        bool ret = setPollEventFd(ipc_task->ipc_fd, ipc_generic_callback, (uint64_t)ipc_task, true);
         return ret;
 
     } else {

@@ -17,7 +17,7 @@ static void timer_callback(timer_id_t id, uint64_t arg)
     auto ret = read(id, &count, sizeof count);
     if (ret == sizeof count) {
         auto proc = reinterpret_cast<timer_callback_t>(arg);
-        proc(id);
+        proc(id, count);
     }
 }
 
