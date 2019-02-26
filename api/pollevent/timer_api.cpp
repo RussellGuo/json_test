@@ -54,17 +54,29 @@ error:
     return -1;
 }
 
-timer_id_t createSimpleTimer(uint32_t msec, bool one_shot, timer_callback_t callback)
+static void set_itimerspec_by_simple_params(itimerspec *itimerspec, uint32_t msec, bool one_shot)
+{
+    itimerspec->it_value.tv_sec  = msec / 1000;
+    itimerspec->it_value.tv_nsec = (msec % 1000) * 1000000; // one ms means 10**6 nano second
+    itimerspec->it_interval.tv_sec  = one_shot ? 0 : itimerspec->it_value.tv_sec;
+    itimerspec->it_interval.tv_nsec = one_shot ? 0 : itimerspec->it_value.tv_nsec;
+}
+extern "C" timer_id_t createSimpleTimer(uint32_t msec, bool one_shot, timer_callback_t callback)
 {
     //
     itimerspec itimerspec;
-    timer_id_t id;
-    itimerspec.it_value.tv_sec  = msec / 1000;
-    itimerspec.it_value.tv_nsec = (msec % 1000) * 1000000; // one ms means 10**6 nano second
-    itimerspec.it_interval.tv_sec  = one_shot ? 0 : itimerspec.it_value.tv_sec;
-    itimerspec.it_interval.tv_nsec = one_shot ? 0 : itimerspec.it_value.tv_nsec;
-    id = createTimer(CLOCK_MONOTONIC, 0, &itimerspec, callback, true);
+    set_itimerspec_by_simple_params(&itimerspec, msec, one_shot);
+    timer_id_t id = createTimer(CLOCK_MONOTONIC, 0, &itimerspec, callback, true);
     return id;
+}
+
+extern "C" bool modifySimpleTimer(timer_id_t timer_id, uint32_t msec, bool one_shot)
+{
+    //
+    itimerspec itimerspec;
+    set_itimerspec_by_simple_params(&itimerspec, msec, one_shot);
+    auto ret = modifyTimer(timer_id, 0, &itimerspec);
+    return ret;
 }
 
 extern "C" bool modifyTimer(timer_id_t timer_id, int flags, const struct itimerspec *itimerspec)

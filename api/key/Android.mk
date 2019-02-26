@@ -17,7 +17,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := main.c
 
-LOCAL_SHARED_LIBRARIES := libkey_api libpoll_event_api libtimer_api
+LOCAL_SHARED_LIBRARIES := libkey_api libpoll_event_api
 LOCAL_MODULE := key_test
 LOCAL_CFLAGS += -std=c99
 

@@ -13,8 +13,7 @@
 namespace {
 
 struct event_info_t {
-    event_info_t(){}
-    event_info_t(int _fd, callback_t _callback, uint64_t _arg, bool _enabled):fd(_fd), callback(_callback), arg(_arg), enabled(_enabled)
+    event_info_t(int _fd = -1, callback_t _callback = nullptr, uint64_t _arg = 0, bool _enabled = false):fd(_fd), callback(_callback), arg(_arg), enabled(_enabled)
     {}
     int fd = -1;
     callback_t callback = nullptr;
