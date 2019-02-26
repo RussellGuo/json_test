@@ -10,9 +10,6 @@
 
 #include "poll_event_api.h"
 
-#include <map>
-#include <vector>
-
 namespace {
 
 struct event_info_t {
@@ -30,15 +27,17 @@ struct event_info_t {
     }
 };
 
-std::map<int, event_info_t> event_info_map;
+constexpr ssize_t MAX_COUNT_EVENT = 32;
+event_info_t event_info_map[MAX_COUNT_EVENT];
+ssize_t event_last_item_idx = -1;
 
 }
 
 static void inline debug_poll_event_tab(int ret, const char *func_name)
 {
     printf("function: %s, ret = %d\r\n", func_name, ret);
-    for (auto n:event_info_map) {
-        printf("event_info_map[%d] = %d\r\n", n.first, n.second.enabled);
+    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+        printf("event_info_map[%d] = %d\r\n", event_info_map[i].fd, event_info_map[i].enabled);
     }
 }
 extern "C" bool setPollEventFd(int fd, callback_t callback, uint64_t arg, bool enabled)
@@ -46,52 +45,75 @@ extern "C" bool setPollEventFd(int fd, callback_t callback, uint64_t arg, bool e
     if (fd <= 0) {
         return false;
     }
-    event_info_t info(fd, callback, arg, enabled);
-    auto ret = event_info_map.insert(std::make_pair(fd, info)).second;
-    debug_poll_event_tab(ret, __FUNCTION__);
-    return ret;
+    if (event_last_item_idx >= MAX_COUNT_EVENT - 1 - 1) { // MAX_COUNT_EVENT - 1 is the last room, must has 1 room left.
+        return false;
+    }
+    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+        if (event_info_map[i].fd == fd) {
+            fprintf(stderr, "fd is alreay in the event fd list\r\n");
+            return false;
+        }
+    }
+    event_info_map[++event_last_item_idx] = event_info_t(fd, callback, arg, enabled);
+    debug_poll_event_tab(true, __FUNCTION__);
+    return true;
 }
 
 extern "C" bool enablePollEventFd(int fd, bool enabled)
 {
-    auto event = event_info_map.find(fd);
-    bool ret = event != event_info_map.end();
-    if (ret) {
-        event->second.enabled = enabled;
+    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+        if (event_info_map[i].fd == fd) {
+            event_info_map[i].enabled = enabled;
+            return true;
+        }
     }
-    debug_poll_event_tab(ret, __FUNCTION__);
-    return ret;
+    return false;
 }
 
 extern "C" bool delPollEventFd(int fd)
 {
-    auto ret = int(event_info_map.erase(fd));
-    debug_poll_event_tab(ret, __FUNCTION__);
-    return ret > 0;
+    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+        if (event_info_map[i].fd == fd) {
+            fprintf(stderr, "SHOULD remove %d at[%zd]\r\n", fd, i);
+            if (i != event_last_item_idx) { // not the last one, just move the last one here
+                event_info_map[i] = event_info_map[event_last_item_idx];
+            }
+            --event_last_item_idx;
+            debug_poll_event_tab(true, __FUNCTION__);
+            return true;
+        }
+    }
+    return false;
 }
 
 
 extern "C" int PollEventSpinOnce(void)
 {
-    std::vector<pollfd>poll_fd_tab;
-    for (auto n:event_info_map) {
-        auto &event = n.second;
-        if (event.enabled) {
-            pollfd p;
-            p.fd = event.fd;
-            p.events = POLLIN;
-            p.revents = 0;
-            poll_fd_tab.push_back(p);
+    pollfd poll_fd_tab[MAX_COUNT_EVENT];
+    ssize_t count = 0;
+    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+        if (!event_info_map[i].enabled) {
+            continue;
         }
+        poll_fd_tab[count].fd      = event_info_map[i].fd;
+        poll_fd_tab[count].events  = POLLIN;
+        poll_fd_tab[count].revents = 0;
+        count++;
     }
-
-    if (poll_fd_tab.size() <= 0) {
+    if (count <= 0) {
         return false;
     }
-    auto ret = poll(poll_fd_tab.data(), poll_fd_tab.size(), -1);
-    for (auto const &pollfd:poll_fd_tab) {
-        if (pollfd.revents) {
-            event_info_map[pollfd.fd].fire();
+    auto ret = poll(poll_fd_tab, nfds_t(count), -1);
+    for (int i = 0; i < count; i++) {
+        if (poll_fd_tab[i].revents == 0) {
+            continue;
+        }
+        int fd = poll_fd_tab[i].fd;
+        for (ssize_t k = 0; k <= event_last_item_idx; k++) {
+            if (event_info_map[k].fd == fd) {
+                event_info_map[k].fire();
+                break;
+            }
         }
     }
     return ret;

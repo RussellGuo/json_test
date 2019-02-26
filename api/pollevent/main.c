@@ -74,7 +74,7 @@ int main(void)
     spec.it_value.tv_sec = 5;
     spec.it_value.tv_nsec = 0;
 
-    createTimer(CLOCK_MONOTONIC, 0, &spec, timeout, true);
+    timer_id_t timer_id = createTimer(CLOCK_MONOTONIC, 0, &spec, timeout, true);
 
     while (!ctrl_c_pressed) {
         int ret = PollEventSpinOnce();
@@ -84,5 +84,7 @@ int main(void)
         }
     }
     fprintf(stderr, "closing\r\n");
+    delPollEventFd(tty_fd);
+    delTimer(timer_id);
     return 0;
 }
