@@ -13,11 +13,11 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := main.c
+LOCAL_SRC_FILES := poll_event_demo_main.cpp thread_notify.cpp
 
 LOCAL_SHARED_LIBRARIES := libpoll_event_api
 LOCAL_MODULE := poll_event_api_test
-LOCAL_CFLAGS += -std=c99
+LOCAL_CPPFLAGS += -std=c++11
 
 include $(BUILD_EXECUTABLE)
 

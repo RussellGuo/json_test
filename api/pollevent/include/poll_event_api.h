@@ -22,6 +22,8 @@ bool enablePollEventFd(int fd, bool enabled);
 bool delPollEventFd(int fd);
 
 int PollEventSpinOnce(void);
+uint64_t PollEventFetchThreadNotifyCount(uint64_t *last_thread_notify_value_ptr);
+bool PollEventThreadNotify(uint64_t arg);
 
 
 #ifdef __cplusplus
