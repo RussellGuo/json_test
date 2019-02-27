@@ -93,8 +93,8 @@ private:
             close(surf_fd);
             return false;
         }
-        fprintf(stderr, "surf_base = %p\n", surf_base);
-        adf_interface_blank(intf_fd,DRM_MODE_DPMS_OFF);
+        fprintf(stderr, "SURF_BASE = %p\n", surf_base);
+        // adf_interface_blank(intf_fd,DRM_MODE_DPMS_OFF);
         adf_interface_blank(intf_fd,DRM_MODE_DPMS_ON);
         return true;
 
