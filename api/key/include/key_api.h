@@ -8,9 +8,11 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
-
+// 按键回调函数的原型
 typedef void (*key_event_callback_t) (unsigned key_value, bool pressed);
+// 注册回调函数
 bool initKeyEvent(key_event_callback_t key_event);
+// 不再关注key，不再产生回调
 bool deinitKeyEvent(void);
 
 #ifdef __cplusplus
