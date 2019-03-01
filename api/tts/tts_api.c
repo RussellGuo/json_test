@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <unistd.h>
+
 #include "ipc_cmd.h"
 #include "tts_api.h"
 
@@ -35,11 +37,18 @@ static struct ipc_task_t tts_task = {
 };
 
 
+static void start_tts_service(void)
+{
+    int ret = execl("/system/bin/tts_service", "tts_service", NULL);
+    perror("start tts service");
+    fprintf(stderr, "\r\n");
+    _exit(1);
+}
+
 bool RemoteTtsinit(tts_callback_t callback)
 {
     bool ret;
-    void tts_cmd_loop(void);
-    ret = start_subtask(&tts_task, tts_cmd_loop);
+    ret = start_subtask(&tts_task, start_tts_service);
     if (ret) {
         tts_callback = callback;
     }

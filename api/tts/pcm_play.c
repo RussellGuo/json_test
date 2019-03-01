@@ -52,6 +52,8 @@ void pcm_begin(void)
 
     } else {
         // sub process
+        void set_cmd_line_argv0(const char *cmd_line_argv0);
+        set_cmd_line_argv0("[PCM]");
         FILE *read_file = fdopen(pcm_pipe_fds[0], "rb");
 
         // sub process should not use pipe writting

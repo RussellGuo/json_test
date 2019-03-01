@@ -166,7 +166,7 @@ static void tty_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 }
 
 // YT TTS part
-void tts_cmd_loop(void)
+static void tts_cmd_loop(void)
 {
 
     uint16_t pitch = 105, rate = 105, volume = 32767;
@@ -244,5 +244,18 @@ void tts_cmd_loop(void)
     }
 }
 
-
-
+static char *argv0;
+void set_cmd_line_argv0(const char *cmd_line_argv0)
+{
+    if (argv0 == NULL || strlen(cmd_line_argv0) > strlen(argv0)) {
+        return;
+    }
+    strcpy(argv0, cmd_line_argv0);
+}
+int main(int argc, char *argv[])
+{
+    argv0 = argv[0];
+    tts_cmd_loop();
+    _exit(0);
+    return 0;
+}
