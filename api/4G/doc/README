@@ -1,0 +1,13 @@
+该文档是用于解释4G API文件夹下各个文件的用途
+（一）：主目录下的Android.mk文件，用来引导编译整个文件夹中所有含有.mk的文件
+（二）：doc文件夹用于存放文档说明
+（三）：test文件夹，包含modemApiTest与Android.mk两个文件，modemApiTest用来测试4G API相关接口，Android.mk将modemApiTest生成可执行文件
+（四）：release文件夹包含libmodemApi.so库与modemApi.h两个文件，libmodemApi.so库实现了4GAPI接口，modemApi.h时API接口的头文件，使用时可以直接将库文件导入到设备的/system/lib文件夹下即可调用接口
+（五）：lib文件夹，该文件夹包含多个文件与文件夹
+        5.1：include文件夹中包含了API接口所需要的具体命令和一些封装好的函数，结构体，如无特殊需要不建议改动
+        5.2：utils文件夹中函数为默认的函数，如无特殊需要不需要改动
+        5.3：app_at.cpp中存放了所用到的AT命令，后续有需要可以在此添加相关命令
+        5.4：app_pppDial.cpp中封装了PPP协议中用到的函数
+        5.5：modemApi.cpp实现了4G API的接口功能
+        5.6：modemApi.hmodemApi的头文件
+        5.7：Android.mk编译生成libmodemApi.so库文件
