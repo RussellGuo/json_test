@@ -35,7 +35,7 @@ int getVoltageOcv(void)
 		ret = read(fd, buf, sizeof(buf));
 		if(ret <= 0) {
 			printf(" read failed, ret=%d", ret);
-			bat_status.getVoltageOcv = 0;
+			bat_status.getVoltageOcv = -1;
 		} else {
 			bat_status.getVoltageOcv = atoi(buf);
 		}
@@ -61,7 +61,7 @@ int getTemperature(void)
 		ret = read(fd, buf, sizeof(buf));
 		if(ret <= 0) {
 			printf(" read failed, ret=%d", ret);
-			bat_status.getTemperature = 0;
+			bat_status.getTemperature = -300;
 		} else {
 			bat_status.getTemperature = atoi(buf);
 		}
@@ -103,21 +103,21 @@ void getStatus(void)
                                                
     int fd;
     int  ret;
-    char buf[64];                          
-                                               
+    char buf[64];
+
     fd = open(BAT_STATUS, O_RDONLY | O_CREAT | O_TRUNC, 0777);
-    if(fd < 0) {                               
-        printf("open %s fail",  BAT_STATUS);  
-    } else {                                   
-        memset(buf, 0, sizeof(buf));           
-        ret = read(fd, buf, sizeof(buf));      
-        if(ret <= 0) {                         
+    if(fd < 0) {
+        printf("open %s fail",  BAT_STATUS);
+    } else {
+        memset(buf, 0, sizeof(buf));
+        ret = read(fd, buf, sizeof(buf));
+        if(ret <= 0) {
            	printf(" read failed, ret=%d", ret);
-            strcpy(bat_status.getStatus,"0");         
+            strcpy(bat_status.getStatus,"0");
         } else {
-            strcpy(bat_status.getStatus,buf);         
-        }                                      
-    }                                                                                         
+            strcpy(bat_status.getStatus,buf);
+        }          
+    }
     close(fd);
 }
 
