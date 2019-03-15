@@ -24,7 +24,7 @@ void pcm_prepair(void)
 static int pcm_pipe_fds[2] = { -1, -1 };
 static pid_t pid;
 
-void pcm_begin(void)
+void pcm_begin(unsigned msec)
 {
     // pipe
     if (pcm_pipe_fds[0] >= 0 || pcm_pipe_fds[1] >= 0) {
@@ -64,28 +64,31 @@ void pcm_begin(void)
             fprintf(stderr, "fdopen error\r\n");
             exit(1);
         } else {
-            void play_sample(FILE *file, unsigned int card, unsigned int device);
-            play_sample(read_file, 0, 0);
+            bool play_sample(FILE *file, unsigned int card, unsigned int device, unsigned msec);
+            bool ret = play_sample(read_file, 0, 0, msec);
             fprintf(stderr, "pcm sub process closing...\r\n");
             fclose(read_file);
-            _exit(0);
+            _exit(!ret);
         }
     }
 }
 
-void pcm_feed(const void *buf, unsigned size)
+bool pcm_feed(const void *buf, unsigned size)
 {
 
     ssize_t len;
     // write pipe
     if (pcm_pipe_fds[1] < 0) {
         fprintf(stderr, "Calling feed_pcm without beginning it\r\n");
-        return;
+        return false;
     }
     len = write(pcm_pipe_fds[1], buf, size);
     if (len != (ssize_t)size) {
-        fprintf(stderr, "pcm pipe write error ret = %d\r\n", len);
+        perror("pcm pipe write");
+        fprintf(stderr, "\r\n");
+        return false;
     }
+    return true;
 }
 
 void pcm_abort(void)
@@ -96,7 +99,7 @@ void pcm_abort(void)
     }
 }
 
-void pcm_end(void)
+bool pcm_end(void)
 {
     fprintf(stderr, "pcm main process ending...\r\n");
     // close pipe
@@ -109,12 +112,15 @@ void pcm_end(void)
     // wait sub-process
     if (pid >= 0) {
         int status;
-        waitpid(pid, &status, 0);
+        int _pid = waitpid(pid, &status, 0);
         pid = -1;
+        return _pid != -1 && WIFEXITED(status) && WEXITSTATUS(status) == 0;
+    } else {
+        return false;
     }
 }
 
-void play_sample(FILE *file, unsigned int card, unsigned int device)
+bool play_sample(FILE *file, unsigned int card, unsigned int device, unsigned msec)
 {
     struct pcm_config config;
     struct pcm *pcm;
@@ -132,11 +138,15 @@ void play_sample(FILE *file, unsigned int card, unsigned int device)
     config.start_threshold = 0;
     config.stop_threshold = 0;
     config.silence_threshold = 0;
+    if (msec != 0) {
+        config.period_count = 2;
+        config.period_size = msec <= 200 ? 160 : 320;
+    }
 
     pcm = pcm_open(card, device, PCM_OUT | PCM_MMAP | PCM_NOIRQ | PCM_MONOTONIC, &config);
     if (!pcm || !pcm_is_ready(pcm)) {
         fprintf(stderr, "Unable to open PCM device %u (%s)\r\n", device, pcm_get_error(pcm));
-        return;
+        return false;
     }
 
     size = pcm_frames_to_bytes(pcm, pcm_get_buffer_size(pcm));
@@ -145,22 +155,26 @@ void play_sample(FILE *file, unsigned int card, unsigned int device)
         fprintf(stderr, "Unable to allocate %d bytes\r\n", size);
         free(buffer);
         pcm_close(pcm);
-        return;
+        return false;
     }
     // fprintf(stderr, "PCM buffer: allocated %d bytes\r\n", size);
 
+    bool ok = true;
     do {
         num_read = fread(buffer, 1, size, file);
         if (num_read > 0) {
             if (pcm_mmap_write(pcm, buffer, num_read)) {
-                fprintf(stderr, "Error playing sample\r\n");
+                perror("playing sample");
+                fprintf(stderr, "\r\n");
+                ok = false;
                 break;
             }
-            // fprintf(stderr, "PCM read %d bytes\r\n", num_read);
+            fprintf(stderr, "PCM read %d bytes\r\n", num_read);
         }
     } while (num_read > 0);
 
     free(buffer);
     pcm_close(pcm);
+    return ok;
 }
 

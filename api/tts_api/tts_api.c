@@ -21,6 +21,8 @@ static void tts_notifiy_callback(struct ipc_task_t *ipc_task, const uint8_t msg[
         result = tts_playing_initiation_failed;
     } else if (strcmp(info, "ERR USERCANCELLED") == 0) {
         result = tts_playing_user_cancelled;
+    } else if (strcmp(info, "ERR DEVICE") == 0) {
+        result = tts_playing_device_failed;
     } else {
         result = tts_playing_other;
     }

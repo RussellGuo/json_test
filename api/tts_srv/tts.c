@@ -6,6 +6,8 @@
 #include <stdint.h>
 
 #include <ctype.h>
+#include <unistd.h>
+#include <time.h>
 
 #if TTS_VERSION==300
 #include "yt_tts_interface_300.h"
@@ -70,39 +72,58 @@ static bool tts_init(void)
 }
 
 #define SAMPLE_RATE 16000
-#define BUZZER_RATE 100
 
 #define BUZZER_MIN_FRQ 100
 #define BUZZER_MAX_FRQ (SAMPLE_RATE / 2)
-#define HALF_PERIOD_IN_SAMPLE_COUNT(freq) (SAMPLE_RATE / (freq) / 2)
-#define MAX_HALF_PERIOD_IN_SAMPLE_COUNT HALF_PERIOD_IN_SAMPLE_COUNT(BUZZER_MIN_FRQ)
+#define BUZZER_MIN_MSEC 70
+#define BUZZER_MAX_MSEC 600
+
+#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * SAMPLE_RATE / 1000)
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
-    uint16_t sample[MAX_HALF_PERIOD_IN_SAMPLE_COUNT * 2];
-    uint16_t half_period_in_sample_count = HALF_PERIOD_IN_SAMPLE_COUNT(freq);
-    for (int i = 0; i < half_period_in_sample_count * 2; i++) {
-        sample[i] = i < half_period_in_sample_count ? -volume : +volume;
+    bool feed_ok = true;
+    bool cancelled = false;
+    if (freq < BUZZER_MIN_FRQ) {
+        freq = BUZZER_MIN_FRQ;
+    } else if (freq > BUZZER_MAX_FRQ) {
+        freq = BUZZER_MAX_FRQ;
     }
-    pcm_begin();
-    for(int i = 0; i < SAMPLE_RATE * msec / 1000; i += 2 * half_period_in_sample_count) {
-        if (has_ipc_cmd_from_caller(0)) {
-            // new command comes, abort this playing.
-            pcm_abort();
-            pcm_end();
-            send_ipc_reply("ERR USERCANCELLED", 0);
-            return;
+    if (msec < BUZZER_MIN_MSEC) {
+        msec = BUZZER_MIN_MSEC;
+    } else if (msec > BUZZER_MAX_MSEC) {
+        msec = BUZZER_MAX_MSEC;
+    }
+    int16_t sample[MAX_SAMPLE_COUNT];
+    size_t sample_count = msec * SAMPLE_RATE / 1000;
+    volume = volume * 7 / 10;
+    for (unsigned n = 0; n < sample_count; n++) {
+        sample[n] = (2 * n * freq / SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
+        if (n == 0 || sample[n] != sample[n - 1]) {
+            // fprintf(stderr, "sample[%u] = %d\r\n", n, sample[n]);
         }
-        pcm_feed(sample, half_period_in_sample_count * 2 * 2);
     }
-
-    pcm_end();
-    send_ipc_reply("ERR OK", 0);
+    pcm_begin(msec);
+    feed_ok = pcm_feed(sample, sample_count * 2);
+    if (cancelled) {
+        pcm_abort();
+    }
+    feed_ok = (!!feed_ok) & (!!pcm_end());
+    const char *reply_msg;
+    if (!feed_ok) {
+        reply_msg = "ERR DEVICE";
+    } else {
+        reply_msg = cancelled ? "ERR USERCANCELLED" : "ERR OK";
+    }
+    send_ipc_reply(reply_msg, 0);
 }
 
 static bool tts_play(bool isGBK, char *buf)
 {
+    static int playing_count = 0;
     int len = strlen(buf);
     int nReturn;
+    bool feed_ok = true;
+
     if (len > 4096 - 1) {
         len = 4096 - 1;
         buf[len] = 0;
@@ -120,7 +141,7 @@ static bool tts_play(bool isGBK, char *buf)
         send_ipc_reply("ERR INIT", 0);
         return false;
     }
-    pcm_begin();
+    pcm_begin(0);
 
     while(1) {
         short pSpeechFrame[400];
@@ -128,32 +149,55 @@ static bool tts_play(bool isGBK, char *buf)
 
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
-            pcm_abort();
-            pcm_end();
-            send_ipc_reply("ERR USERCANCELLED", 0);
-            return true;
+            break;
         }
         nReturn = yt_tts_get_speech_frame(pSpeechFrame,&nSampleNumber);
         if(nSampleNumber > 0) {
-            pcm_feed(pSpeechFrame, nSampleNumber * 2);
+            feed_ok = pcm_feed(pSpeechFrame, nSampleNumber * 2);
+            if (!feed_ok) {
+                break;
+            }
         }
 
         if(1 == nReturn) {
             // TODO: sentence complete.
             nSampleNumber = 62;
             memset(pSpeechFrame,0,nSampleNumber * 2);
-             for(int j=0; j <50; j++) {
-                 pcm_feed(pSpeechFrame, nSampleNumber * 2);
+             for(int j = 50; j <50; j++) {
+                 feed_ok = pcm_feed(pSpeechFrame, nSampleNumber * 2);
+                 if (!feed_ok) {
+                     break;
+                 }
              }
-
+             if (!feed_ok) {
+                 break;
+             }
         }
 
         if(0 == nReturn) break; //complete the entire input text
 
     }
 
+    if (nReturn) {
+        pcm_abort();
+    }
     pcm_end();
-    send_ipc_reply("ERR OK", 0);
+
+    const char *reply_msg;
+    if (!feed_ok) {
+        reply_msg = "ERR DEVICE";
+    } else {
+        reply_msg = nReturn == 0 ? "ERR OK" : "ERR USERCANCELLED";
+    }
+    send_ipc_reply(reply_msg, 0);
+
+    playing_count++;
+    if (playing_count >= 3) {
+        int ret = execl("/system/bin/tts_service", "tts_service", NULL);
+        perror("start tts service");
+        fprintf(stderr, "\r\n");
+        _exit(1);
+    }
     return true;
 
 }
@@ -175,7 +219,7 @@ static void tts_cmd_loop(void)
     bool ret = tts_init();
     fprintf(stderr, "return value of tts init: %d\r\n", ret);
     if (!ret) {
-        return; // should quit
+        // return; // should NOT quit
     }
     tty_setting(pitch, rate, volume);
 
@@ -252,6 +296,20 @@ void set_cmd_line_argv0(const char *cmd_line_argv0)
     }
     strcpy(argv0, cmd_line_argv0);
 }
+
+
+#if 1
+time_t time(time_t *tloc)
+{
+    time_t ret = 1551603667;
+    if (tloc) {
+        *tloc = ret;
+    }
+    return ret;
+}
+#endif
+
+
 int main(int argc, char *argv[])
 {
     argv0 = argv[0];

@@ -72,9 +72,13 @@ static void tty_read_proc(int fd, uint64_t arg)
         break;
     case '3':
     case '4':
-        RemoteTtsBeep(c == '3' ? 300 : 1000, 10000);
+        RemoteTtsBeep(c == '3' ? 300 : 2700, 80);
         break;
     case '5':
+    case '6':
+        RemoteTtsBeep(c == '5' ? 300 : 2700, 500);
+        break;
+    case '7':
         RemoteTtsStopPlaying();
         break;
     case 'Q':
@@ -105,7 +109,7 @@ int main(int argc, char **argv)
     init_tty();
     setPollEventFd(tty_fd, tty_read_proc, 0xdeadbeef, true);
     RemoteTtsinit(tts_callback);
-    timer_id_t timer_id = createSimpleTimer(3000, false, timeout);
+    // timer_id_t timer_id = createSimpleTimer(3000, false, timeout);
     initKeyEvent(key_event_callback);
 
 
@@ -114,9 +118,11 @@ int main(int argc, char **argv)
         fprintf(stderr, "please press key:\r\n");
         fprintf(stderr, "   1: playing English\r\n");
         fprintf(stderr, "   2: playing Utf8 Chinese\r\n");
-        fprintf(stderr, "   3: playing beep in 300Hz, 10s\r\n");
-        fprintf(stderr, "   4: playing beep in 1000Hz, 10s\r\n");
-        fprintf(stderr, "   5: stop last playing\r\n");
+        fprintf(stderr, "   3: playing beep in  300Hz,  80ms\r\n");
+        fprintf(stderr, "   4: playing beep in 2700Hz,  80ms\r\n");
+        fprintf(stderr, "   5: playing beep in  300Hz, 500ms\r\n");
+        fprintf(stderr, "   6: playing beep in 2700Hz, 500ms\r\n");
+        fprintf(stderr, "   7: stop last playing\r\n");
         fprintf(stderr, "   Q: exit\r\n");
         ret = PollEventSpinOnce();
         if (ret < 0) {
@@ -129,7 +135,7 @@ int main(int argc, char **argv)
     fprintf(stderr, "closing\r\n");
     delPollEventFd(tty_fd);
     RemoteTtsclose();
-    delTimer(timer_id);
+    // delTimer(timer_id);
     deinitKeyEvent();
 
     return 0;

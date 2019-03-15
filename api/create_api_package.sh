@@ -7,11 +7,13 @@ for lib in gdi tts poll_event_api ipc_cmd tts key_api; do
     cp out/target/product/*/system/lib/lib${lib}.so api
 done
 
+cp out/target/product/*/system/bin/tts_service api
+
 for header in tts_api.h poll_event_api.h timer_api.h key_api.h ipc_cmd.h simple_draw.h; do
     cp $(find vendor/huaqin/packages/api/ -name ${header}) api
 done
 
-cp vendor/huaqin/packages/api/tts/main.c api/tts_demo_main.c
+cp vendor/huaqin/packages/api/tts_api/main.c api/tts_demo_main.c
 cp vendor/huaqin/packages/api/gdi/main.c api/gdi_demo_main.c
 
 cat >api/sys/timerfd.h << EOF

@@ -14,7 +14,7 @@ typedef enum  {
     tts_playing_normal_finished,    // 正常结束
     tts_playing_initiation_failed,  // 初始化未完成，通常是授权失效造成
     tts_playing_user_cancelled,     // 被用户终止。通常是在未播放完成的情况下收到了新的命令
-    tts_playing_device_failed,      // 设备失效，预留类型，目前没有设备失效的情况
+    tts_playing_device_failed,      // 设备失效
     tts_playing_other,              // 其它，预留类型
 } tts_playing_result_t;
 
