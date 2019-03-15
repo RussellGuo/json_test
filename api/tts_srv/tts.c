@@ -298,7 +298,7 @@ void set_cmd_line_argv0(const char *cmd_line_argv0)
 }
 
 
-#if 1
+#if 0
 time_t time(time_t *tloc)
 {
     time_t ret = 1551603667;
