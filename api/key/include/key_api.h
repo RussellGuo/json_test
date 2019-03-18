@@ -15,6 +15,9 @@ bool initKeyEvent(key_event_callback_t key_event);
 // 不再关注key，不再产生回调
 bool deinitKeyEvent(void);
 
+// inner use.
+void setGdiKeyEventCb(key_event_callback_t key_event_cb);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

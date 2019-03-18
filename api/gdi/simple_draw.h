@@ -77,6 +77,12 @@ bool saveScreenIntoMemBmp(uint8_t *const raw_data, uint32_t bpp, uint32_t width,
 // 保存过的屏幕数据，恢复到屏幕的指定位置
 void drawMemBmp(const uint8_t *const raw_data, uint32_t bpp, uint32_t width, uint32_t height, uint32_t line_len, coord_t x0, coord_t y0);
 
+// 设置屏幕亮度,0~255。0则灭屏, 最高亮度为255，大于255按照255算。
+bool DisplaySetBrightness(uint16_t brightness);
+// 设置自动灭屏超时时间，任何按键动作都会导致重新计时。timeout_msec: 超时时间，单位为毫秒，0则不自动灭屏
+//
+bool DisplaySetScreenOffTimeout(uint32_t timeout_msec);
+
 #if defined(__cplusplus)
 };
 #endif

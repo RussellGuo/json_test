@@ -19,6 +19,8 @@
 
 namespace {
 key_event_callback_t key_event_callback;
+key_event_callback_t inner_gdi_key_event_callback;
+
 int key_fd_tab[] = { -1, -1};
 
 void key_callback(int dev_fd, uint64_t arg)
@@ -26,16 +28,26 @@ void key_callback(int dev_fd, uint64_t arg)
     struct input_event event;
     auto ret = read(dev_fd, &event, sizeof event);
     // fprintf(stderr, "ret, type, code, value: %d %u %u %d\r\n", ret, event.type, event.code, event.value);
-    if (ret == sizeof event && event.type == EV_KEY && key_event_callback != nullptr) {
-        key_event_callback(event.code, event.value);
-    } else if (ret < 0) {
+    if (ret < 0) {
         perror("read key");
         fprintf(stderr, "\r\n");
+    } else if (ret == sizeof event && event.type == EV_KEY) {
+        key_event_callback_t cb_tab[] = { key_event_callback, inner_gdi_key_event_callback };
+        for (key_event_callback_t cb:cb_tab) {
+            if (cb != nullptr) {
+                cb(event.code, event.value);
+            }
+
+        }
     }
 }
 
 }
 
+extern "C" void setGdiKeyEventCb(key_event_callback_t key_event_cb)
+{
+    inner_gdi_key_event_callback = key_event_cb;
+}
 
 extern "C" bool initKeyEvent(key_event_callback_t key_event)
 {
