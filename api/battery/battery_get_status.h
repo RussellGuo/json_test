@@ -4,10 +4,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int getVoltageOcv(void);
+
+struct get_status {
+        int getBatvol;
+        int getTemperature;
+	int getPresent;
+    	char getStatus[64];
+}bat_status;
+
+int getBatvol(void);
 int getTemperature(void);
 int getPresent(void);
-void getStatus(void);
+void getStatus(char *getStatus);
 #ifdef __cplusplus
 } // extern "C"
 #endif

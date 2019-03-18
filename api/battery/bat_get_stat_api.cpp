@@ -6,43 +6,34 @@
 #include <fcntl.h>
 #include <string.h>
 
-#define BAT_OCV				"/sys/class/power_supply/battery/voltage_ocv"
+#define BAT_VOL	   		        "/sys/class/power_supply/battery/real_time_voltage"
 #define BAT_PRESENT	 		"/sys/class/power_supply/battery/present"
 #define BAT_TEMP	  		"/sys/class/power_supply/battery/temp"
 #define BAT_STATUS			"/sys/class/power_supply/battery/status"
 
-struct get_status {
-        int getVoltageOcv;
-        int getTemperature;
-	int getPresent;
-	char getStatus[64];
 
-}bat_status;
-
-int getVoltageOcv(void)
+int getBatvol(void)
 {
-
 	int fd;
 	int ret;
-	char buf[8] = "";
+	char buf[16];
 
-	fd = open(BAT_OCV, O_RDONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(BAT_VOL, O_RDONLY);
 	if(fd < 0) {
-		printf("open %s fail",  BAT_OCV);
+		printf("open %s fail",  BAT_VOL);
 		return -1;
 	} else {
 		memset(buf, 0, sizeof(buf));
 		ret = read(fd, buf, sizeof(buf));
 		if(ret <= 0) {
 			printf(" read failed, ret=%d", ret);
-			bat_status.getVoltageOcv = -1;
+			bat_status.getBatvol = -1;
 		} else {
-			bat_status.getVoltageOcv = atoi(buf);
+			bat_status.getBatvol = atoi(buf);
 		}
 	}
-
 	close(fd);
-	return bat_status.getVoltageOcv;
+	return bat_status.getBatvol;
 }
 
 int getTemperature(void)
@@ -50,9 +41,9 @@ int getTemperature(void)
 
 	int fd;
 	int ret;
-	char buf[8] = "";
+	char buf[16];
 
-	fd = open(BAT_TEMP, O_RDONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(BAT_TEMP, O_RDONLY);
 	if(fd < 0) {
 		printf("open %s fail",  BAT_TEMP);
 		return -1;
@@ -66,7 +57,6 @@ int getTemperature(void)
 			bat_status.getTemperature = atoi(buf);
 		}
 	}
-
 	close(fd);
 	return bat_status.getTemperature;
 }
@@ -76,9 +66,9 @@ int getPresent(void)
 
 	int fd;
 	int ret;
-	char buf[8] = "";
+	char buf[16];
 
-	fd = open(BAT_PRESENT, O_RDONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(BAT_PRESENT, O_RDONLY);
 	if(fd < 0) {
 		printf("open %s fail",  BAT_PRESENT);
 		return -1;
@@ -92,31 +82,29 @@ int getPresent(void)
 			bat_status.getPresent = atoi(buf);
 		}
 	}
-
 	close(fd);
 	return bat_status.getPresent;
 }
 
 
-void getStatus(void)                           
-{                                              
-                                               
+void getStatus(char *getStatus)
+{
     int fd;
     int  ret;
     char buf[64];
 
-    fd = open(BAT_STATUS, O_RDONLY | O_CREAT | O_TRUNC, 0777);
+    fd = open(BAT_STATUS, O_RDONLY);
     if(fd < 0) {
         printf("open %s fail",  BAT_STATUS);
     } else {
         memset(buf, 0, sizeof(buf));
         ret = read(fd, buf, sizeof(buf));
         if(ret <= 0) {
-           	printf(" read failed, ret=%d", ret);
-            strcpy(bat_status.getStatus,"0");
+		printf(" read failed, ret=%d", ret);
+		strcpy(getStatus,"0");
         } else {
-            strcpy(bat_status.getStatus,buf);
-        }          
+            strcpy(getStatus,buf);
+        }
     }
     close(fd);
 }
