@@ -5,29 +5,21 @@
 #include <fcntl.h>
 #include <cutils/log.h>
 #include <string.h>
-
 #include "battery_get_status.h"
 
-extern struct get_status{
-        int getVoltageOcv;
-        int getTemperature;
-	int getPresent;
-        char getStatus[64];
-};
-extern struct get_status bat_status;
 
 int main()
 {
+	int Batvol,Temperature,Present;
 
-	int ocv,temp,present;
-	ocv = getVoltageOcv();
-	temp = getTemperature();
-	present = getPresent();
-	getStatus();
+	Batvol=getBatvol();
+	Temperature=getTemperature();
+	Present=getPresent();
+	getStatus(bat_status.getStatus);
 
-	printf("bat_status.getVoltageOcv=%d\n", ocv);
-  	printf("bat_status.getTemperature=%d\n", temp);
- 	printf("bat_status.getPresent=%d\n", present);
+	printf("bat_status.getBatvol=%d\n", Batvol);
+  	printf("bat_status.getTemperature=%d\n", Temperature);
+ 	printf("bat_status.getPresent=%d\n", Present);
  	printf("bat_status.getStatus=%s\n",bat_status.getStatus);
 	return 0;
 }
