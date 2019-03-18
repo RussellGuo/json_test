@@ -76,7 +76,7 @@ CC=~/bin/arm-linux-androideabi-4.7/bin/arm-linux-androideabi-gcc
 all: tts_test gdi_test
 
 gdi_test: gdi_demo_main.c
-	\$(CC) -o \$@ \$< -std=c99 -O2 -Wall -I. -L. -lgdi
+	\$(CC) -o \$@ \$< -std=c99 -O2 -Wall -I. -L. -lgdi -lkey_api -lpoll_event_api
 tts_test: tts_demo_main.c
 	\$(CC) -o \$@ \$< -std=c99 -O2 -Wall -I. -L. -lipc_cmd -lkey_api -lpoll_event_api -ltts
 clean:
