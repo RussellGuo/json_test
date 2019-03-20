@@ -440,6 +440,65 @@ typedef enum{
     SETUP_DATA_AUTH_PAP_CHAP    = 3,
     SETUP_DATA_AUTH_MAX
 }SETUP_DATA_AUTH_TYPE;
+//Add by wangcong for Dial
+/*call start*/
+typedef enum {
+    RIL_CALL_ACTIVE = 0,
+    RIL_CALL_HOLDING = 1,
+    RIL_CALL_DIALING = 2,    /* MO call only */
+    RIL_CALL_ALERTING = 3,   /* MO call only */
+    RIL_CALL_INCOMING = 4,   /* MT call only */
+    RIL_CALL_WAITING = 5     /* MT call only */
+} RIL_CallState;
 
+/* User-to-User signaling Info activation types derived from 3GPP 23.087 v8.0 */
+typedef enum {
+    RIL_UUS_TYPE1_IMPLICIT = 0,
+    RIL_UUS_TYPE1_REQUIRED = 1,
+    RIL_UUS_TYPE1_NOT_REQUIRED = 2,
+    RIL_UUS_TYPE2_REQUIRED = 3,
+    RIL_UUS_TYPE2_NOT_REQUIRED = 4,
+    RIL_UUS_TYPE3_REQUIRED = 5,
+    RIL_UUS_TYPE3_NOT_REQUIRED = 6
+} RIL_UUS_Type;
+/* User-to-User Signaling Information data coding schemes. Possible values for
+ * Octet 3 (Protocol Discriminator field) in the UUIE. The values have been
+ * specified in section 10.5.4.25 of 3GPP TS 24.008 */
+typedef enum {
+    RIL_UUS_DCS_USP = 0,          /* User specified protocol */
+    RIL_UUS_DCS_OSIHLP = 1,       /* OSI higher layer protocol */
+    RIL_UUS_DCS_X244 = 2,         /* X.244 */
+    RIL_UUS_DCS_RMCF = 3,         /* Reserved for system mangement
+                                     convergence function */
+    RIL_UUS_DCS_IA5c = 4          /* IA5 characters */
+} RIL_UUS_DCS;
+
+/* User-to-User Signaling Information defined in 3GPP 23.087 v8.0
+ * This data is passed in RIL_ExtensionRecord and rec contains this
+ * structure when type is RIL_UUS_INFO_EXT_REC */
+typedef struct {
+  RIL_UUS_Type    uusType;    /* UUS Type */
+  RIL_UUS_DCS     uusDcs;     /* UUS Data Coding Scheme */
+  int             uusLength;  /* Length of UUS Data */
+  char *          uusData;    /* UUS Data */
+} RIL_UUS_Info;
+
+typedef struct {
+    RIL_CallState   state;
+    int             index;      /* Connection Index for use with, eg, AT+CHLD */
+    int             toa;        /* type of address, eg 145 = intl */
+    int            isMpty;     /* nonzero if is mpty call */
+    int            isMT;       /* nonzero if call is mobile terminated */
+    int             als;        /* ALS line indicator if available
+                                   (0 = line 1) */
+    int            isVoice;    /* nonzero if this is is a voice call */
+    int            isVoicePrivacy;     /* nonzero if CDMA voice privacy mode is active */
+    char *          number;     /* Remote party number */
+    int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
+    char *          name;       /* Remote party name */
+    int             namePresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
+    RIL_UUS_Info *  uusInfo;    /* NULL or Pointer to User-User Signaling Information */
+} RIL_Call;
+/*call end*/
 #endif
 

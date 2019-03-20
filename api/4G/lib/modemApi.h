@@ -1,10 +1,23 @@
 #ifndef MODEMAPI_H
 #define MODEMAPI_H
 
+
+typedef struct
+{
+    int mcc;
+    int mnc;
+    int ci;
+    int pci;
+    int tac;
+} Cellinfo;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+*  说明：所有含SIM卡信息的接口必须需要插上SIM卡后才能运行，不然会报错
+*/
 /**
 * 函数说明：初始化4G API的环境，否则后面函数不能运行
 * 参数：无
@@ -12,6 +25,13 @@ extern "C" {
 *        -1：失败
 */
 int open4G();
+/**
+* 函数说明：初始化网络 ，否则后面函数不能运行
+* 示例：setupDataCall();
+* 返回值：0： 成功
+*        -1：失败
+*/
+int setupDataCall();
 /**
 * 函数说明：获取信号强度
 * 参数：无
@@ -32,10 +52,10 @@ int getIccCardState();
 * 返回值：0： 成功
 *        其他：失败
 */
-int getVoiceNetworkRegistrationState();
+int getVoiceNetworkRegistrationState(char* netTypeWork);
 /**
 * 函数说明：Creg cgreg注册状态
-* 参数：无
+* 参数：网络格式
 * 返回值：1： 注册成功
 *        其他：失败
 */
@@ -57,11 +77,11 @@ int getSimIccId(char* sw0);
 /**
 * 函数说明：打开PDP上下文
 * 参数：信号格式，配置文件，apn，账户，密码，认证方法，协议
-* 示例：setupDataCall("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
+* 示例：DataCallConconnect("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
 * 返回值：0： 成功
 *        -1：失败
 */
-int setupDataCall(const char* radioTechnology, const char* profile, const char* apn, const char* user, const char* password, const char* authType, const char* protocol);
+int DataCallConconnect(const char* radioTechnology, const char* profile, const char* apn, const char* user, const char* password, const char* authType, const char* protocol );
 /**
 * 函数说明：关闭PDP上下文
 * 参数：无
@@ -88,7 +108,7 @@ void GetModuleManufacture(char* manuFacture);
 * 返回值：0： 成功
 *        其他：失败
 */
-int getCellInfoList();
+int getCellInfoList(Cellinfo* cellinfo);
 /**
 * 函数说明：获取IMEI号
 * 参数：获取的IMEI字符串
@@ -96,12 +116,43 @@ int getCellInfoList();
 */
 void getIMEI(char* imei);
 /**
+* 函数说明：实现打电话的功能
+* 参数：电话号码
+* 返回值：0： 成功
+*        -1：失败
+*/
+int dial( const char* number );
+
+
+int hangupConnection( int index );
+
+
+/**
+* 函数说明：查询运营商 网络格式
+* 参数：运营商，网络格式
+* 返回值：无
+*/
+void pollState(char* netOwner,char* netType);
+/**
+* 函数说明：获取SIM卡的ICCID信息
+* 参数：ICCID信息
+* 返回值：无
+*/
+void getIccid(char* CCID);
+/**
+* 函数说明：获取SIM卡的ICCID信息
+* 参数：ICCID信息
+* 返回值：无
+*/
+void acceptCall();
+/**
 * 函数说明：关闭4G API的环境，清理内存（暂未实现）
 * 参数：无
 * 返回值：0： 成功
 *        -1：失败
 */
 int close4G();
+
 #ifdef __cplusplus
 }
 #endif
