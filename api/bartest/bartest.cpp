@@ -29,6 +29,7 @@ using namespace android;
 
 #define mini_lsensor_ops_en 1
 
+#define BUFFER_TIMEOUT 3000
 #define MINICAMERA_WIDTH_MAX 640
 #define MINICAMERA_HEIGHT_MAX 480
 #define PREVIEW_BUFF_NUM 2
@@ -68,6 +69,14 @@ typedef enum {
     CAMERA_DATA_FORMAT_YUV420,
     CAMERA_DATA_FORMAT_RGB,
 } camera_data_format_type_t;
+
+typedef struct buffer_mate {
+void* data;
+sem_t buf_sem;
+bool bufferEnable;
+}buffer_mate_t;
+
+buffer_mate_t  mbuffer;
 
 static unsigned int minicamera_dump_cnt = 0;
 static pthread_mutex_t previewlock;
@@ -310,9 +319,14 @@ memset(data, 0, sizeof data);
 
      //copy image buffer
      int c_size = frame->width * frame->height * 3/2;
-     memset(temp_buff,0,sizeof(temp_buff));
-     memcpy(temp_buff, (void *)frame->y_vir_addr,c_size);
-	
+   //  memset(temp_buff,0,sizeof(temp_buff));
+   //  memcpy(temp_buff, (void *)frame->y_vir_addr,c_size);
+      if(mbuffer.bufferEnable){
+       memset(mbuffer.data,0,c_size);
+       memcpy(mbuffer.data, (void *)frame->y_vir_addr,c_size);
+       mbuffer.bufferEnable = false;
+       sem_post(&mbuffer.buf_sem);
+    }
 #if 1  //test
   if (minicamera_dump_cnt < 20 && flag == 1) {
 	//dump buffer
@@ -335,7 +349,8 @@ memset(data, 0, sizeof data);
             CMR_LOGD("zyy can not open file");
             return;
         }
-        fwrite(temp_buff, 1, c_size, fp);
+        //fwrite(temp_buff, 1, c_size, fp);
+        fwrite(mbuffer.data, 1, c_size, fp);
         fclose(fp);
         minicamera_dump_cnt++;
 	flag = 0;
@@ -908,9 +923,11 @@ exit:
 
 int Cam_Init(void){
     int ret = 0;
-   int tempSize;
+    int tempSize;
     memset((void *)&cxt, 0, sizeof(cxt));
+    mbuffer.bufferEnable = false;
     pthread_mutex_init(&previewlock, NULL);
+    sem_init(&mbuffer.buf_sem, 0, 0);
 
     cxt.camera_id = MINICAMERA_CAMERA_BACK;
     cxt.width = MINICAMERA_WIDTH_MAX;
@@ -933,7 +950,8 @@ int Cam_Init(void){
         goto exit;
     }
     tempSize = cxt.width * cxt.height * 3 /2;
-    temp_buff = (void *)malloc(tempSize);
+    //temp_buff = (void *)malloc(tempSize);
+    mbuffer.data = (void *)malloc(tempSize);
 exit:
     return -1;
 }
@@ -948,7 +966,7 @@ int Cam_DeInit(void) {
 
    cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
    cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
-
+   sem_destroy(&mbuffer.buf_sem);
     return 0;
 
 exit:
@@ -956,14 +974,17 @@ exit:
 }
 
 bool mini_get_img_info(struct minicamera_context *cxt,img_info_t *out_param_ptr){
-   if(cxt ==NULL || temp_buff ==NULL){
+   if(cxt ==NULL || mbuffer.data ==NULL){
    	CMR_LOGE("failed: input cxt is null or temp_buff is null");
         goto exit;
    }
    out_param_ptr->width = cxt->width;
    out_param_ptr->height = cxt->height;
    out_param_ptr->format = cxt->prev_format;
-   out_param_ptr->data = temp_buff;
+  // out_param_ptr->data = temp_buff;
+  mbuffer.bufferEnable  = true;
+  out_param_ptr->data =mbuffer.data;
+  sem_wait(&mbuffer.buf_sem);
   fprintf(stdout,"yuzan imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
 		 out_param_ptr->width,out_param_ptr->height,out_param_ptr->format,(unsigned int)out_param_ptr->data);
    return 0;
