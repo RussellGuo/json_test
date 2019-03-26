@@ -53,7 +53,6 @@ struct minicamera_context {
 
 
 extern struct minicamera_context cxt;
-void *temp_buff;       //save image buffer temporarily
 int Cam_Init(void);
 int Cam_DeInit(void);
 bool mini_get_img_info(struct minicamera_context *cxt,img_info_t *out_param_ptr);

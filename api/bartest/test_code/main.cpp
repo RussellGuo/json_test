@@ -81,8 +81,9 @@ for (;;)
     cxt.lib_ops.get_shutter(&cxt,&shutter_range);
     CMR_LOGI("test shutter %d",shutter_range.cur_val);
     fprintf(stdout,"test shutter %d\n",shutter_range.cur_val);
-
+    flag = 1;    //test
     usleep(100000);
+
     cxt.lib_ops.set_shutter(&cxt,2000);
     cxt.lib_ops.get_shutter(&cxt,&shutter_range);
     CMR_LOGI("test shutter %d",shutter_range.cur_val);
