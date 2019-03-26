@@ -1,5 +1,4 @@
 #include "wifi.h"
-#include "softap.h"
 #include <string.h>
 
 //------------------------------------------------------------------------------
@@ -13,7 +12,6 @@ int main( int argc, char *argv[] )
 {
     DBGMSG("........ wifitest enter ........\n");
     DBGMSG("argc is %d\n", argc);
-    SoftapAPI *softap = new SoftapAPI();
     for(int i = 0; i < argc ; i++){
         DBGMSG("argv[%d] is %s\n", i, argv[i]);
         if(0 == strcmp("wifiOpen", argv[i])){
@@ -34,6 +32,7 @@ int main( int argc, char *argv[] )
                     //DBGMSG("bmac : %s", aps[i].bmac);
                     DBGMSG("mac : %s", aps[i].smac);
                     DBGMSG("name : %s", aps[i].name);
+		    DBGMSG("flags : %s", aps[i].flags);
                     DBGMSG("sig_level : %d", aps[i].sig_level);
                 }
             }
@@ -45,14 +44,51 @@ int main( int argc, char *argv[] )
             int netid = wifiAddNetwork(ssid, psk);
             usleep(2000 * 1000);
             DBGMSG("wifiAddNetwork netid : %d ", netid);
+	}else if(0 == strcmp("wifiAddNetOpenwork", argv[i])){
+            DBGMSG("wifiAddNetwork argv");
+ 	    char ip_addr[15];
+            char ip_gate[15];
+            char mac_addr[19];
+            char * ssid = "\"HQ_guest\"";
+            //the netid is for wifiConnectNetwork
+            int netid = wifiAddOpenNetwork(ssid);
+            usleep(2000 * 1000);
+            DBGMSG("wifiAddNetwork netid : %d ", netid);
+        }else if(0 == strcmp("wifiConnectOpenNetwork", argv[i])){
+            DBGMSG("wifiAddNetwork argv");
+ 	    char ip_addr[15];
+            char ip_gate[15];
+            char mac_addr[19];
+            char * ssid = "\"HQ_guest\"";
+            //the netid is for wifiConnectNetwork
+            int netid = wifiAddOpenNetwork(ssid);
+            usleep(2000 * 1000);
+            DBGMSG("wifiAddNetwork netid : %d ", netid);
+	    wifiConnectNetwork(netid);
+            wifiGetMACAddr(mac_addr, 19);
+             DBGMSG("mac_addr : %s\n", mac_addr);
+             wifiGetipaddr(ip_addr);
+             DBGMSG("ip_add : %s\n", ip_addr);
+             WiFiGetGATE(ip_gate);
+             DBGMSG("ip_gate : %s\n", ip_gate);
         }else if(0 == strcmp("wifiConnectNetwork", argv[i])){
             DBGMSG("wifiConnectNetwork argv");
-            char * ssid = "\"wifitest\"";
-            char * psk  = "\"12345678\"";
+            char * ssid = "\"VIP-guest\"";
+            char * psk  = "\"huaqin2018\"";
+            char ip_addr[15];
+            char ip_gate[15];
+            char mac_addr[19];
             //the netid is for wifiConnectNetwork
             int netid = wifiAddNetwork(ssid, psk);
-            wifiConnectNetwork(netid);
-            usleep(20000 * 1000);
+             wifiConnectNetwork(netid);
+             wifiGetMACAddr(mac_addr, 19);
+             DBGMSG("mac_addr : %s\n", mac_addr);
+             wifiGetipaddr(ip_addr);
+             DBGMSG("ip_add : %s\n", ip_addr);
+             WiFiGetGATE(ip_gate);
+             DBGMSG("ip_gate : %s\n", ip_gate);
+
+             usleep(20000 * 1000);
         }else if(0 == strcmp("wifiClose", argv[i])){
             DBGMSG("wifiClose argv");
             wifiClose();
@@ -77,17 +113,17 @@ int main( int argc, char *argv[] )
             wifiGetCurrentStatus();
         }else if(0 == strcmp("startSoftap", argv[i])){
             DBGMSG("startSoftap argv");
-            softap->softapOpen();
+            softapOpen();
             usleep(2000 * 1000);
         }else if(0 == strcmp("stopSoftap", argv[i])){
             DBGMSG("stopSoftap argv");
-            softap->softapClose();
+            softapClose();
             usleep(2000 * 1000);
         }else if(0 == strcmp("setSoftap", argv[i])){
             DBGMSG("setSoftap argv");
             char ssid[] = "wifitestsoftapname";
             char psk[] = "123456789";
-            softap->softapSet(ssid, psk);
+            softapSet(ssid, psk);
         }
     }
     DBGMSG("........ wifitest_main exit ........\n");
