@@ -66,6 +66,13 @@ static int    wifiSaveConfig();
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+//wg for ipaddr api
+char ip_addr[PROPERTY_VALUE_MAX]="UNKNOWN";
+char ip_gate[PROPERTY_VALUE_MAX]="UNKNOWN";
+
+
+
+
 int wifiGetStatus( void )
 {
     DBGMSG("status = %d\n", sStatus);
@@ -492,9 +499,14 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
         pcur++;
     }
     // flags
+    int  flagsindex = 0;
     while( *pcur != '\t' && pcur < end ) {
+ 	if( flagsindex < 63 ) {
+            ap->flags[flagsindex++] = *pcur;
+        }
         pcur++;
     }
+    INFMSG("flags = %s\n", ap->flags);
     AT_ASSERT( '\t' == *pcur );
     pcur++;
     if( '\t' == *pcur ) {
@@ -509,7 +521,7 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
         pcur++;
     }
     ap->name[i] = 0;
-    INFMSG("mac = %s, name = %s, sig = %d\n", ap->smac, ap->name, ap->sig_level);
+    INFMSG("mac = %s, name = %s, sig = %d, flags=%s\n", ap->smac, ap->name, ap->sig_level,ap->flags);
 }
 
 static char * wifiStrSkipSpace(const char * pfirst, const char * plast)
@@ -604,6 +616,94 @@ int wifiAddNetwork( char * ssid, char * psk )
     }else{
         INFMSG("wifiAddNetwork cmdpsk success: reply = %s  len = %d\n", reply, len);
     }
+
+
+    //enable_network
+    reply[0] = 0;
+    len = sizeof reply;
+    char * enablenetwork = "ENABLE_NETWORK ";
+    char cmdenable[64] = "";
+    strcat(cmdenable,enablenetwork);
+    strcat(cmdenable,netIdchar);
+    INFMSG("wifiAddNetwork cmdenable = %s\n", cmdenable);
+    if((wifiCommand(cmdenable, reply, len) <= 0) || (NULL == strstr(reply, "OK"))) {
+        ERRMSG("wifiAddNetwork cmdenable fail: reply = %s\n", reply);
+        return -4;
+    }else{
+        INFMSG("wifiAddNetwork cmdenable success: reply = %s  len = %d\n", reply, len);
+    }
+
+    //save config
+    if(0 != wifiSaveConfig()) {
+        ERRMSG("wifiAddNetwork SAVE_CONFIG fail");
+        return -5;
+    }else{
+        INFMSG("wifiAddNetwork SAVE_CONFIG success");
+    }
+
+    FUN_EXIT;
+    return netId;
+}
+
+int wifiAddOpenNetwork( char * ssid )
+{
+    FUN_ENTER;
+    AT_ASSERT( ssid != NULL );
+
+    char reply[64];
+    int  len;
+    int netId = -1;
+
+    //add_network
+    reply[0] = 0;
+    len = sizeof reply;
+    len = wifiCommand("ADD_NETWORK", reply, len);
+    netId = atoi(reply);
+    if( len >= 0 && netId >= 0 ) {
+        INFMSG("wifiAddNetwork success: reply = %s  len = %d netId = %d\n", reply, len, netId);
+    }else{
+        INFMSG("wifiAddNetwork fail: reply = %s\n", reply);
+        return -1;
+    }
+    char netIdchar[4];
+    sprintf(netIdchar,"%d",netId);
+    char * setnetwork = "SET_NETWORK ";
+
+
+    //set_network for ssid
+    reply[0] = 0;
+    len = sizeof reply;
+    char * SSID = " ssid ";
+    char cmdssid[64] = "";
+    strcat(cmdssid,setnetwork);
+    strcat(cmdssid,netIdchar);
+    strcat(cmdssid,SSID);
+    strcat(cmdssid,ssid);
+    INFMSG("wifiAddNetwork cmdssid = %s\n", cmdssid);
+    if((wifiCommand(cmdssid, reply, len) <= 0) || (NULL == strstr(reply, "OK"))) {
+        ERRMSG("wifiAddNetwork cmdssid fail: reply = %s\n", reply);
+        return -2;
+    }else{
+        INFMSG("wifiAddNetwork cmdssid success: reply = %s  len = %d\n", reply, len);
+    }
+
+    //set_network for psk
+    reply[0] = 0;
+    len = sizeof reply;
+    char * KEY_MGMT = " key_mgmt ";
+    char cmdpsk[64] = "";
+    strcat(cmdpsk,setnetwork);
+    strcat(cmdpsk,netIdchar);
+    strcat(cmdpsk,KEY_MGMT);
+    strcat(cmdpsk,"NONE");
+    INFMSG("wifiAddNetwork cmdpsk = %s\n", cmdpsk);
+    if((wifiCommand(cmdpsk, reply, len) <= 0) || (NULL == strstr(reply, "OK"))) {
+	ERRMSG("wifiAddNetwork cmdpsk fail: reply = %s\n", reply);
+	return -3;
+    }else{
+	INFMSG("wifiAddNetwork cmdpsk success: reply = %s  len = %d\n", reply, len);
+    }
+		
 
 
     //enable_network
@@ -750,6 +850,10 @@ int wifiDhcp(){
         INFMSG("wifiConnectNetwork dhcp_do_request  server = %s\n", server);
         INFMSG("wifiConnectNetwork dhcp_do_request  vendorInfo = %s\n", vendorInfo);
         INFMSG("wifiConnectNetwork dhcp_do_request  mtu = %s\n", mtu);
+        strcpy(ip_addr,ipaddr);
+	strcpy(ip_gate,gateway);
+	INFMSG("wifiConnectNetwork dhcp_do_request  ip_addr = %s\n", ip_addr);
+	INFMSG("wifiConnectNetwork dhcp_do_request  ip_gate = %s\n", ip_gate);
     }
     DBGMSG("---- wifiDhcp exit ----\n");
 
@@ -859,6 +963,153 @@ int wifiGetCurrentStatus( void ){
         INFMSG("wifiGetCurrentStatus STATUS success: reply = \n%s\n  len = %d\n", reply, len);
         return 0;
     }
+}
+
+int wifiGetipaddr(char* p_ip_addr)
+{
+    FUN_ENTER;
+    INFMSG("wifiGetipaddr ipaddr = %s\n", ip_addr);
+  //  for(int i=0;i<strlen(ip_addr);i++){
+
+    //    INFMSG("wifiGetipaddr wg  ipaddr = %c\n", ip_addr[i]);
+  //      *(p_ip_addr+i)=ip_addr[i];
+
+  //  }
+    strcpy(p_ip_addr,ip_addr);
+    INFMSG("wifiGetipaddr ipaddr = %s\n", p_ip_addr); 
+    FUN_EXIT;
+    return 0;
+}
+
+int WiFiGetMask(void)
+{
+    FUN_ENTER;
+    INFMSG("wifiGetipaddr wg  ipaddr = %s\n", ip_addr);   
+    FUN_EXIT;
+    return 0;
+}
+
+int WiFiGetGATE(char *p_ip_gate)
+{
+    FUN_ENTER;
+    INFMSG("wifiGetipgate wg  ip_gate = %s\n", ip_gate); 
+    strcpy(p_ip_gate,ip_gate); 
+    INFMSG("wifiGetipgate wg  p_ip_gate = %s\n", p_ip_gate); 
+    FUN_EXIT;
+    return 0;
+}
+
+//softap
+
+void * softapEventLoop( void *param )
+{
+    DBGMSG("---- softapEventLoop enter ----\n");
+
+    #define EVT_MAX_LEN 127
+    char evt[EVT_MAX_LEN + 1];
+    int len = 0;
+
+    evt[EVT_MAX_LEN] = 0;
+    while( true ) {
+        evt[0] = 0;
+        len = wifi_hostapd_wait_for_event(evt,EVT_MAX_LEN);
+        INFMSG("softap event: %s\n", evt);
+        if( NULL != strstr(evt, "AP-TERMINATING") ) {
+            wifi_close_hostapd_connection("wlan0");
+            break;
+        }
+
+        if( NULL != strstr(evt, "AP-STA-CONNECTED") ) {
+            INFMSG("softap ap CONNECTED");
+        }
+
+        if( NULL != strstr(evt, "AP-STA-DISCONNECTED") ) {
+            INFMSG("softap ap DISCONNECTED");
+        }
+    }
+
+    DBGMSG("---- softapEventLoop exit ----\n");
+    return NULL;
+}
+
+int softapOpen( void )
+{
+    FUN_ENTER;
+    DBGMSG("........ wifi_load_driver begin ........\n");
+    if( wifi_load_driver() != 0 ) {
+        ERRMSG("wifi_load_driver fail!\n");
+        return -1;
+    }
+    DBGMSG("........ wifi_load_driver end ........\n");
+    system("ndc softap fwreload wlan0 AP");
+    system("ndc softap startap");
+    system("net_mw tether wlan0");
+    system("net_mw enable_nat wlan0 seth_lte0");
+
+    DBGMSG("........ wifi_connect_to_hostapd begin ........\n");
+
+    int cnn_num = 5;
+    int cnn_ret = -1;
+    while( cnn_num-- ) {
+        usleep(200 * 1000);
+
+        if( wifi_connect_to_hostapd("wlan0") != 0 ) {
+            continue;
+        } else {
+            cnn_ret = 0;
+            break;
+        }
+    }
+    DBGMSG("........ wifi_connect_to_hostapd end ........\n");
+
+    if( 0 != cnn_ret ) {
+        ERRMSG("wifi_connect_to_hostapd fail!\n");
+        return -3;
+    }
+
+    pthread_t      ptid;
+    pthread_attr_t attr;
+    pthread_attr_init (&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&ptid, &attr, softapEventLoop, NULL);
+
+    FUN_EXIT;
+    return 0;
+}
+
+int softapClose( void ){
+    FUN_ENTER;
+    system("net_mw disable_nat wlan0 seth_lte0");
+    system("net_mw untether wlan0");
+    system("ndc softap stopap");
+    system("ndc softap fwreload wlan0 STA");
+
+    DBGMSG("........ wifi_stop_connect_to_hostapd ........\n");
+    wifi_stop_connect_to_hostapd("wlan0");
+
+    DBGMSG("........ wifi_unload_driver ........\n");
+    wifi_unload_driver();
+    FUN_EXIT;
+    return 0;
+}
+
+
+int softapSet(char ssid[], char psk[]){
+    FUN_ENTER;
+    char cmd[256];
+    snprintf(cmd,256,"ndc softap set wlan0 %s broadcast 6 wpa2-psk %s", ssid, psk);
+    system(cmd);
+    FUN_EXIT;
+    return 0;
+}
+
+int softapSetMoreParam(int argc, char *argv[]){
+    FUN_ENTER;
+    char cmd[256];
+    snprintf(cmd,256,"ndc softap set %s %s broadcast %s %s %s", argv[2], argv[3], argv[5], argv[6], argv[7]);
+    system(cmd);
+    FUN_EXIT;
+    return 0;
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--} // namespace

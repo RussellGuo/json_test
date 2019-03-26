@@ -17,6 +17,7 @@ struct wifi_ap_t {
     char bmac[6];  // binary mac
     char smac[24]; // string mac
     char name[24];
+    char flags[64];
     int  sig_level;
 };
 
@@ -43,6 +44,8 @@ int wifiClose( void );
 
 int wifiAddNetwork( char * ssid, char * psk );
 
+int wifiAddOpenNetwork( char * ssid);
+
 int wifiConnectNetwork(int netId);
 
 int wifiDhcp( void );
@@ -53,6 +56,14 @@ int wifiDisconnect( void );
 
 int wifiGetCurrentStatus( void );
 
+//char* wifiGetipaddr(void);
+int wifiGetipaddr(char* p_ip_addr);
+int WiFiGetGATE(char *p_ip_gate);
+//char* WiFiGetGATE(void);
+
+int softapOpen( void );
+int softapSet(char ssid[], char psk[]);
+int softapClose( void );
 //-----------------------------------------------------------------------------
 //--};
 #ifdef __cplusplus
