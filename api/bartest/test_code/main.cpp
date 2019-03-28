@@ -24,13 +24,13 @@ int main(void) {
     usleep(100000);
 for (;;)
 {   
-    fprintf(stderr, "please press key:\r\n");
-    fprintf(stderr, "   1: camera init\r\n");
-    fprintf(stderr, "   2: get imageinfo\r\n"); 
-    fprintf(stderr, "   3: set_CropRegion\r\n");
-    fprintf(stderr, "   4: set_gain\r\n");
-    fprintf(stderr, "   5: set_shutter\r\n");
-    fprintf(stderr, "   6: camera deinit\r\n");  
+    fprintf(stdout, "please press key:\r\n");
+    fprintf(stdout, "   1: camera init\r\n");
+    fprintf(stdout, "   2: get imageinfo\r\n"); 
+    fprintf(stdout, "   3: set_CropRegion\r\n");
+    fprintf(stdout, "   4: set_gain\r\n");
+    fprintf(stdout, "   5: set_shutter\r\n");
+    fprintf(stdout, "   6: camera deinit\r\n");  
     c = getchar();
     switch(c) {
     case '1':  
@@ -49,7 +49,7 @@ for (;;)
 	 //test aspect ratio, zoom ratio defalut 1.00000
           mini_set_CropRegion(&cxt,1.00000,(float)(1+0.1*(i-10)));
      }else{
-        fprintf(stderr,"yuzan4 here\n");
+        fprintf(stdout,"yuzan4 here\n");
          //test zoom ratio,aspect ratio default 4:3
         mini_set_CropRegion(&cxt,1.00000+0.1*i,(float)cxt.width/cxt.height);
      }
