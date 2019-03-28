@@ -350,7 +350,7 @@ memset(data, 0, sizeof data);
             return;
         }
         //fwrite(temp_buff, 1, c_size, fp);
-        fwrite(mbuffer.data, 1, c_size, fp);
+        fwrite((void *)frame->y_vir_addr, 1, c_size, fp);
         fclose(fp);
         minicamera_dump_cnt++;
 	flag = 0;
@@ -952,6 +952,8 @@ int Cam_Init(void){
     tempSize = cxt.width * cxt.height * 3 /2;
     //temp_buff = (void *)malloc(tempSize);
     mbuffer.data = (void *)malloc(tempSize);
+
+   return ret;
 exit:
     return -1;
 }
