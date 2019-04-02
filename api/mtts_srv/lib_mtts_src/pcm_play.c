@@ -52,6 +52,8 @@ void pcm_begin(void)
 
     } else {
         // sub process
+        // void set_cmd_line_argv0(const char *cmd_line_argv0);
+        // set_cmd_line_argv0("[PCM]");
         FILE *read_file = fdopen(pcm_pipe_fds[0], "rb");
 
         // sub process should not use pipe writting
@@ -66,7 +68,7 @@ void pcm_begin(void)
             play_sample(read_file, 0, 0);
             fprintf(stderr, "pcm sub process closing...\r\n");
             fclose(read_file);
-            exit(0);
+            _exit(0);
         }
     }
 }
@@ -74,15 +76,23 @@ void pcm_begin(void)
 void pcm_feed(const void *buf, unsigned size)
 {
 
-    int len;
+    ssize_t len;
     // write pipe
     if (pcm_pipe_fds[1] < 0) {
         fprintf(stderr, "Calling feed_pcm without beginning it\r\n");
         return;
     }
     len = write(pcm_pipe_fds[1], buf, size);
-    if (len != size) {
+    if (len != (ssize_t)size) {
         fprintf(stderr, "pcm pipe write error ret = %d\r\n", len);
+    }
+}
+
+void pcm_abort(void)
+{
+    fprintf(stderr, "pcm main process aborting...\r\n");
+    if (pid >= 0) {
+        kill(pid, SIGQUIT);
     }
 }
 
