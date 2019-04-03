@@ -45,11 +45,8 @@ include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
 
-LOCAL_SHARED_LIBRARIES := libtinyalsa libsndfile libmtts_c libpcm
+LOCAL_SHARED_LIBRARIES := libtinyalsa libsndfile libmtts_c libpcm libipc_cmd libpoll_event_api
 LOCAL_CFLAGS += -std=c99
-LOCAL_CPPFLAGS += -std=c++11
-LOCAL_C_INCLUDES += external/tinyalsa/include
-LOCAL_CPP_INCLUDES += external/tinyalsa/include
 LOCAL_SRC_FILES := demo.c
 LOCAL_MODULE := mtts_service
 
