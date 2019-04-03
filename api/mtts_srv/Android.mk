@@ -50,8 +50,8 @@ LOCAL_CFLAGS += -std=c99
 LOCAL_CPPFLAGS += -std=c++11
 LOCAL_C_INCLUDES += external/tinyalsa/include
 LOCAL_CPP_INCLUDES += external/tinyalsa/include
-LOCAL_SRC_FILES := demo.cpp
-LOCAL_MODULE := tts_ms_service
+LOCAL_SRC_FILES := demo.c
+LOCAL_MODULE := mtts_service
 
 include $(BUILD_EXECUTABLE)
 

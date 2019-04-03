@@ -3,6 +3,10 @@
 #include "mtts.h"
 using namespace mtts;
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "pcm_play.h"
 //callback function, return 0:stop  1:continue
 bool getboolvalue(void*){
@@ -10,12 +14,14 @@ bool getboolvalue(void*){
 }
 
 namespace {
-    Mtts SS("Mandarin");
+    Mtts *SS = nullptr;
 }
 
 extern "C" bool tts_init(void)
 {
     pcm_prepair();
+    delete SS;
+    SS = new Mtts("Mandarin");
     return true;
 }
 extern "C" bool tts_play(bool isGBK, const char *buf)
@@ -24,7 +30,7 @@ extern "C" bool tts_play(bool isGBK, const char *buf)
         return false;
     }
 
-    SS.speak(buf,getboolvalue,NULL);
+    SS->speak(buf,getboolvalue,NULL);
     return true;
 }
 
