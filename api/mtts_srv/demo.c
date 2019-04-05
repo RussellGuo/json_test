@@ -13,6 +13,9 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "mtts_c.h"
 
 #include "pcm_play.h"
@@ -136,6 +139,15 @@ void set_cmd_line_argv0(const char *cmd_line_argv0)
     strcpy(argv0, cmd_line_argv0);
 }
 
+static bool is_stdin_a_socket(void)
+{
+    struct stat sb;
+    fstat(0, &sb);
+    if ((sb.st_mode & S_IFMT) == S_IFSOCK) {
+        return true;
+    }
+    return false;
+}
 
 int main(int argc, char *argv[])
 {
@@ -147,7 +159,13 @@ int main(int argc, char *argv[])
     }
 
     argv0 = argv[0];
-    tts_cmd_loop();
-    _exit(0);
+
+    if (is_stdin_a_socket()) {
+        tts_cmd_loop();
+        _exit(0);
+    } else {
+        tts_init();
+        tts_play(false, argv[1]?:"我是马首我是马首");
+    }
     return 0;
 }
