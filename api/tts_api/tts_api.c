@@ -41,7 +41,7 @@ static struct ipc_task_t tts_task = {
 
 static void start_tts_service(void)
 {
-    int ret = execl("/system/bin/tts_service", "tts_service", NULL);
+    int ret = execl("/system/bin/mtts_service", "mtts_service", NULL);
     perror("start tts service");
     fprintf(stderr, "\r\n");
     _exit(1);

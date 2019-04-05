@@ -1,0 +1,5 @@
+demo.cpp
+include/mtts.h
+include/pcm_play.h
+include/tinyalsa/asoundlib.h
+pcm_play.c
