@@ -9,9 +9,9 @@ extern "C" {
 #include <stdbool.h>
 
 
-bool tts_init(void);
-bool tts_play(bool isGBK, const char *buf);
-void tty_setting(uint16_t pitch, uint16_t rate, uint16_t volume);
+bool mtts_init(void);
+bool mtts_play(const char *buf);
+void mtts_setting(uint16_t pitch, uint16_t rate, uint16_t volume);
 
 #if defined(__cplusplus)
 };

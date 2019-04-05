@@ -21,6 +21,28 @@
 
 #define SAMPLE_RATE 8000
 
+static bool tts_init(void)
+{
+    mtts_init();
+    return true;
+}
+static bool tts_play(bool isGBK, const char *buf)
+{
+    if (isGBK) {
+        send_ipc_reply("ERR INIT", 0);
+        return false;
+    }
+
+    mtts_play(buf);
+    send_ipc_reply("ERR OK", 0);
+    return true;
+}
+
+static void tts_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
+{
+    mtts_setting(pitch, rate, volume);
+}
+
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
     const char *reply_msg = "ERR DEVICE";
@@ -38,7 +60,7 @@ static void tts_cmd_loop(void)
     if (!ret) {
         // return; // should NOT quit
     }
-    tty_setting(pitch, rate, volume);
+    tts_setting(pitch, rate, volume);
 
     for (;;) {
             char buf[4096];
@@ -75,7 +97,7 @@ static void tts_cmd_loop(void)
                     fprintf(stderr, "Setting Cmd received\r\n");
                     if (sscanf(buf + 1, "%hu%hu%hu", &pitch, &rate, &volume) == 3) {
                         fprintf(stderr, "Setting in %u %u %u\r\n", pitch, rate, volume);
-                        tty_setting(pitch, rate, volume);
+                        tts_setting(pitch, rate, volume);
                     } else {
                         fprintf(stderr, "Setting argv error: %s\r\n", buf + 1);
                     }
