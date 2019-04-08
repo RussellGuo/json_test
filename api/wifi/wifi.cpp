@@ -82,6 +82,8 @@ int wifiGetStatus( void )
 int wifiOpen( void )
 {
     FUN_ENTER;
+    wifiClose();
+    usleep(200 * 1000);
 
     if( is_wifi_driver_loaded() ) {
         wifiClose();
@@ -1035,6 +1037,12 @@ void * softapEventLoop( void *param )
 int softapOpen( void )
 {
     FUN_ENTER;
+    //first close wifi
+    wifiClose();
+    usleep(100 * 1000);
+    //first close softap
+    softapClose();
+    usleep(200 * 1000);
     DBGMSG("........ wifi_load_driver begin ........\n");
     if( wifi_load_driver() != 0 ) {
         ERRMSG("wifi_load_driver fail!\n");
