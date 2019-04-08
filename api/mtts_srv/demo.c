@@ -24,10 +24,16 @@
 
 #define SAMPLE_RATE 8000
 
+static bool tts_should_continue(void *what)
+{
+    bool ret = !has_ipc_cmd_from_caller(0);
+    return ret;
+}
+
 static bool tts_init(void)
 {
-    mtts_init();
-    return true;
+    bool ret = mtts_init();
+    return ret;
 }
 static bool tts_play(bool isGBK, const char *buf)
 {
@@ -36,7 +42,7 @@ static bool tts_play(bool isGBK, const char *buf)
         return false;
     }
 
-    mtts_play(buf);
+    mtts_play(buf, tts_should_continue, NULL);
     send_ipc_reply("ERR OK", 0);
     return true;
 }

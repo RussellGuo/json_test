@@ -9,11 +9,6 @@ using namespace mtts;
 
 #include "pcm_play.h"
 
-//callback function, return 0:stop  1:continue
-bool getboolvalue(void*){
-  return 1;
-}
-
 namespace {
     Mtts *SS = nullptr;
 }
@@ -25,18 +20,17 @@ extern "C" bool mtts_init(void)
     SS = new Mtts("Mandarin");
     return true;
 }
-extern "C" bool mtts_play(const char *buf)
+extern "C" bool mtts_play(const char *buf, tts_playing_callback_t cb, void* user_ptr)
 {
-
-    SS->speak(buf,getboolvalue,NULL);
+    SS->speak(buf, cb, user_ptr);
     return true;
 }
 
 extern "C" void mtts_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 {
     // TODO: paramters' range fixing and applying
-    //SS.setPitch(20);
-    //SS.setVolume(20);
-    //SS.setRate(20);
-    //SS.setSpeed(20);
+    SS->setPitch(pitch);
+    SS->setVolume(volume);
+    SS->setRate(rate);
+    SS->setSpeed(20);
 }
