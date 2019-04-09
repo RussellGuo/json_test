@@ -79,6 +79,13 @@ static bool tts_init(void)
 #define BUZZER_MAX_MSEC 600
 
 #define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * SAMPLE_RATE / 1000)
+
+static void feed_empty(void)
+{
+    static int16_t silence[ 280 * SAMPLE_RATE / 1000];
+    pcm_feed(silence, sizeof silence);
+}
+
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
     bool feed_ok = true;
@@ -102,8 +109,11 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
             // fprintf(stderr, "sample[%u] = %d\r\n", n, sample[n]);
         }
     }
-    pcm_begin(msec);
+
+    pcm_begin(0);
+    feed_empty();
     feed_ok = pcm_feed(sample, sample_count * 2);
+    feed_empty();
     if (cancelled) {
         pcm_abort();
     }
@@ -193,7 +203,7 @@ static bool tts_play(bool isGBK, char *buf)
 
     playing_count++;
     if (playing_count >= 3) {
-        int ret = execl("/system/bin/tts_service", "tts_service", NULL);
+        int ret = execl("/system/bin/tts_service", "/system/bin/tts_service", NULL);
         perror("start tts service");
         fprintf(stderr, "\r\n");
         _exit(1);
@@ -298,7 +308,7 @@ void set_cmd_line_argv0(const char *cmd_line_argv0)
 }
 
 
-#if 0
+#if 1
 time_t time(time_t *tloc)
 {
     time_t ret = 1551603667;
