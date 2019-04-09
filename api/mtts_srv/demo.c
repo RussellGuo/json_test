@@ -55,7 +55,8 @@ static void tts_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
     const char *reply_msg = "ERR DEVICE";
-    send_ipc_reply(reply_msg, 0);
+    bool ret = pcm_local_buzzer_play(freq, msec, volume);
+    send_ipc_reply(ret ? "ERR OK" : "ERR DEVICE", 0);
 }
 
 static void tts_cmd_loop(void)

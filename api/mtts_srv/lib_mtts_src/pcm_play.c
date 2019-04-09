@@ -1,7 +1,6 @@
 #include <tinyalsa/asoundlib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -162,5 +161,36 @@ void play_sample(FILE *file, unsigned int card, unsigned int device)
 
     free(buffer);
     pcm_close(pcm);
+}
+
+#define SAMPLE_RATE 16000
+
+#define BUZZER_MIN_FRQ 2300
+#define BUZZER_MAX_FRQ 3000
+#define BUZZER_MIN_MSEC 70
+#define BUZZER_MAX_MSEC 600
+
+#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * SAMPLE_RATE / 1000)
+bool pcm_local_buzzer_play(uint16_t _freq, uint16_t _msec, uint16_t _volume)
+{
+    uint16_t freq = _freq, msec = _msec, volume = _volume * 7 / 10;
+    if (freq < BUZZER_MIN_FRQ) {
+        freq = BUZZER_MIN_FRQ;
+    } else if (freq > BUZZER_MAX_FRQ) {
+        freq = BUZZER_MAX_FRQ;
+    }
+    if (msec < BUZZER_MIN_MSEC) {
+        msec = BUZZER_MIN_MSEC;
+    } else if (msec > BUZZER_MAX_MSEC) {
+        msec = BUZZER_MAX_MSEC;
+    }
+    int16_t sample[MAX_SAMPLE_COUNT];
+    size_t sample_count = msec * SAMPLE_RATE / 1000;
+    for (unsigned n = 0; n < sample_count; n++) {
+        sample[n] = (2 * n * freq / SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
+        if (n == 0 || sample[n] != sample[n - 1]) {
+            // fprintf(stderr, "sample[%u] = %d\r\n", n, sample[n]);
+        }
+    }
 }
 

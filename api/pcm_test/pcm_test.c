@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <unistd.h>
+#include <sched.h>
 
 #define SAMPLE_RATE 16000
 #define MS_TO_SAMPLE_COUNT(msec) (msec * SAMPLE_RATE / 1000)
@@ -27,20 +28,23 @@ static bool play_sample(unsigned int card, unsigned int device, const int16_t *s
     config.stop_threshold = 0;
     config.silence_threshold = 0;
 
-    config.period_count = 2;
-    config.period_size = msec <= 200 ? 160 : 320;
+    config.period_count = 4;
+    config.period_size = 1024;
 
     pcm = pcm_open(card, device, PCM_OUT | PCM_MMAP | PCM_NOIRQ | PCM_MONOTONIC, &config);
     if (!pcm || !pcm_is_ready(pcm)) {
-        fprintf(stderr, "%s\n", msec, pcm_get_error(pcm));
+        fprintf(stderr, "%u, %s\n", msec, pcm_get_error(pcm));
         return ok;
     }
 
-    ok = pcm_mmap_write(pcm, (char *)samples, sample_len_in_byte) == 0;
-    if (ok) {
-        fprintf(stderr, "succeeded\n" );
-    } else {
-        perror("pcm_mmap_write");
+    for (;;) {
+        //sleep(1);
+        ok = pcm_mmap_write(pcm, (char *)samples, sample_len_in_byte) == 0;
+        if (ok) {
+            fprintf(stderr, "succeeded\n" );
+        } else {
+            perror("pcm_mmap_write");
+        }
     }
     pcm_close(pcm);
     return ok;
@@ -59,24 +63,42 @@ static void pcm_prepair(void)
 #define MAX_SAMPLE_COUNT MS_TO_SAMPLE_COUNT(MAX_SAMPLE_MSEC)
 
 static int16_t samples[MAX_SAMPLE_COUNT];
-static void prepair_samples(void)
+static void prepair_samples(uint16_t volume)
 {
 #define FREQ 400
-#define VOLUME 20000
     for (unsigned n = 0; n < MAX_SAMPLE_COUNT; n++) {
-        samples[n] = (2 * n * FREQ / SAMPLE_RATE) % 2 == 0 ? -VOLUME : +VOLUME;
+        samples[n] = (2 * n * FREQ / SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
     }
 }
 
-int main(void)
+static void set_highest_priority(void)
 {
+
+      struct sched_param param;
+      int maxpri;
+      maxpri = sched_get_priority_max(SCHED_FIFO);
+      if(maxpri == -1)
+      {
+            perror("sched_get_priority_max() failed");
+            exit(1);
+      }
+      fprintf(stderr, "maxpri %d\n", maxpri);
+      param.sched_priority = maxpri;
+      if (sched_setscheduler(getpid(), SCHED_FIFO, &param) == -1)
+
+     {
+            perror("sched_setscheduler() failed");
+            exit(1);
+     }
+}
+
+int main(int c, char *argv[])
+{
+    uint16_t vol;
+    vol = atoi( argv[1] ?: "32767");
+    set_highest_priority();
     pcm_prepair();
-    prepair_samples();
-    for (;;) {
-        play_sample(0, 0, samples, 80);
-        sleep(2);
-        play_sample(0, 0, samples, 500);
-        sleep(2);
-    }
+    prepair_samples(vol);
+    play_sample(0, 0, samples, 500);
     return 0;
 }
