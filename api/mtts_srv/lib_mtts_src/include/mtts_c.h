@@ -14,6 +14,7 @@ bool mtts_init(void);
 bool mtts_play(const char *buf, tts_playing_callback_t cb, void* user_ptr);
 void mtts_setting(uint16_t pitch, uint16_t rate, uint16_t volume);
 
+
 #if defined(__cplusplus)
 };
 #endif

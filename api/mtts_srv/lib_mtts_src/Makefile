@@ -7,13 +7,10 @@ LIBS=-Llib -L.
 CFLAGS=-O2 -s  $(INCLUDES) -std=c99 -Wall
 CPPFLAGS=-O2 -s  $(INCLUDES) -std=c++11 -Wall
 
-all: libmtts_c.so libpcm.so
+all: libmtts_c.so
 
-libmtts_c.so: mtts_c.cpp libpcm.so
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ mtts_c.cpp -shared $(LIBS) -lmtts -ltinyalsa -ldl -lpcm -ltinysndfile
-
-libpcm.so: pcm_play.c
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $< -shared -ltinyalsa -ldl
+libmtts_c.so: mtts_c.cpp
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ mtts_c.cpp -shared $(LIBS) -lmtts -ldl -lsndfile
 
 clean:
-	rm -f libmtts_c.so *.o libpcm.so
+	rm -f libmtts_c.so *.o

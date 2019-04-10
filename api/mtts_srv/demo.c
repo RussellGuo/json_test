@@ -18,7 +18,7 @@
 
 #include "mtts_c.h"
 
-#include "pcm_play.h"
+#include "relay_pcm_play.h"
 
 #include "ipc_cmd.h"
 
@@ -55,7 +55,7 @@ static void tts_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
     const char *reply_msg = "ERR DEVICE";
-    bool ret = pcm_local_buzzer_play(freq, msec, volume);
+    bool ret = false; // pcm_local_buzzer_play(freq, msec, volume);
     send_ipc_reply(ret ? "ERR OK" : "ERR DEVICE", 0);
 }
 
@@ -156,6 +156,32 @@ static bool is_stdin_a_socket(void)
     return false;
 }
 
+static void file_replay_pcm_begin(void *user_data_ptr)
+{
+}
+
+static bool file_relay_pcm_feed(void *user_data_ptr, const void *buf, unsigned size)
+{
+    char name[80];
+    static int count;
+    sprintf(name, "/data/%03d.raw", count++);
+    FILE *f = fopen(name, "w");
+    bool ret = f != NULL && fwrite(buf, size, 1, f) == size;
+    if (f) {
+        fclose(f);
+    }
+    fprintf(stderr, "%s\r\n", __FUNCTION__);
+    return ret;
+}
+
+static bool file_relay_pcm_end(void *user_data_ptr)
+{
+    return true;
+}
+
+
+static struct relay_pcm_func_t relay_pcm_func = { NULL, file_replay_pcm_begin, file_relay_pcm_feed, file_relay_pcm_end, };
+
 int main(int argc, char *argv[])
 {
     const char resource_dir[] = "/system/vendor/huaqin";
@@ -166,6 +192,7 @@ int main(int argc, char *argv[])
     }
 
     argv0 = argv[0];
+    set_relay_pcm_callback_func(&relay_pcm_func);
 
     if (is_stdin_a_socket()) {
         tts_cmd_loop();
