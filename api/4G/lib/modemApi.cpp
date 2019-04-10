@@ -21,6 +21,8 @@
 #include "include/sprd_ril.h"
 //Add by wangcong for ICCID
 #include "iccConstants.h"
+//Add by wangcong for ChangeNetWork
+#include <cutils/properties.h>
 
 using namespace android;
 using namespace std;
@@ -77,6 +79,7 @@ char manuFacture[32] = {0};
 char SimResponse[32] = {0};
 char IMEI[32] = {0};
 char netOwner[64] = {0};
+char numberForNetType[8] = {0};
 char netType[32] = {0};
 char netWorkOwner [32]= {0};
 char netTypeWork [32]= {0};
@@ -116,12 +119,29 @@ pthread_cond_t  s_network_signal_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t s_network_accept_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  s_network_accept_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_network_cell_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  s_network_cell_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_network_imsi_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  s_network_imsi_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_network_imei_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  s_network_imei_cond = PTHREAD_COND_INITIALIZER;
 /*extern external vars & func */
 #if defined (APP_PPPDIAL_MODULE)
 extern void initPppDial(void);
 #endif
 
 /* function implementation */
+/*
+extern "C"
+int add(int a , int b , int (*add_value)())
+{
+return (*add_value)(a,b);
+}
+*/
+
 static void initRequestList(){
     int i = 0;
     requestList* temp;
@@ -328,7 +348,7 @@ void getIMEI(char* imei){
     rnode = findFreeListNode();
 
     if(rnode == NULL) return;
-
+    
     rnode->serial = s_serial++;
     rnode->requestId = RIL_REQUEST_GET_IMEI;
     rnode->isFree = false;
@@ -336,21 +356,22 @@ void getIMEI(char* imei){
     Parcel p;
     p.writeInt32(rnode->requestId);
     p.writeInt32(rnode->serial);//token
-
+    ALOGE("Beginning imei =====");
     ret = sendRequest(p.data(), p.dataSize(), s_socket_fd);
-
+    ALOGE("Beginning imei1 =====");
     if (ret < 0) {
         ALOGE("send at ERROR!");
     }
+    ALOGE("Beginning imei2 =====");
      //Add by wangcong
     struct timeval now;
     struct timespec outtime;
-    pthread_mutex_lock(&s_network_api_mutex);
+    pthread_mutex_lock(&s_network_imei_mutex);
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 5;
+    outtime.tv_sec = now.tv_sec + 10;
     outtime.tv_nsec = now.tv_usec * 1000;
-    int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    int red = pthread_cond_timedwait(&s_network_imei_cond, &s_network_imei_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_imei_mutex);
     strcpy(imei,IMEI);
     ALOGI("write 'get imei' into socket OVER!");
 }
@@ -395,17 +416,16 @@ int DataCallConconnect(const char* radioTechnology, const char* profile, const c
         ALOGE("send at ERROR!");
     }
     //Add by wangcong
-    struct timeval now;
+    /*struct timeval now;
     struct timespec outtime;
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 20;
     outtime.tv_nsec = now.tv_usec * 1000;
-
     pthread_mutex_lock(&s_network_dial_mutex);
     int red = pthread_cond_timedwait(&s_network_dial_cond, &s_network_dial_mutex, &outtime);
     pthread_mutex_unlock(&s_network_dial_mutex);
    if(red == ETIMEDOUT)
-       return -100;
+       return -100;*/
     return pdpFlag;
 }
 
@@ -460,14 +480,14 @@ static void getOperatorPlmn(char* netWorkOwner){
 
     ALOGI("write 'get operator plmn' into socket over!");
      //Add by wangcong
-    struct timeval now;
+    /*struct timeval now;
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    pthread_mutex_unlock(&s_network_api_mutex);*/
     strcpy(netWorkOwner,netOwner);
 //    if(red == ETIMEDOUT)
 //        return -100;
@@ -500,7 +520,7 @@ int getIccCardState(){
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 5;
+    outtime.tv_sec = now.tv_sec + 8;
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
     pthread_mutex_unlock(&s_network_api_mutex);
@@ -574,17 +594,17 @@ int getVoiceNetworkRegistrationState(char* netTypeWork){
     ALOGE("NETWORK REGISTRA1:(%d)",RIL_REQUEST_VOICE_REGISTRATION_STATE);
     ALOGE("NETWORK REGISTRA2:(%d)",ret);
     //Add by wangcong
-    struct timeval now;
+    /*struct timeval now;
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    pthread_mutex_unlock(&s_network_api_mutex);*/
     strcpy(netTypeWork,netType);
-    if(red == ETIMEDOUT)
-        return -100;
+    //if(red == ETIMEDOUT)
+    //    return -100;
     ALOGI("write 'get sim status' into socket OVER!");
     return netWorkFlag;
 }
@@ -614,7 +634,7 @@ int getDataNetworkRegistrationState(){
     ALOGE("DATA REGISTRA:(%d)",ret);
     ALOGE("DATA REGISTRA:(%d)",rnode->requestId);
     //Add by wangcong
-    struct timeval now;
+    /*struct timeval now;
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
@@ -623,7 +643,7 @@ int getDataNetworkRegistrationState(){
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
     pthread_mutex_unlock(&s_network_api_mutex);
     if(red == ETIMEDOUT)
-        return -100;
+        return -100;*/
     if(netRegStatus && isRomaing){
          return 3;
       }else if(!netRegStatus && isRomaing){
@@ -732,8 +752,8 @@ int deactivateDataCall(int cid){
     requestList* rnode;
 
     rnode = findFreeListNode();
-    if(rnode == NULL) return 1;
-
+    if(rnode == NULL)
+        return 1;
     rnode->serial = s_serial++;
     rnode->requestId = RIL_REQUEST_DEACTIVATE_DATA_CALL;
     rnode->isFree = false;
@@ -756,7 +776,7 @@ int deactivateDataCall(int cid){
     ALOGE("关闭PDP上下文:(%d)",rnode->requestId);
     ALOGE("关闭PDP上下文:(%d)",ret);
     ALOGI("write 'deactivate data call' into socket OVER!");
-    sleep(5);
+    //sleep(5);
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
@@ -802,12 +822,12 @@ int getCellInfoList(Cellinfo* cellinfo){
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
-    pthread_mutex_lock(&s_network_api_mutex);
+    pthread_mutex_lock(&s_network_cell_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
-    int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    int red = pthread_cond_timedwait(&s_network_cell_cond, &s_network_cell_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_cell_mutex);
     if(red == ETIMEDOUT)
       return -100;
     cellinfo->mcc = MCC;
@@ -815,8 +835,8 @@ int getCellInfoList(Cellinfo* cellinfo){
     cellinfo->ci = CI;
     cellinfo->pci = PCI;
     cellinfo->tac = TAC;
-    printf("==== getCellInfoList mcc:%d  mnc:%d ci:%d pci:%d tac:%d \n",
-                 MCC,MNC,CI,PCI,TAC);
+//    printf("==== getCellInfoList mcc:%d  mnc:%d ci:%d pci:%d tac:%d \n",
+//                 MCC,MNC,CI,PCI,TAC);
 
     return cellFlag;
 }
@@ -1051,7 +1071,7 @@ void getGprsAttachState(){
         ALOGE("send at ERROR!");
     }
      //Add by wangcong
-    struct timeval now;
+    /*struct timeval now;
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
@@ -1059,7 +1079,7 @@ void getGprsAttachState(){
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
     pthread_mutex_unlock(&s_network_api_mutex);
-    ALOGI("write 'get gprs attach state' into socket OVER!");
+    ALOGI("write 'get gprs attach state' into socket OVER!");*/
 }
 
 //Add by wangcong for PDP
@@ -1480,9 +1500,9 @@ static void handlesetupDataCallImplComplete(Parcel &p){
         }
     }
     free(datalist);
-    pthread_mutex_lock(&s_network_dial_mutex);
+    /*pthread_mutex_lock(&s_network_dial_mutex);
     pthread_cond_signal(&s_network_dial_cond);
-    pthread_mutex_unlock(&s_network_dial_mutex);
+    pthread_mutex_unlock(&s_network_dial_mutex);*/
 }
 
 int handleGetSignalStrengthComplete(Parcel &p){
@@ -1526,8 +1546,11 @@ int handleGetSignalStrengthComplete(Parcel &p){
     ALOGI("LTE_SignalStrength.cqi = %d", signalStrength->LTE_SignalStrength.cqi );
     ALOGI("LTE_SignalStrength.timingAdvance = %d", signalStrength->LTE_SignalStrength.timingAdvance );
     ALOGI("TD_SCDMA_SignalStrength.rscp = %d", signalStrength->TD_SCDMA_SignalStrength.rscp );
-
+    if(signalStrength->LTE_SignalStrength.rsrp < 140 && signalStrength->LTE_SignalStrength.rsrp > 0){
     signal_strength = 140 - signalStrength->LTE_SignalStrength.rsrp;
+    }else{
+    signal_strength = signalStrength->LTE_SignalStrength.rsrp;
+    }
     ALOGI("signal_strength: %d ",signal_strength);
     free(signalStrength);
 
@@ -1705,9 +1728,9 @@ static void handleGetCellInfoListComplete(Parcel &p){
     }//end for
 
     free(cellInfo);
-    pthread_mutex_lock(&s_network_api_mutex);
-    pthread_cond_signal(&s_network_api_cond);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    pthread_mutex_lock(&s_network_cell_mutex);
+    pthread_cond_signal(&s_network_cell_cond);
+    pthread_mutex_unlock(&s_network_cell_mutex);
 }
 
 //Add by wangcong for Dial
@@ -1781,7 +1804,6 @@ static void handleGetCurrentCallList(Parcel &p){
 
 }
 //End
-//Add by wangcong for delete blank
 
 //Add bu wangcong for CCID
 extern "C"
@@ -1834,6 +1856,12 @@ static void handleGetSimIOComplete(Parcel &p){
 }
 //end
 
+//Add for recall
+extern "C"
+void setAnswerCallBack(void (*callBackF)()){
+      (*callBackF)();
+}
+//end
 static void processUnsolicited(Parcel &p){
     int message_id;
     int i;
@@ -1980,6 +2008,9 @@ void processSolicited(Parcel &p){
                     responsed[index] = strdupReadString(p);
                     ALOGI("num[%d]: %s", index, responsed[index]);
                 }
+                //if(responsed[0] == 46011){
+                //    strcpy(responsed[0],"CHINA TEL");
+                // }
                 ALOGI("netOwner2 %s\n",responsed[0]);
                 if(responsed[0] == NULL){
                  ALOGI("netOwner2 %s\n",responsed[0]);
@@ -1987,13 +2018,20 @@ void processSolicited(Parcel &p){
                  ALOGI("netOwner3 %s\n",responsed[0]);
                  strcpy(netOwner,responsed[0]);
                 }
+                strcpy(numberForNetType,"46011");
+                ALOGI("netOwner6 %s\n",numberForNetType);
+                if(strcmp(netOwner,numberForNetType) == 0){
+                    strcpy(netOwner,"CHINA TEL");
+                    ALOGI("netOwner5 %s\n",netOwner);
+                }
+                ALOGI("netOwner4 %s\n",netOwner);
                 //finally free mem
                 for(index = 0; index < num; index++){
                     free(responsed[index]);
                 }
-                pthread_mutex_lock(&s_network_api_mutex);
+                /*pthread_mutex_lock(&s_network_api_mutex);
                 pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
+                pthread_mutex_unlock(&s_network_api_mutex);*/
                 break;
             case RIL_REQUEST_RADIO_POWER:
                 ALOGI("RADIO POWER ON OR OFF success!");
@@ -2040,9 +2078,9 @@ void processSolicited(Parcel &p){
                     pthread_mutex_unlock(&s_network_register_mutex);
                     already_regist = true;
                 }
-                pthread_mutex_lock(&s_network_api_mutex);
+                /*pthread_mutex_lock(&s_network_api_mutex);
                 pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
+                pthread_mutex_unlock(&s_network_api_mutex);*/
                 break;
 
             case RIL_REQUEST_VOICE_REGISTRATION_STATE:
@@ -2056,6 +2094,14 @@ void processSolicited(Parcel &p){
                 value = atoi(responsed[0]);
                 regState = (RIL_RegState)value;
                 ALOGI("net reg status: %d", value);
+                ALOGI("regState: %d", regState);
+                if(regState == RIL_REG_STATE_UNKNOWN){
+                   if(s_net_type == 14){
+                       strcpy(netType,"LTE");
+                    }else {
+                       strcpy(netType,"UNKNOW");
+                    }
+                }
                 if(regState == RIL_REG_STATE_HOME){
                     s_net_type = atoi(responsed[3]);
                     ALOGI("net type: %d", s_net_type);
@@ -2072,15 +2118,15 @@ void processSolicited(Parcel &p){
                 if(value == 1){
                     netWorkFlag = 0;
                 }
-                pthread_mutex_lock(&s_network_api_mutex);
-                pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
+                //pthread_mutex_lock(&s_network_api_mutex);
+                //pthread_cond_signal(&s_network_api_cond);
+                //pthread_mutex_unlock(&s_network_api_mutex);
                 break;
             case RIL_REQUEST_DEACTIVATE_DATA_CALL:
                 ALOGI("deactivate data call result");
-                pthread_mutex_lock(&s_network_api_mutex);
-                pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
+                //pthread_mutex_lock(&s_network_api_mutex);
+                //pthread_cond_signal(&s_network_api_cond);
+                //pthread_mutex_unlock(&s_network_api_mutex);
                 break;
 
             case RIL_REQUEST_SIGNAL_STRENGTH:
@@ -2107,9 +2153,9 @@ void processSolicited(Parcel &p){
                     s_gprs_attach_state = data[0];
                     delete []data;
                 }
-                pthread_mutex_lock(&s_network_api_mutex);
+                /*pthread_mutex_lock(&s_network_api_mutex);
                 pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
+                pthread_mutex_unlock(&s_network_api_mutex);*/
                 break;
                 //Add by wangcong for Gprs
             case RIL_REQUEST_SEND_AT:
@@ -2148,9 +2194,9 @@ void processSolicited(Parcel &p){
                       strcpy(imsiid,value);
                       free(value);
                                 }
-                      pthread_mutex_lock(&s_network_api_mutex);
-                      pthread_cond_signal(&s_network_api_cond);
-                      pthread_mutex_unlock(&s_network_api_mutex);
+                      pthread_mutex_lock(&s_network_imsi_mutex);
+                      pthread_cond_signal(&s_network_imsi_cond);
+                      pthread_mutex_unlock(&s_network_imsi_mutex);
                     break;
                 //Add by wangcong for PDP
                 case RIL_REQUEST_DATA_CALL_LIST:
@@ -2175,9 +2221,9 @@ void processSolicited(Parcel &p){
                     if (value != NULL)
                     free(value);
                    }
-                     pthread_mutex_lock(&s_network_api_mutex);
-                     pthread_cond_signal(&s_network_api_cond);
-                     pthread_mutex_unlock(&s_network_api_mutex);
+                     pthread_mutex_lock(&s_network_imei_mutex);
+                     pthread_cond_signal(&s_network_imei_cond);
+                     pthread_mutex_unlock(&s_network_imei_mutex);
                    break;
                  /**Add by wangcong for call **/
                 case RIL_REQUEST_DIAL:
@@ -2188,6 +2234,7 @@ void processSolicited(Parcel &p){
                     break;
                 case RIL_REQUEST_ANSWER:
                     ALOGI("answer call complete==================================");
+                    //setAnswerCallBack(*callBackF());
                     break;
                 case RIL_REQUEST_GET_CURRENT_CALLS:
                     ALOGI("get current calls result==================================");
@@ -2239,7 +2286,7 @@ int getIMSI(char* imsi){
     p.writeInt32(1);
     writeStringToParcel(p, NULL);
     ret = sendRequest(p.data(), p.dataSize(), s_socket_fd);
-
+    ALOGI("begnning insi ==========");
     if (ret < 0) {
         ALOGE("send at ERROR!");
     }
@@ -2247,12 +2294,12 @@ int getIMSI(char* imsi){
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
-    pthread_mutex_lock(&s_network_api_mutex);
+    pthread_mutex_lock(&s_network_imsi_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
-    int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    int red = pthread_cond_timedwait(&s_network_imsi_cond, &s_network_imsi_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_imsi_mutex);
     // printf("=================> %s ?? \n",imsiid);
     if(red == ETIMEDOUT)
         return -100;
@@ -2262,6 +2309,18 @@ int getIMSI(char* imsi){
     return 0;
 }
 
+extern "C"
+void changeNetWork(char* Type){
+    property_set("persist.radio.ssda.testmode",Type);//
+    char testmode[92 + 1];
+    property_get("persist.radio.ssda.testmode",testmode, "0");
+    ALOGI("persist.radio.ssda.testmodetestmode is %s",testmode); 
+    radioPower(0);
+    sleep(5); 
+    radioPower(1); 
+    sleep(5);
+
+}
 extern "C"
 void* rilReceiver(void* para){
 
@@ -2373,7 +2432,7 @@ int setupDataCall(){
 
     ALOGI("%s: network register ok, ready go...", __FUNCTION__);
     DataCallConconnect("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
-    sleep(2);
+    //sleep(2);
     return 0;
 }
 
