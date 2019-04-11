@@ -10,7 +10,7 @@ CPPFLAGS=-O2 -s  $(INCLUDES) -std=c++11 -Wall
 all: libmtts_c.so
 
 libmtts_c.so: mtts_c.cpp
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ mtts_c.cpp -shared $(LIBS) -lmtts -ldl -ltinysndfile
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ mtts_c.cpp -shared $(LIBS) -lmtts -ldl -lsndfile
 
 clean:
 	rm -f libmtts_c.so *.o
