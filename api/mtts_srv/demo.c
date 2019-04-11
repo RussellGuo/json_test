@@ -20,9 +20,64 @@
 
 #include "relay_pcm_play.h"
 
+#include "pcm_play.h"
+
 #include "ipc_cmd.h"
 
-#define SAMPLE_RATE 8000
+// TODO: reduce memory cost of the buzzer playing
+#define BUZZER_MIN_FRQ 100
+#define BUZZER_MAX_FRQ (BUZZER_PCM_SAMPLE_RATE / 2)
+#define BUZZER_MIN_MSEC 70
+#define BUZZER_MAX_MSEC 600
+
+#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * BUZZER_PCM_SAMPLE_RATE / 1000)
+
+static void feed_empty(void)
+{
+    static int16_t silence[ 30 * BUZZER_PCM_SAMPLE_RATE / 1000];
+    pcm_feed(silence, sizeof silence);
+}
+
+static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
+{
+    bool feed_ok = true;
+    bool cancelled = false;
+    if (freq < BUZZER_MIN_FRQ) {
+        freq = BUZZER_MIN_FRQ;
+    } else if (freq > BUZZER_MAX_FRQ) {
+        freq = BUZZER_MAX_FRQ;
+    }
+    if (msec < BUZZER_MIN_MSEC) {
+        msec = BUZZER_MIN_MSEC;
+    } else if (msec > BUZZER_MAX_MSEC) {
+        msec = BUZZER_MAX_MSEC;
+    }
+    int16_t sample[MAX_SAMPLE_COUNT];
+    size_t sample_count = msec * BUZZER_PCM_SAMPLE_RATE / 1000;
+    volume = volume * 7 / 10;
+    for (unsigned n = 0; n < sample_count; n++) {
+        sample[n] = (2 * n * freq / BUZZER_PCM_SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
+        if (n == 0 || sample[n] != sample[n - 1]) {
+            // fprintf(stderr, "sample[%u] = %d\r\n", n, sample[n]);
+        }
+    }
+
+    pcm_begin(0);
+    feed_empty();
+    feed_ok = pcm_feed(sample, sample_count * 2);
+    feed_empty();
+    if (cancelled) {
+        pcm_abort();
+    }
+    feed_ok = (!!feed_ok) & (!!pcm_end());
+    const char *reply_msg;
+    if (!feed_ok) {
+        reply_msg = "ERR DEVICE";
+    } else {
+        reply_msg = cancelled ? "ERR USERCANCELLED" : "ERR OK";
+    }
+    send_ipc_reply(reply_msg, 0);
+}
 
 static bool tts_should_continue(void *what)
 {
@@ -50,13 +105,6 @@ static bool tts_play(bool isGBK, const char *buf)
 static void tts_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 {
     mtts_setting(pitch, rate, volume);
-}
-
-static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
-{
-    const char *reply_msg = "ERR DEVICE";
-    bool ret = false; // pcm_local_buzzer_play(freq, msec, volume);
-    send_ipc_reply(ret ? "ERR OK" : "ERR DEVICE", 0);
 }
 
 static void tts_cmd_loop(void)
@@ -192,6 +240,7 @@ int main(int argc, char *argv[])
     }
 
     argv0 = argv[0];
+    pcm_prepair();
     set_relay_pcm_callback_func(&relay_pcm_func);
 
     if (is_stdin_a_socket()) {
