@@ -98,6 +98,7 @@ static bool tts_play(bool isGBK, const char *buf)
     }
 
     mtts_play(buf, tts_should_continue, NULL);
+    pcm_end();
     send_ipc_reply("ERR OK", 0);
     return true;
 }
@@ -206,25 +207,31 @@ static bool is_stdin_a_socket(void)
 
 static void file_replay_pcm_begin(void *user_data_ptr)
 {
+    pcm_begin(0);
 }
 
 static bool file_relay_pcm_feed(void *user_data_ptr, const void *buf, unsigned size)
 {
-    char name[80];
-    static int count;
-    sprintf(name, "/data/%03d.raw", count++);
-    FILE *f = fopen(name, "w");
-    bool ret = f != NULL && fwrite(buf, size, 1, f) == size;
-    if (f) {
-        fclose(f);
-    }
     fprintf(stderr, "%s\r\n", __FUNCTION__);
-    return ret;
+    if (size % 2 == 1) {
+        return false;
+    }
+    const int16_t *sample = buf;
+    size_t sample_count = size / 2;
+    for (size_t i = 0; i < sample_count; i++) {
+        const int16_t v = sample[i];
+        const int16_t multi_sample[] = { v, v, v, v, v, v};
+        if (!pcm_feed(multi_sample, sizeof multi_sample)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static bool file_relay_pcm_end(void *user_data_ptr)
 {
-    return true;
+    bool ret = pcm_end();
+    return ret;
 }
 
 
