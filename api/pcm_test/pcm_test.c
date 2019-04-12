@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <sched.h>
 
-#define SAMPLE_RATE 16000
+#define SAMPLE_RATE 48000
 #define MS_TO_SAMPLE_COUNT(msec) (msec * SAMPLE_RATE / 1000)
 
 static bool play_sample(unsigned int card, unsigned int device, const int16_t *samples, unsigned msec)
@@ -38,13 +38,13 @@ static bool play_sample(unsigned int card, unsigned int device, const int16_t *s
     }
 
     for (;;) {
-        //sleep(1);
         ok = pcm_mmap_write(pcm, (char *)samples, sample_len_in_byte) == 0;
         if (ok) {
             fprintf(stderr, "succeeded\n" );
         } else {
             perror("pcm_mmap_write");
         }
+        break;
     }
     pcm_close(pcm);
     return ok;
@@ -99,6 +99,11 @@ int main(int c, char *argv[])
     set_highest_priority();
     pcm_prepair();
     prepair_samples(vol);
-    play_sample(0, 0, samples, 500);
+    for (;;) {
+        play_sample(0, 0, samples, 500);
+        usleep(1000 * 400);
+        play_sample(0, 0, samples, 120);
+        usleep(1000 * 400);
+    }
     return 0;
 }

@@ -212,7 +212,7 @@ static void file_replay_pcm_begin(void *user_data_ptr)
 
 static bool file_relay_pcm_feed(void *user_data_ptr, const void *buf, unsigned size)
 {
-    fprintf(stderr, "%s\r\n", __FUNCTION__);
+    fprintf(stderr, "\r%s\r\n", __FUNCTION__);
     if (size % 2 == 1) {
         return false;
     }
