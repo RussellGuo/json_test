@@ -1,5 +1,9 @@
-demo.cpp
+demo.c
 include/mtts.h
+include/mtts_c.h
+include/pcm_play.h
 include/relay_pcm_play.h
-include/tinyalsa/asoundlib.h
-relay_pcm_play.c
+lib/libmtts.a
+lib/libpcm_48k.so
+lib/libsndfile.so
+mtts_c.cpp

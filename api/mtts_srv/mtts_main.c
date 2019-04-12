@@ -240,7 +240,7 @@ static struct relay_pcm_func_t relay_pcm_func = { NULL, file_replay_pcm_begin, f
 int main(int argc, char *argv[])
 {
     const char resource_dir[] = "/system/vendor/huaqin";
-    bool ret = chdir(resource_dir);
+    int ret = chdir(resource_dir);
     if (ret < 0) {
         perror("cd resource");
         exit(1);
