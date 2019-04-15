@@ -1,3 +1,5 @@
 /libpcm.so
 /mtts
 *.swp
+/demo
+/demo-pcm

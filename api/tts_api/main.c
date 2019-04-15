@@ -64,11 +64,10 @@ static void tty_read_proc(int fd, uint64_t arg)
     fprintf(stderr, "c: '%c', arg: %llX\r\n", c, arg);
     switch(c) {
     case '1':
-        RemoteTtsPlay(false, "To be, or not to be, that is a question: Whether it's nobler in the mind to suffer, "
-                             "The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles");
+        RemoteTtsPlay(false, "To be, or not to be, that is a question");
         break;
     case '2':
-        RemoteTtsPlay(false, "生存还是毁灭，这是一个值得考虑的问题；默然忍受命运暴虐的毒箭，或是挺身反抗人世无涯的苦难,通过斗争把它们扫个干净？");
+        RemoteTtsPlay(false, "生存还是毁灭，这是一个值得考虑的问题");
         break;
     case '3':
     case '4':
