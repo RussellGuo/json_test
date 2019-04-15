@@ -13,13 +13,16 @@ namespace {
 
 extern "C" bool mtts_init(void)
 {
-    delete SS;
-    SS = new Mtts("Mandarin");
+    //delete SS;
+    //SS = new Mtts("Mandarin");
     return true;
 }
 extern "C" bool mtts_play(const char *buf, tts_playing_callback_t cb, void* user_ptr)
 {
+    
+    SS = new Mtts("Mandarin");
     SS->speak(buf, cb, user_ptr);
+    delete SS;
     return true;
 }
 
