@@ -15,6 +15,12 @@ static bool play_sample(unsigned int card, unsigned int device, const int16_t *s
 {
     struct pcm_config config;
     struct pcm *pcm;
+    void feed_empty(void)
+    {
+        static int16_t silence[ MS_TO_SAMPLE_COUNT(100)];
+        pcm_mmap_write(pcm, silence, sizeof silence);
+    }
+
     bool ok = false;
     size_t sample_len_in_byte = MS_TO_SAMPLE_COUNT(msec) * 2;
 
@@ -37,6 +43,7 @@ static bool play_sample(unsigned int card, unsigned int device, const int16_t *s
         return ok;
     }
 
+    feed_empty();
     for (;;) {
         ok = pcm_mmap_write(pcm, (char *)samples, sample_len_in_byte) == 0;
         if (ok) {
@@ -46,6 +53,7 @@ static bool play_sample(unsigned int card, unsigned int device, const int16_t *s
         }
         break;
     }
+    feed_empty();
     pcm_close(pcm);
     return ok;
 }

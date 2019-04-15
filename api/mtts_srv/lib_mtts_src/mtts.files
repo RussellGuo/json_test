@@ -1,4 +1,6 @@
 demo.c
+demo-pcm.c
+relay_pcm_play.c
 include/mtts.h
 include/mtts_c.h
 include/pcm_play.h
