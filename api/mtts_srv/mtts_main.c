@@ -212,20 +212,19 @@ static void file_replay_pcm_begin(void *user_data_ptr)
 
 static bool file_relay_pcm_feed(void *user_data_ptr, const void *buf, unsigned size)
 {
-    fprintf(stderr, "\r%s\r\n", __FUNCTION__);
+    fprintf(stderr, "\r%s, size: %zd\r\n", __FUNCTION__, (size_t)size);
     if (size % 2 == 1) {
         return false;
     }
     const int16_t *sample = buf;
     size_t sample_count = size / 2;
-    for (size_t i = 0; i < sample_count; i++) {
+    int16_t multi_sample[sample_count * 6];
+    for (size_t i = 0, j = 0; i < sample_count; i++, j+=6) {
         const int16_t v = sample[i];
-        const int16_t multi_sample[] = { v, v, v, v, v, v};
-        if (!pcm_feed(multi_sample, sizeof multi_sample)) {
-            return false;
-        }
+        multi_sample[j] = multi_sample[j + 1] = multi_sample[j + 2] = multi_sample[j + 3] = multi_sample[j + 4] = multi_sample[j + 5] = v;
     }
-    return true;
+    bool ret = pcm_feed(multi_sample, size * 6);
+    return ret;
 }
 
 static bool file_relay_pcm_end(void *user_data_ptr)
