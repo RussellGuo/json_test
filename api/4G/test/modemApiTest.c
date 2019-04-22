@@ -11,27 +11,45 @@
 #define TEST_PHONE_CALL 0
 #define TEST_PHONE_WITH_DIAL 1
 
+
 int main(int argc, char** argv)
 {
     int s_gprs_attach_state = -1;
     int retry_times = 0;
     open4G();
-
+    char manufacture[32] = {0};
+    GetModuleManufacture(manufacture);
+    printf("manuFacture = %s\n",manufacture);
+    sleep(1);
+    char imei[32] = {0};
+    getIMEI(imei);
+    printf("imei = %s\n",imei);
+    int strength = getSignalStrength();
+    printf("getSignalStrength %d \n",strength);
     printf("begin getIccCardState\n");
     int state = getIccCardState();
     printf("getIccCardState %d\n",state);
-
-    int pdpFlag = setupDataCall();
+    Cellinfo cellinfoStruct;
+    int cellinfo = getCellInfoList( &cellinfoStruct );
+    printf("getCellInfoList mcc:%d  mnc:%d ci:%d pci:%d tac:%d \n",
+                 cellinfoStruct.mcc,cellinfoStruct.mnc,cellinfoStruct.ci,cellinfoStruct.pci,cellinfoStruct.tac);
+    int states = getPdptruestate();
+    printf("states = %d\n",states);
+    getCellInfo();
+    //有卡状态获取
+    /*int pdpFlag = setupDataCall();
     printf("pdpFlag = %d\n",pdpFlag);
 #if TEST_PHONE_CALL
     int strength = getSignalStrength();
+    setAnswerCallBack(answerCallBack);
     printf("getSignalStrength %d \n",strength);
 #if TEST_PHONE_WITH_DIAL
-    const char number[12] = "15951568547";
+    const char number[12] = "13236582712";
     dial(number);
 #endif
     while(1);
 #else
+    DataCallConconnect("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
     int strength = getSignalStrength();
     printf("getSignalStrength %d \n",strength);
     char netTypeWork[32] = {0};
@@ -39,6 +57,9 @@ int main(int argc, char** argv)
     printf("netWorkFlag %d\n",netWorkFlag);
     int dataWorkFlag = getDataNetworkRegistrationState();
     printf("dataWorkFlag %d\n",dataWorkFlag);
+    printf("begin getIccCardState\n");
+    int state = getIccCardState();
+    printf("getIccCardState %d\n",state);
     char imsi[32] = {0};
     getIMSI(imsi);
     printf("IMSI %s\n",imsi);
@@ -47,17 +68,16 @@ int main(int argc, char** argv)
     printf("manuFacture = %s\n",manufacture);
     Cellinfo cellinfoStruct;
     int cellinfo = getCellInfoList( &cellinfoStruct );
-    printf("==== getCellInfoList mcc:%d  mnc:%d ci:%d pci:%d tac:%d \n",
+    printf("getCellInfoList mcc:%d  mnc:%d ci:%d pci:%d tac:%d \n",
                  cellinfoStruct.mcc,cellinfoStruct.mnc,cellinfoStruct.ci,cellinfoStruct.pci,cellinfoStruct.tac);
-
     printf("cellinfo = %d\n",cellinfo);
     char imei[32] = {0};
     getIMEI(imei);
     printf("imei = %s\n",imei);
+    //int deactivePdp = DataCallDisconnect();
+    //printf("deactivePdp = %d\n",deactivePdp);
     int states = getPdptruestate();
     printf("states = %d\n",states);
-    int deactivePdp = DataCallDisconnect();
-    printf("deactivePdp = %d\n",deactivePdp);
     char netOwner[32] = {0};
     char netType[32] = {0};
     pollState(netOwner,netType);
@@ -66,7 +86,11 @@ int main(int argc, char** argv)
     char CCID[64] ={0};
     getIccid(CCID);
     printf("CCID = %s \n",CCID);
-#endif
+    getCellInfo();
+    //6:4G   14:3G   10:2G    
+    char netWorkType[8] = "6";
+    changeNetWork(netWorkType);
+#endif*/
     close4G();
     return 0;
 }

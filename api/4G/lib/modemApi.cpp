@@ -84,6 +84,7 @@ char netType[32] = {0};
 char netWorkOwner [32]= {0};
 char netTypeWork [32]= {0};
 char ICCID[64]= {0};
+char AT[64] = {0};
 static int s_serial = 0;
 static requestList* s_request_header = NULL;
 static RIL_RadioState s_radioState;
@@ -128,6 +129,12 @@ pthread_cond_t  s_network_imsi_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t s_network_imei_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  s_network_imei_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_network_gprs_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  s_network_gprs_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_network_detactive_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  s_network_detactive_cond = PTHREAD_COND_INITIALIZER;
 /*extern external vars & func */
 #if defined (APP_PPPDIAL_MODULE)
 extern void initPppDial(void);
@@ -409,23 +416,23 @@ int DataCallConconnect(const char* radioTechnology, const char* profile, const c
     writeStringToParcel(p, authType);
     writeStringToParcel(p, protocol);
 
-    ALOGI("setup data call");
+    ALOGI("setup data call data data ====");
     ret = sendRequest(p.data(), p.dataSize(), s_socket_fd);
 
     if (ret < 0) {
         ALOGE("send at ERROR!");
     }
     //Add by wangcong
-    /*struct timeval now;
+    struct timeval now;
     struct timespec outtime;
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 20;
     outtime.tv_nsec = now.tv_usec * 1000;
-    pthread_mutex_lock(&s_network_dial_mutex);
-    int red = pthread_cond_timedwait(&s_network_dial_cond, &s_network_dial_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_dial_mutex);
+    pthread_mutex_lock(&s_network_gprs_mutex);
+    int red = pthread_cond_timedwait(&s_network_gprs_cond, &s_network_gprs_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_gprs_mutex);
    if(red == ETIMEDOUT)
-       return -100;*/
+       return -100;
     return pdpFlag;
 }
 
@@ -776,16 +783,15 @@ int deactivateDataCall(int cid){
     ALOGE("关闭PDP上下文:(%d)",rnode->requestId);
     ALOGE("关闭PDP上下文:(%d)",ret);
     ALOGI("write 'deactivate data call' into socket OVER!");
-    //sleep(5);
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
-    pthread_mutex_lock(&s_network_api_mutex);
+    pthread_mutex_lock(&s_network_detactive_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
-    int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
-    pthread_mutex_unlock(&s_network_api_mutex);
+    int red = pthread_cond_timedwait(&s_network_detactive_cond, &s_network_detactive_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_detactive_mutex);
     if(red == ETIMEDOUT)
       return -100;
       return 0;
@@ -1214,10 +1220,14 @@ int getPdpState(void){
     pthread_cond_wait(&s_get_data_call_list_cond, &s_get_data_call_list_mutex);
     pthread_mutex_unlock(&s_get_data_call_list_mutex);
 
-    for(int i = 0; i < num_pdp; i++){
-        if(pdplist[i].active==PDP_STATUS_ACTIVE){
+      for(int i = 0; i < num_pdp; i++){
+         std::string s = pdplist[i].ip;
+       
+        if(pdplist[i].active==PDP_STATUS_ACTIVE && !s.empty()){
+         
             ALOGI(" pdp active !");
             return 1;
+      
         }
     }
      ALOGI("there is no active pdp!");
@@ -1500,9 +1510,9 @@ static void handlesetupDataCallImplComplete(Parcel &p){
         }
     }
     free(datalist);
-    /*pthread_mutex_lock(&s_network_dial_mutex);
-    pthread_cond_signal(&s_network_dial_cond);
-    pthread_mutex_unlock(&s_network_dial_mutex);*/
+    pthread_mutex_lock(&s_network_gprs_mutex);
+    pthread_cond_signal(&s_network_gprs_cond);
+    pthread_mutex_unlock(&s_network_gprs_mutex);
 }
 
 int handleGetSignalStrengthComplete(Parcel &p){
@@ -1530,7 +1540,7 @@ int handleGetSignalStrengthComplete(Parcel &p){
     p.readInt32( &signalStrength->LTE_SignalStrength.cqi );
     signalStrength->LTE_SignalStrength.timingAdvance = 2147483647;//INT_MAX
     signalStrength->TD_SCDMA_SignalStrength.rscp = 2147483647;//INT_MAX
-
+    
     ALOGI("GW_SignalStrength.signalStrength = %d", signalStrength->GW_SignalStrength.signalStrength);
     ALOGI("GW_SignalStrength.bitErrorRate = %d", signalStrength->GW_SignalStrength.bitErrorRate);
     ALOGI("CDMA_SignalStrength.dbm = %d", signalStrength->CDMA_SignalStrength.dbm);
@@ -1546,10 +1556,14 @@ int handleGetSignalStrengthComplete(Parcel &p){
     ALOGI("LTE_SignalStrength.cqi = %d", signalStrength->LTE_SignalStrength.cqi );
     ALOGI("LTE_SignalStrength.timingAdvance = %d", signalStrength->LTE_SignalStrength.timingAdvance );
     ALOGI("TD_SCDMA_SignalStrength.rscp = %d", signalStrength->TD_SCDMA_SignalStrength.rscp );
-    if(signalStrength->LTE_SignalStrength.rsrp < 140 && signalStrength->LTE_SignalStrength.rsrp > 0){
-    signal_strength = 140 - signalStrength->LTE_SignalStrength.rsrp;
+    if(signalStrength->LTE_SignalStrength.rsrp < 141 && signalStrength->LTE_SignalStrength.rsrp > 0){
+    signal_strength = 141 - signalStrength->LTE_SignalStrength.rsrp  ;
     }else{
     signal_strength = signalStrength->LTE_SignalStrength.rsrp;
+    }
+    ALOGI("signalStrength->GW_SignalStrength.signalStrength: %d ",signalStrength->GW_SignalStrength.signalStrength);
+    if(signalStrength->GW_SignalStrength.signalStrength > 0 && signalStrength->GW_SignalStrength.signalStrength < 50){
+    signal_strength = signalStrength->GW_SignalStrength.signalStrength;
     }
     ALOGI("signal_strength: %d ",signal_strength);
     free(signalStrength);
@@ -1574,17 +1588,20 @@ static void handleGetCellInfoListComplete(Parcel &p){
         return;
     }
 
+
     for (int i = 0; i < num; ++i){
         int value;
+
+        int64_t timeStamp;//<1>
 
         p.readInt32( &value );
         cellInfo[i].cellInfoType = (RIL_CellInfoType)value;
         p.readInt32( &cellInfo[i].registered );
         p.readInt32( &value );
         cellInfo[i].timeStampType = (RIL_TimeStampType)value;
-        p.readInt32( &value );
-        cellInfo[i].timeStamp = (uint64_t)value;
-        ALOGI("cellInfoType: %d, registered:%d, timeStampType:%d, timeStamp:%d.",
+        p.readInt64( &timeStamp );//<2>
+        cellInfo[i].timeStamp = (uint64_t)timeStamp;// <3>
+        ALOGI("cellInfoType: %d, registered:%d, timeStampType:%d, timeStamp:%lld.",// <4>
                 cellInfo[i].cellInfoType, cellInfo[i].registered, cellInfo[i].timeStampType, cellInfo[i].timeStamp );
         switch( cellInfo[i].cellInfoType ){
             case RIL_CELL_INFO_TYPE_GSM:
@@ -1805,11 +1822,33 @@ static void handleGetCurrentCallList(Parcel &p){
 }
 //End
 
+//Add bu wangcong for CellInfo
+extern "C"
+void getCellInfo(){
+    int ret;
+    //AT+SPFREQSCAN=3,\"\",\"\",2,\"\",\"\",3,\"\",\"\"
+    //AT^MBCELLID=1
+    //AT+SPQ4GNCELLEX
+    sendAtCmd("AT^MBCELLID=1");
+    strcpy(AT,"AT^MBCELLID=1");
+    //Add by wangcong
+    struct timeval now;
+    struct timespec outtime;
+    pthread_mutex_lock(&s_network_api_mutex);
+    gettimeofday(&now, NULL);
+    outtime.tv_sec = now.tv_sec + 10;
+    outtime.tv_nsec = now.tv_usec * 1000;
+    int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
+    pthread_mutex_unlock(&s_network_api_mutex);
+
+}
+
 //Add bu wangcong for CCID
 extern "C"
 void getIccid(char* CCID){
     int ret;
     sendAtCmd("AT+CCID");
+    strcpy(AT,"AT+CCID");
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
@@ -1865,6 +1904,7 @@ void setAnswerCallBack(void (*callBackF)()){
 static void processUnsolicited(Parcel &p){
     int message_id;
     int i;
+    char * urc;
     p.readInt32(&message_id);
     ALOGI("unsolicited message id = %d", message_id);
     switch(message_id){
@@ -1909,11 +1949,18 @@ static void processUnsolicited(Parcel &p){
             ALOGI("ril unsolicited data call list changed.==================================");
             hanldeDataCallListChangeMessage(p);
             break;
+            
             //Add by wangcong for Dial
         case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED: //1001
             ALOGI("call state changed.==================================");
             //to get Current Calls
             getCurrentCalls();
+            break;
+            
+            //Add by wangcong for cellinfo
+        case RIL_UNSOL_URC_STRING:   //6034
+            urc = strdupReadString(p);
+            ALOGI("ril unsolicited string:%s",urc);
             break;
         default:
         ALOGI("default not handle");
@@ -2076,6 +2123,7 @@ void processSolicited(Parcel &p){
                     pthread_mutex_lock(&s_network_register_mutex);
                     pthread_cond_signal(&s_network_register_cond);
                     pthread_mutex_unlock(&s_network_register_mutex);
+                    ALOGI("cccccccccc: %d", s_net_type);
                     already_regist = true;
                 }
                 /*pthread_mutex_lock(&s_network_api_mutex);
@@ -2105,12 +2153,24 @@ void processSolicited(Parcel &p){
                 if(regState == RIL_REG_STATE_HOME){
                     s_net_type = atoi(responsed[3]);
                     ALOGI("net type: %d", s_net_type);
+                    ALOGI("s_net_type: %d", s_net_type);
                     if(s_net_type == 14){
+                       ALOGI("regState======: %d", regState);
                        strcpy(netType,"LTE");
                     }else if(s_net_type == 2){
+                       ALOGI("regState========: %d", regState);
                        strcpy(netType,"EDGE");
+                    }else if(s_net_type == 9){
+                       ALOGI("regState========: %d", regState);
+                       strcpy(netType,"HSPAP");
+                    }else if(s_net_type == 11){
+                       ALOGI("regState========: %d", regState);
+                       strcpy(netType,"HSPAP");
+                    }else if(s_net_type == 15){
+                       ALOGI("regState========: %d", regState);
+                       strcpy(netType,"HSPAP");
                     }
-                    ALOGI("netType2: %s \n",netType);
+                    ALOGI("netType3: %s \n",netType);
                 }
                 for(index = 0; index < num; index++){
                     free(responsed[index]);
@@ -2124,9 +2184,9 @@ void processSolicited(Parcel &p){
                 break;
             case RIL_REQUEST_DEACTIVATE_DATA_CALL:
                 ALOGI("deactivate data call result");
-                //pthread_mutex_lock(&s_network_api_mutex);
-                //pthread_cond_signal(&s_network_api_cond);
-                //pthread_mutex_unlock(&s_network_api_mutex);
+                pthread_mutex_lock(&s_network_detactive_mutex);
+                pthread_cond_signal(&s_network_detactive_cond);
+                pthread_mutex_unlock(&s_network_detactive_mutex);
                 break;
 
             case RIL_REQUEST_SIGNAL_STRENGTH:
@@ -2166,19 +2226,27 @@ void processSolicited(Parcel &p){
                      ALOGI( "resp = %s >>><<<  ", resp );
                      if (resp != NULL)
                      {
+                     if(strcmp(AT,"AT+CCID") == 0){
                           memset(ICCID,64,0);
                           strcpy(ICCID,resp);
-                          ALOGI( "ICCID = %s >>>=========================================<<<  ", ICCID );
+                          ALOGI( "return is : %s >>>=========================================<<<  ", ICCID );
                           free(resp);
+                          pthread_mutex_lock(&s_network_api_mutex);
+                          pthread_cond_signal(&s_network_api_cond);
+                          pthread_mutex_unlock(&s_network_api_mutex);
+                      }else if(strcmp(AT,"AT+SPQ4GNCELLEX=4,4") == 0) {
+                          ALOGI( "return is : %s >>>=========================================<<<  ", resp );
+                          free(resp);
+                      }else if(strcmp(AT,"AT^MBCELLID=1") == 0){
+                          char cellInfoForNoCard[100];
+                          sscanf(resp, "%*[^:]:%[^A-Z]", cellInfoForNoCard);
+                          printf("无卡获取的基站信息：%s",cellInfoForNoCard );
+                          free(resp);
+                            }
                      }
                      //test get grps attach
                           getGprsAttachState();
-
-
                   }
-                pthread_mutex_lock(&s_network_api_mutex);
-                pthread_cond_signal(&s_network_api_cond);
-                pthread_mutex_unlock(&s_network_api_mutex);
                     break;
                 case RIL_REQUEST_SET_INITIAL_ATTACH_APN:
                     ALOGI("set initial attach apn complete!");
@@ -2311,8 +2379,12 @@ int getIMSI(char* imsi){
 
 extern "C"
 void changeNetWork(char* Type){
+
+    ALOGI("persist.radio.ssda.testmodetestmode========"); 
     property_set("persist.radio.ssda.testmode",Type);//
+    ALOGI("persist.radio.ssda.testmodetestmode!!!!!!!!!!");
     char testmode[92 + 1];
+    ALOGI("persist.radio.ssda.testmodetestmode~~~~~~~");
     property_get("persist.radio.ssda.testmode",testmode, "0");
     ALOGI("persist.radio.ssda.testmodetestmode is %s",testmode); 
     radioPower(0);
@@ -2423,11 +2495,13 @@ int setupDataCall(){
 #if defined (APP_PPPDIAL_MODULE)
     initPppDial();
 #endif
+    ALOGI("already_regist %d", already_regist);
     if(!already_regist)
     {
         pthread_mutex_lock(&s_network_register_mutex);
         pthread_cond_wait(&s_network_register_cond, &s_network_register_mutex);
         pthread_mutex_unlock(&s_network_register_mutex);
+        ALOGI("already_regist1 %d", already_regist);
     }
 
     ALOGI("%s: network register ok, ready go...", __FUNCTION__);
@@ -2441,6 +2515,7 @@ int DataCallDisconnect(){
     ALOGI("%s: DataCallDisconnect, cid = %d, active = %d.", __FUNCTION__, pdp_info.cid, pdp_info.active );
     if ( PDP_STATUS_ACTIVE == pdp_info.active){
          deactivateDataCall( pdp_info.cid );
+         ALOGI("%s: 1DataCallDisconnect, cid = %d, active = %d.", __FUNCTION__, pdp_info.cid, pdp_info.active );
          return 0;
     }
     return 1;
