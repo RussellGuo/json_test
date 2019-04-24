@@ -71,8 +71,7 @@ static void tty_read_proc(int fd, uint64_t arg)
         tts_ret = RemoteTtsPlay(false, "To be, or not to be, that is a question");
         break;
     case '2':
-        tts_ret = RemoteTtsPlay(false, "这是俄罗斯在大选胜利后，首次针对叙利亚境内目标实施的空袭，"
-                                       "这次以军使用战机相当引人注目，连美国媒体都证实，认为以军用F35战机取得了巨大的战果");
+        tts_ret = RemoteTtsPlay(false, "支付宝支付5元成功，支付宝支付50.5元成功，支付宝支付2000元成功，微信支付5元成功，微信支付50.5元成功，微信支付2000元成功。");
         break;
     case '3':
     case '4':
