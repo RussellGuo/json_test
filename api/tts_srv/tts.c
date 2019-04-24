@@ -71,18 +71,17 @@ static bool tts_init(void)
 
 }
 
-#define SAMPLE_RATE 16000
-
+// TODO: reduce memory cost of the buzzer playing
 #define BUZZER_MIN_FRQ 100
-#define BUZZER_MAX_FRQ (SAMPLE_RATE / 2)
+#define BUZZER_MAX_FRQ (BUZZER_PCM_SAMPLE_RATE / 2)
 #define BUZZER_MIN_MSEC 70
 #define BUZZER_MAX_MSEC 600
 
-#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * SAMPLE_RATE / 1000)
+#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * BUZZER_PCM_SAMPLE_RATE / 1000)
 
 static void feed_empty(void)
 {
-    static int16_t silence[ 280 * SAMPLE_RATE / 1000];
+    static int16_t silence[ 30 * BUZZER_PCM_SAMPLE_RATE / 1000];
     pcm_feed(silence, sizeof silence);
 }
 
@@ -101,10 +100,10 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
         msec = BUZZER_MAX_MSEC;
     }
     int16_t sample[MAX_SAMPLE_COUNT];
-    size_t sample_count = msec * SAMPLE_RATE / 1000;
+    size_t sample_count = msec * BUZZER_PCM_SAMPLE_RATE / 1000;
     volume = volume * 7 / 10;
     for (unsigned n = 0; n < sample_count; n++) {
-        sample[n] = (2 * n * freq / SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
+        sample[n] = (2 * n * freq / BUZZER_PCM_SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
         if (n == 0 || sample[n] != sample[n - 1]) {
             // fprintf(stderr, "sample[%u] = %d\r\n", n, sample[n]);
         }
@@ -126,6 +125,21 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
     }
     send_ipc_reply(reply_msg, 0);
 }
+
+static bool pcm_feed_16K_to_48K(const void *buf, unsigned size)
+{
+#define PCM_MULTI 3
+    const int16_t *sample = buf;
+    size_t sample_count = size / 2;
+    int16_t multi_sample[sample_count * PCM_MULTI];
+    for (size_t i = 0, j = 0; i < sample_count; i++, j+=PCM_MULTI) {
+        const int16_t v = sample[i];
+        multi_sample[j] = multi_sample[j + 1] = multi_sample[j + 2] = v;
+    }
+    bool ret = pcm_feed(multi_sample, size * PCM_MULTI);
+    return ret;
+}
+
 
 static bool tts_play(bool isGBK, char *buf)
 {
@@ -152,6 +166,7 @@ static bool tts_play(bool isGBK, char *buf)
         return false;
     }
     pcm_begin(0);
+    feed_empty();
 
     while(1) {
         short pSpeechFrame[400];
@@ -159,11 +174,12 @@ static bool tts_play(bool isGBK, char *buf)
 
         if (has_ipc_cmd_from_caller(0)) {
             // new command comes, abort this playing.
+            nReturn = 1;
             break;
         }
         nReturn = yt_tts_get_speech_frame(pSpeechFrame,&nSampleNumber);
         if(nSampleNumber > 0) {
-            feed_ok = pcm_feed(pSpeechFrame, nSampleNumber * 2);
+            feed_ok = pcm_feed_16K_to_48K(pSpeechFrame, nSampleNumber * 2);
             if (!feed_ok) {
                 break;
             }
@@ -174,7 +190,7 @@ static bool tts_play(bool isGBK, char *buf)
             nSampleNumber = 62;
             memset(pSpeechFrame,0,nSampleNumber * 2);
              for(int j = 50; j <50; j++) {
-                 feed_ok = pcm_feed(pSpeechFrame, nSampleNumber * 2);
+                 feed_ok = pcm_feed_16K_to_48K(pSpeechFrame, nSampleNumber * 2);
                  if (!feed_ok) {
                      break;
                  }
@@ -190,6 +206,8 @@ static bool tts_play(bool isGBK, char *buf)
 
     if (nReturn) {
         pcm_abort();
+    } else {
+        feed_empty();
     }
     pcm_end();
 
@@ -223,8 +241,7 @@ static void tty_setting(uint16_t pitch, uint16_t rate, uint16_t volume)
 static void tts_cmd_loop(void)
 {
 
-    uint16_t pitch = 105, rate = 105, volume = 32767;
-    pid_t parent_pid = getppid();
+    uint16_t pitch = 100, rate = 100, volume = 32767;
 
     bool ret = tts_init();
     fprintf(stderr, "return value of tts init: %d\r\n", ret);

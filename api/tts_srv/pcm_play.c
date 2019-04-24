@@ -131,17 +131,13 @@ bool play_sample(FILE *file, unsigned int card, unsigned int device, unsigned ms
 
     memset(&config,0x00,sizeof(struct pcm_config));
     config.channels = 1;
-    config.rate = 16000;
+    config.rate = BUZZER_PCM_SAMPLE_RATE;
     config.period_size = 1024;
     config.period_count = 4;
     config.format = PCM_FORMAT_S16_LE;
     config.start_threshold = 0;
     config.stop_threshold = 0;
     config.silence_threshold = 0;
-    if (msec != 0) {
-        config.period_count = 2;
-        config.period_size = msec <= 200 ? 160 : 320;
-    }
 
     pcm = pcm_open(card, device, PCM_OUT | PCM_MMAP | PCM_NOIRQ | PCM_MONOTONIC, &config);
     if (!pcm || !pcm_is_ready(pcm)) {

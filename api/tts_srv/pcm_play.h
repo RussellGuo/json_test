@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#define BUZZER_PCM_SAMPLE_RATE 48000
 void pcm_prepair(void);
 
 void pcm_begin(unsigned msec);
