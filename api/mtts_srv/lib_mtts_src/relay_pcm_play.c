@@ -32,3 +32,11 @@ bool relay_pcm_end(void)
     bool ret = relay_pcm_func.relay_pcm_end(relay_pcm_func.user_data_ptr);
     return ret;
 }
+
+void relay_pcm_abort(void)
+{
+    if (relay_pcm_func.relay_pcm_abort == NULL) {
+        return;
+    }
+    relay_pcm_func.relay_pcm_abort(relay_pcm_func.user_data_ptr);
+}

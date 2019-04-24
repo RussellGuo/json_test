@@ -13,6 +13,7 @@ struct relay_pcm_func_t {
     void (*replay_pcm_begin)(void *user_data_ptr);
     bool (*relay_pcm_feed)(void *user_data_ptr, const void *buf, unsigned size);
     bool (*relay_pcm_end)(void *user_data_ptr);
+    void (*relay_pcm_abort)(void *user_data_ptr);
 };
 
 void set_relay_pcm_callback_func(const struct relay_pcm_func_t *_relay_pcm_func);
@@ -21,6 +22,7 @@ void set_relay_pcm_callback_func(const struct relay_pcm_func_t *_relay_pcm_func)
 void replay_pcm_begin(void);
 bool relay_pcm_feed(const void *buf, unsigned size);
 bool relay_pcm_end(void);
+void replay_pcm_abort(void);
 
 #if defined(__cplusplus)
 };

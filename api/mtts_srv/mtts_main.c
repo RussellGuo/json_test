@@ -233,8 +233,12 @@ static bool file_relay_pcm_end(void *user_data_ptr)
     return ret;
 }
 
+static void file_relay_pcm_abort(void *user_data_ptr)
+{
+    pcm_abort();
+}
 
-static struct relay_pcm_func_t relay_pcm_func = { NULL, file_replay_pcm_begin, file_relay_pcm_feed, file_relay_pcm_end, };
+static struct relay_pcm_func_t relay_pcm_func = { NULL, file_replay_pcm_begin, file_relay_pcm_feed, file_relay_pcm_end, file_relay_pcm_abort};
 
 int main(int argc, char *argv[])
 {
@@ -254,7 +258,13 @@ int main(int argc, char *argv[])
         _exit(0);
     } else {
         tts_init();
-        tts_play(false, argv[1]?:"我是马首我是马首");
+        for (;;){
+            const char *demo_tab[] = {"支付宝支付5元成功", "支付宝支付12元成功", "微信支付100元成功", "微信支付5元成功", "微信支付12元成功", "微信支付100元成功"};
+            for (size_t i = 0; i < sizeof (demo_tab) / sizeof(demo_tab[0]); i++) {
+                mtts_play(demo_tab[i], tts_should_continue, NULL);
+                sleep(1);
+            }
+        }
     }
     return 0;
 }

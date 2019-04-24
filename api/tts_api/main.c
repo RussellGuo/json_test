@@ -51,6 +51,8 @@ static void init_tty(void)
     }
 }
 
+static void tts_callback(tts_playing_result_t result, const char *msg);
+
 static volatile bool ctrl_c_pressed = false;
 static void tty_read_proc(int fd, uint64_t arg)
 {
@@ -62,28 +64,38 @@ static void tty_read_proc(int fd, uint64_t arg)
         fprintf(stderr, "\r\n");
     }
     fprintf(stderr, "c: '%c', arg: %llX\r\n", c, arg);
+
+    bool tts_ret = true;
     switch(c) {
     case '1':
-        RemoteTtsPlay(false, "To be, or not to be, that is a question");
+        tts_ret = RemoteTtsPlay(false, "To be, or not to be, that is a question");
         break;
     case '2':
-        RemoteTtsPlay(false, "生存还是毁灭，这是一个值得考虑的问题");
+        tts_ret = RemoteTtsPlay(false, "这是俄罗斯在大选胜利后，首次针对叙利亚境内目标实施的空袭，"
+                                       "这次以军使用战机相当引人注目，连美国媒体都证实，认为以军用F35战机取得了巨大的战果");
         break;
     case '3':
     case '4':
-        RemoteTtsBeep(c == '3' ? 300 : 2700, 80);
+        tts_ret = RemoteTtsBeep(c == '3' ? 300 : 2700, 80);
         break;
     case '5':
     case '6':
-        RemoteTtsBeep(c == '5' ? 300 : 2700, 500);
+        tts_ret = RemoteTtsBeep(c == '5' ? 300 : 2700, 500);
         break;
     case '7':
-        RemoteTtsStopPlaying();
+        tts_ret = RemoteTtsStopPlaying();
+        break;
+    case '8':
+        RemoteTtsclose();
+        RemoteTtsinit(tts_callback);
         break;
     case 'Q':
     case 'q':
     case 3:
         ctrl_c_pressed = true;
+    }
+    if (!tts_ret) {
+        fprintf(stderr, "Remote TTS invoking failed\r\n");
     }
 }
 
@@ -122,6 +134,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "   5: playing beep in  300Hz, 500ms\r\n");
         fprintf(stderr, "   6: playing beep in 2700Hz, 500ms\r\n");
         fprintf(stderr, "   7: stop last playing\r\n");
+        fprintf(stderr, "   8: Restart Remote TTS\r\n");
         fprintf(stderr, "   Q: exit\r\n");
         ret = PollEventSpinOnce();
         if (ret < 0) {
