@@ -143,7 +143,6 @@ static bool pcm_feed_16K_to_48K(const void *buf, unsigned size)
 
 static bool tts_play(bool isGBK, char *buf)
 {
-    static int playing_count = 0;
     int len = strlen(buf);
     int nReturn;
     bool feed_ok = true;
@@ -219,13 +218,6 @@ static bool tts_play(bool isGBK, char *buf)
     }
     send_ipc_reply(reply_msg, 0);
 
-    playing_count++;
-    if (playing_count >= 3) {
-        int ret = execl("/system/bin/tts_service", "/system/bin/tts_service", NULL);
-        perror("start tts service");
-        fprintf(stderr, "\r\n");
-        _exit(1);
-    }
     return true;
 
 }
@@ -324,22 +316,16 @@ void set_cmd_line_argv0(const char *cmd_line_argv0)
     strcpy(argv0, cmd_line_argv0);
 }
 
-
-#if 1
-time_t time(time_t *tloc)
+static void print_yt_tts_info(char *strMessage,unsigned int *pTime)
 {
-    time_t ret = 1551603667;
-    if (tloc) {
-        *tloc = ret;
-    }
-    return ret;
+    fprintf(stderr, "[TTS_INFO]: %s\r\n",strMessage);
+    *pTime = 0;
 }
-#endif
-
 
 int main(int argc, char *argv[])
 {
     argv0 = argv[0];
+    yt_tts_set_cb_print_info_300(print_yt_tts_info);
     tts_cmd_loop();
     _exit(0);
     return 0;

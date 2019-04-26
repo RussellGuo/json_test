@@ -362,6 +362,26 @@ int yt_tts_get_sampling_rate_300(void);
 
 
 
+/*-------------------------------------------------------------------------------
+ |yt_tts_set_cb_print_info_300(...)
+ |PURPOSE
+ |	This API intends to print debugging information from TTS engine...
+ |
+ |INPUT
+ |	print_info: a callback function for printing message.
+ |              This function uses two arguments, where 
+ |					strMessage is an input string while pTime is a output pointer to an integer 
+ |
+ |OUTPUT
+ |	none
+ |
+ |RETURN VALUE
+ |  none
+ |
+ |CODING
+ |	Shanghai YoungTone Tech.
+ *-------------------------------------------------------------------------------*/
+void yt_tts_set_cb_print_info_300(void (*print_info)(char *strMessage,unsigned int *pTime));
 
 
 

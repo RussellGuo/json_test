@@ -6,7 +6,7 @@ LOCAL_MODULE := libyt_tts
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := STATIC_LIBRARIES
 LOCAL_MODULE_SUFFIX := .a
-LOCAL_SRC_FILES := lib/libyt_tts_cn_man_arm_300.a
+LOCAL_SRC_FILES := lib/libyt_tts_cn_man_arm_300_net.a
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
 include $(BUILD_PREBUILT)
 

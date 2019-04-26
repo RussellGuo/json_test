@@ -165,7 +165,7 @@ bool play_sample(FILE *file, unsigned int card, unsigned int device, unsigned ms
                 ok = false;
                 break;
             }
-            fprintf(stderr, "PCM read %d bytes\r\n", num_read);
+            // fprintf(stderr, "PCM read %d bytes\r\n", num_read);
         }
     } while (num_read > 0);
 
