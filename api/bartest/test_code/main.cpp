@@ -38,8 +38,8 @@ for (;;)
      break;
     case '2':    
      mini_get_img_info(&cxt,&imginfo);
-     fprintf(stdout,"yuzan imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
-		imginfo.width,imginfo.height,imginfo.format,(unsigned int)imginfo.data);
+    // fprintf(stdout,"yuzan imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
+	//	imginfo.width,imginfo.height,imginfo.format,(unsigned int)imginfo.data);
     flag = 1;    //test
     usleep(100000);
       break;
