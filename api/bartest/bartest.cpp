@@ -969,8 +969,9 @@ int Cam_DeInit(void) {
    cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
    cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
    sem_destroy(&mbuffer.buf_sem);
-    return 0;
-
+   free(mbuffer.data);
+   mbuffer.data = NULL;
+   return 0;
 exit:
    return -1;
 }
@@ -987,8 +988,8 @@ bool mini_get_img_info(struct minicamera_context *cxt,img_info_t *out_param_ptr)
   mbuffer.bufferEnable  = true;
   out_param_ptr->data =mbuffer.data;
   sem_wait(&mbuffer.buf_sem);
-  fprintf(stdout,"yuzan imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
-		 out_param_ptr->width,out_param_ptr->height,out_param_ptr->format,(unsigned int)out_param_ptr->data);
+ // fprintf(stdout,"yuzan1 imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
+ //		 out_param_ptr->width,out_param_ptr->height,out_param_ptr->format,(unsigned int)out_param_ptr->data);
    return 0;
 exit:
    return -1;
