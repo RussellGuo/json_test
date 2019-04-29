@@ -15,7 +15,13 @@
 #include "type.h"
 #include "wifi.h"
 
-
+#include <stdio.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/un.h>
+#include <unistd.h>
+#include <cutils/sockets.h>
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--namespace sci_wifi {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,6 +50,11 @@
 #define CONNECTED                   5
 #define CONNECTING                  6
 
+#define GB_FLAG 0x85
+#define PATH "wpa_wlan0"
+
+struct sockaddr_un local;
+static int counter;
 
 //------------------------------------------------------------------------------
 static wifi_ap_t       sAPs[WIFI_MAX_AP];
@@ -69,8 +80,152 @@ static int    wifiSaveConfig();
 //wg for ipaddr api
 char ip_addr[PROPERTY_VALUE_MAX]="UNKNOWN";
 char ip_gate[PROPERTY_VALUE_MAX]="UNKNOWN";
+char ip_mask[PROPERTY_VALUE_MAX]="UNKNOWN";
+
+typedef unsigned short u16;
+typedef unsigned char u8;
+
+void * os_malloc(size_t size)
+{
+	return malloc(size);
+}
+
+/**
+* Check if the string need to do a gbk to utf-8 or utf-8 to gbk convertion
+* str: input string
+* str_len : input string byte length
+* return 1 for yes
+* return 0 for no
+*/
+static int needConvert(const char* str, unsigned str_len)
+{
+	unsigned i = 0;
+	int bNeed_convert = 0;
+
+	if(NULL == str || 0 == str_len)
+		return 0; // see as no
+
+	while(i < str_len)
+	{
+		if(0 == (str[i] & 0x80)) //is ascii
+		{
+			i++;
+			continue;
+		}
+
+		bNeed_convert = 1;
+		break;
+	}
+	return bNeed_convert;
+}
 
 
+static int hex2num(char c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+	return -1;
+}
+
+
+int hex2byte(const char *hex)
+{
+	int a, b;
+	a = hex2num(*hex++);
+	if (a < 0)
+		return -1;
+	b = hex2num(*hex++);
+	if (b < 0)
+		return -1;
+	return (a << 4) | b;
+}
+
+size_t printf_decode(char *buf, size_t maxlen, const char *str)
+{   const char *pos = str;
+	size_t len = 0;
+	int val;
+	while (*pos) {
+	//INFMSG("set wifi *pos=%x \n",*pos);
+		if (len == maxlen)
+			break;
+		switch (*pos) {
+		case '\\':
+			pos++;
+			switch (*pos) {
+			case '\\':
+				buf[len++] = '\\';
+				pos++;
+				break;
+			case '"':
+				buf[len++] = '"';
+				pos++;
+				break;
+			case 'n':
+				buf[len++] = '\n';
+				pos++;
+				break;
+			case 'r':
+				buf[len++] = '\r';
+				pos++;
+				break;
+			case 't':
+				buf[len++] = '\t';
+				pos++;
+				break;
+			case 'e':
+				buf[len++] = '\e';
+				pos++;
+				break;
+			case 'x':
+				pos++;
+				val = hex2byte(pos);
+				INFMSG("set wifi val=%x\n",val);
+				if (val < 0) {
+					val = hex2num(*pos);
+					if (val < 0)
+						break;
+					buf[len++] = val;
+					pos++;
+				} else {  
+					buf[len++] = val;
+					pos += 2;
+				}
+				//INFMSG("set wifi buf=%x len=%d\n",buf[len],len);
+				break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+				val = *pos++ - '0';
+				if (*pos >= '0' && *pos <= '7')
+					val = val * 8 + (*pos++ - '0');
+				if (*pos >= '0' && *pos <= '7')
+					val = val * 8 + (*pos++ - '0');
+				buf[len++] = val;
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			buf[len++] = *pos++;
+			//INFMSG("set wifi buf=%x len=%d\n",buf[len],len);
+			break;
+		}
+	}
+
+	//return len;
+	return strlen((const char*)buf);
+
+}
 
 
 int wifiGetStatus( void )
@@ -515,6 +670,7 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
         pcur++;
     }
     // ssid
+    memset(ap->name,'\0',sizeof(ap->name));
     i = 0;
     while( *pcur != '\t' && pcur < end ) {
         if( i < sizeof(ap->name) - 1 ) {
@@ -523,6 +679,27 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
         pcur++;
     }
     ap->name[i] = 0;
+
+    char ssid[128];
+    char ssid_1[128];
+    memset(ssid,'\0',sizeof(ssid));
+    memset(ssid_1,'\0',sizeof(ssid_1));
+    int len =strlen(ap->name);
+    strncpy(ssid,ap->name,len);
+    INFMSG("set wifi before ssid:%s len =%d \n",ssid,len);
+    int length = printf_decode((char *) ssid_1, len, ssid);
+    INFMSG("set wifi end ssid:%s length=%x \n",ssid_1,length);
+    strncpy(ap->name,ssid_1,len);   
+    if(needConvert(ssid_1,length) && (ssid_1[length - 1] == GB_FLAG)){
+     ssid_1[length - 1] = '\0';//remove the last GB_FLAG
+     length --;
+     INFMSG("set wifi needConvert :%s \n",ssid_1)
+     strncpy(ap->name,ssid_1,len);
+       }
+    if(length > (len+1)){
+    INFMSG("set wifi not need convert :%s \n",ssid); 
+    strncpy(ap->name,ssid,len);
+       }
     INFMSG("mac = %s, name = %s, sig = %d, flags=%s\n", ap->smac, ap->name, ap->sig_level,ap->flags);
 }
 
@@ -812,6 +989,82 @@ int wifiConnectNetwork(int netId){
     return CONNECTED;
 }
 
+
+
+int  WiFiIsOnline(char* p_rssi){
+    char rssi[15];
+    size_t cmd_len;
+	char reply[2048];
+	char * cmd = "IFNAME=wlan0 STATUS";
+	int res;
+	int fd;
+	cmd_len = strlen(cmd);
+    fd = socket(PF_UNIX, SOCK_DGRAM, 0);
+	local.sun_family = AF_UNIX;
+	snprintf(local.sun_path,
+			sizeof(local.sun_path),
+			"/data/misc/wifi/sockets/wpa_ctrl_%d_%d",
+			(int) getpid(), ++counter);
+	/* bind addr */
+	if (bind(fd, (struct sockaddr *) &local,
+		    sizeof(local)) < 0) {
+		if (errno == EADDRINUSE) {
+			INFMSG("bind failed: %s\n", strerror(errno));	
+		}
+		close(fd);
+		return -1;
+	}
+
+	/* connect to server */
+	if (socket_local_client_connect(fd, PATH,
+			ANDROID_SOCKET_NAMESPACE_RESERVED, SOCK_DGRAM) < 0) {
+		INFMSG("connect to wpa_supplicant failed: %s\n", strerror(errno));	
+		close(fd);
+		unlink(local.sun_path);
+		return -2;
+	}
+
+	/* send cmd */
+	if (send(fd, cmd, cmd_len, 0) < 0) {
+		INFMSG("send cmd failed failed: %s\n", strerror(errno));	
+		return -3;
+	}
+
+/* get replay */
+	res = recv(fd, reply, sizeof(reply), 0);
+	reply[res] = '\0';
+	INFMSG("replay:\n %s \n", reply);
+	/* parse wpa_state value */
+    if(res > 0) {
+        const char * split = "\n";
+        char * p = NULL;
+        char rssi[15];
+        int wpa_state_value = 0;
+        p = strtok(reply, split);
+        while(p != NULL){
+            if( strncmp("wpa_state",p,9) ==0 ){
+                strncpy(rssi, p+10, strlen(p)-10);
+                usleep(1000 * 1000);
+               //INFMSG("wpa_state_value = %s \n", rssi);
+                if(strcmp(rssi,"COMPLETED") == 0){
+                INFMSG("Wifi Link Succeeded\n");
+                    break;
+                }
+            }
+             p=strtok(NULL,split);
+        }
+    }
+        
+	/* close fd */
+	close(fd);
+	/* remove /data/misc/wifi/sockets/wpa_ctrl_%d_%d */
+	unlink(local.sun_path);
+	strcpy(p_rssi,rssi);
+	return 0;
+} 
+	
+
+
 int wifiDhcp(){
     DBGMSG("---- wifiDhcp enter ----\n");
     int result;
@@ -824,8 +1077,11 @@ int wifiDhcp(){
         INFMSG("dhcp_stop success : wlan0");
     }
     DBGMSG("---- wifiDhcp dhcp_stop end----\n");
-
+	
     char  ipaddr[PROPERTY_VALUE_MAX];
+	
+    char  ipmask[PROPERTY_VALUE_MAX];
+	
     uint32_t prefixLength;
     char gateway[PROPERTY_VALUE_MAX];
     char    dns1[PROPERTY_VALUE_MAX];
@@ -839,13 +1095,14 @@ int wifiDhcp(){
     char domains[PROPERTY_VALUE_MAX];
     char mtu[PROPERTY_VALUE_MAX];
     DBGMSG("---- wifiDhcp dhcp_do_request begin----\n");
-    result = dhcp_do_request("wlan0", ipaddr, gateway, &prefixLength,
+    result = dhcp_do_request("wlan0", ipaddr,gateway, &prefixLength,
             dns, server, &lease, vendorInfo, domains, mtu);
     DBGMSG("---- wifiDhcp dhcp_do_request end----\n");
     if (result != 0) {
         INFMSG("dhcp_do_request failed : wlan0");
     }else{
         INFMSG("wifiConnectNetwork dhcp_do_request  ipaddr = %s\n", ipaddr);
+		INFMSG("wifiConnectNetwork dhcp_do_request  ipmask = %s\n", ipmask);
         INFMSG("wifiConnectNetwork dhcp_do_request  gateway = %s\n", gateway);
         INFMSG("wifiConnectNetwork dhcp_do_request  dns1 = %s\n", dns[0]);
         INFMSG("wifiConnectNetwork dhcp_do_request  dns2 = %s  length = %d\n", dns[1], strlen(dns[1]));
@@ -853,8 +1110,10 @@ int wifiDhcp(){
         INFMSG("wifiConnectNetwork dhcp_do_request  vendorInfo = %s\n", vendorInfo);
         INFMSG("wifiConnectNetwork dhcp_do_request  mtu = %s\n", mtu);
         strcpy(ip_addr,ipaddr);
+		strcpy(ip_mask,ipmask);
 	strcpy(ip_gate,gateway);
 	INFMSG("wifiConnectNetwork dhcp_do_request  ip_addr = %s\n", ip_addr);
+	INFMSG("wifiConnectNetwork dhcp_do_request  ip_mask = %s\n", ip_mask);
 	INFMSG("wifiConnectNetwork dhcp_do_request  ip_gate = %s\n", ip_gate);
     }
     DBGMSG("---- wifiDhcp exit ----\n");
@@ -973,7 +1232,7 @@ int wifiGetipaddr(char* p_ip_addr)
     INFMSG("wifiGetipaddr ipaddr = %s\n", ip_addr);
   //  for(int i=0;i<strlen(ip_addr);i++){
 
-    //    INFMSG("wifiGetipaddr wg  ipaddr = %c\n", ip_addr[i]);
+    //    INFMSG("wifiGetipaddr   ipaddr = %c\n", ip_addr[i]);
   //      *(p_ip_addr+i)=ip_addr[i];
 
   //  }
@@ -983,10 +1242,12 @@ int wifiGetipaddr(char* p_ip_addr)
     return 0;
 }
 
-int WiFiGetMask(void)
+int WiFiGetipMask(char *p_ip_mask)
 {
     FUN_ENTER;
-    INFMSG("wifiGetipaddr wg  ipaddr = %s\n", ip_addr);   
+     INFMSG("wifiGetmask   ipmask = %s\n", ip_mask); 
+	 strcpy(p_ip_mask,ip_mask);
+	 INFMSG("wifiGetipaddr ipaddr = %s\n", p_ip_mask); 
     FUN_EXIT;
     return 0;
 }
@@ -994,9 +1255,9 @@ int WiFiGetMask(void)
 int WiFiGetGATE(char *p_ip_gate)
 {
     FUN_ENTER;
-    INFMSG("wifiGetipgate wg  ip_gate = %s\n", ip_gate); 
+    INFMSG("wifiGetipgate   ip_gate = %s\n", ip_gate); 
     strcpy(p_ip_gate,ip_gate); 
-    INFMSG("wifiGetipgate wg  p_ip_gate = %s\n", p_ip_gate); 
+    INFMSG("wifiGetipgate   p_ip_gate = %s\n", p_ip_gate); 
     FUN_EXIT;
     return 0;
 }
@@ -1122,3 +1383,5 @@ int softapSetMoreParam(int argc, char *argv[]){
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--} // namespace
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+

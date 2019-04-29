@@ -16,7 +16,7 @@ extern "C" {
 struct wifi_ap_t {
     char bmac[6];  // binary mac
     char smac[24]; // string mac
-    char name[24];
+    char name[128];
     char flags[64];
     int  sig_level;
 };
