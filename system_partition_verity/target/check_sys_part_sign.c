@@ -26,8 +26,51 @@
 
 #include <assert.h>
 
+#include <cutils/android_reboot.h>
+
 #include "calc_dir_digest_recursively.h"
 #include "../common/rsa_warpper.h"
+
+void system_partition_mismatch_process(void)
+{
+#if 1 //!defined(USERDEBUG_BUILD)
+    while(1)
+    {
+        int ret = mkdir("/cache/recovery/", S_IRWXU | S_IRWXG | S_IRWXO);
+        if (-1 == ret && (errno != EEXIST)){
+            perror("mkdir");
+            sleep(10);
+            continue;
+        }
+        int fd = open("/cache/recovery/command", O_WRONLY | O_CREAT, 0777);
+        if(fd < 0){
+            perror("open /cache/recovery/command for write");
+            sleep(10);
+            continue;
+        }
+
+        const char *data[] = { "--system_check_error\n", "--reason=system_check_error\n" , (const char *)NULL };
+        bool wrote_all = true;
+        for (const char **ptr = data ; *ptr != (const char *)NULL ; ptr++) {
+            size_t len = strlen(*ptr);
+            ssize_t wrote = write(fd, *ptr, len + 1);
+            if ( (size_t)wrote != len + 1) {
+                wrote_all = false;
+                break;
+            }
+        }
+        close(fd);
+
+        if (!wrote_all) {
+            sleep(10);
+            continue;
+        }
+        sync();
+        android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
+        sleep(10000000);
+    }
+#endif
+}
 
 bool check_signature(const unsigned char *hash, const char *signature_file, const char *pub_key)
 {
@@ -50,7 +93,7 @@ bool check_signature(const unsigned char *hash, const char *signature_file, cons
     decrypted_length = public_decrypt(encrypted, (size_t)encrypted_length, pub_key, decrypted);
     if (decrypted_length != SHA256_DIGEST_LENGTH) {
         fprintf(stderr, "The decrypted length should be 32, a SHA256_DIGEST_LENGTH\n");
-        exit(1);
+        return false;
     }
     for(int i = 0; i < decrypted_length; i++) {
         printf("%02x", decrypted[i]);
@@ -59,7 +102,7 @@ bool check_signature(const unsigned char *hash, const char *signature_file, cons
     fflush(stdout);
     if (memcmp(hash, decrypted, SHA256_DIGEST_LENGTH) != 0) {
         fprintf(stderr, "decrypted text and the plain text are mismatch\n");
-        exit(1);
+        return false;
     }
     return true;
 }
@@ -81,6 +124,10 @@ int main(int argc, char *argv[])
         fflush(stdout);
 
         bool is_ok = check_signature(sha256, sign_file, key_file);
+        if (is_ok) {
+            return 0;
+        }
+        system_partition_mismatch_process();
 
         break;
     }

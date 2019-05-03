@@ -2,6 +2,9 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_CFLAGS += -std=c99
+ifeq ($(TARGET_BUILD_VARIANT),userdebug)
+LOCAL_CFLAGS += -DUSERDEBUG_BUILD=1
+endif
 
 LOCAL_SRC_FILES := ../common/calc_dir_digest_recursively.c check_sys_part_sign.c target_fs_config.c
 LOCAL_C_INCLUDES += external/openssl/include $(LOCAL_PATH)/../common
@@ -9,6 +12,7 @@ LOCAL_C_INCLUDES += external/openssl/include $(LOCAL_PATH)/../common
 LOCAL_MODULE := target_chk_sys_part_sign
 LOCAL_STATIC_LIBRARIES := \
         libc \
+        libcutils \
     libcrypto_static
 
 
