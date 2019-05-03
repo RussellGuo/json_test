@@ -7,8 +7,6 @@
  */
 
 #define _GNU_SOURCE 1
-#include <stdint.h>
-#include <stdbool.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +16,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+
+#include <sys/wait.h>
 
 #include <linux/limits.h>
 #include <fcntl.h>
@@ -133,6 +133,8 @@ void calc_root_recursively(const char *root)
     }
     int fd = open(root, O_RDONLY|O_NONBLOCK);
     calc_dir_recursively(fd, NULL);
+    close(fd);
+    fflush(stdout);
 }
 
 
@@ -239,4 +241,66 @@ static enum file_type_t calc_hash_sha256_and_mode_info(const char full_path[], i
     assert(sha256_hex_and_mode_info_max > strlen(sha256_hex_and_mode_info));
 
     return file_type;
+}
+
+bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST_LENGTH])
+{
+    int pipe_fds[2];
+    if (pipe(pipe_fds) < 0) {
+        perror("pipe");
+        return false;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return false;
+    }
+    if (pid == 0) {
+        if (dup2(pipe_fds[1], 1) < 0) {
+            perror("dup2");
+            _exit(1);
+        }
+        close(pipe_fds[0]);
+        close(pipe_fds[1]);
+        calc_root_recursively(dir);
+        exit(0);
+    } else {
+        SHA256_CTX ctx;
+        bool ret = !!SHA256_Init(&ctx);
+        if (!ret) {
+            fprintf(stderr, "SHA256_Init error\r\n");
+            return false;
+        }
+        close(pipe_fds[1]);
+        while(true) {
+            unsigned char buf[1024];
+            ssize_t read_count = read(pipe_fds[0], buf, sizeof buf);
+            if (read_count < 0) {
+                perror("read");
+                return false;
+            }
+            if (read_count == 0) {
+                break;
+            }
+            int ret = SHA256_Update(&ctx, buf, read_count);
+            if (!ret) {
+                fprintf(stderr, "SHA256_Update error\n");
+                return false;
+            }
+        }
+        close(pipe_fds[0]);
+
+        int wait_status;
+        if (waitpid(pid, &wait_status, 0) < 0) {
+            perror("waitpid");
+            return false;
+        }
+        if (!WIFEXITED(wait_status) || WEXITSTATUS(wait_status) != 0) {
+            fprintf(stderr, "calc exit abnormally\n");
+            return false;
+        }
+        return !!SHA256_Final(sha256, &ctx);
+
+    }
 }

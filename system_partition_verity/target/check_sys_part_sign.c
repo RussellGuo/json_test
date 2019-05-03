@@ -30,6 +30,29 @@
 
 int main(int argc, char *argv[])
 {
-    calc_root_recursively(argc >= 2 ? argv[1] : "/system");
+    switch (argc) {
+    case 1:
+    {
+        const char *dir       = "/system";
+        const char *key_file  = "/rsapub.key";
+        const char *sign_file = "/system/sigature-all.bin";
+        unsigned char sha256[SHA256_DIGEST_LENGTH];
+        bool ret = gen_meta_digest_for_dir(dir, sha256);
+        for(size_t i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+            printf("%02x", sha256[i]);
+        }
+        printf("\n");
+        fflush(stdout);
+
+        break;
+    }
+    case 2:
+    {
+        calc_root_recursively(argv[1]);
+        break;
+    }
+    default:
+        fprintf(stderr, "Usage: %s [dir]\n", argv[0]);
+    }
     return 0;
 }
