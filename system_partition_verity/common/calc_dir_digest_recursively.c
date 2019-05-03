@@ -103,6 +103,9 @@ static void calc_dir_recursively(int dir_fd, const char *path)
         char sha256_hex_and_mode_info[SHA256_DIGEST_LENGTH * 2 + 30];
 
         snprintf(child_path, sizeof(child_path), "%s%s%s", path ? path : "" , path? "/":"", name);
+        if (strcmp(child_path, "signature-all.bin") == 0) {
+            continue;
+        }
 
         enum file_type_t file_type = calc_hash_sha256_and_mode_info(child_path, dir_fd, name, sha256_hex_and_mode_info, sizeof (sha256_hex_and_mode_info));
 

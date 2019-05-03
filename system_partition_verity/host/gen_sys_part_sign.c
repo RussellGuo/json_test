@@ -39,16 +39,57 @@ int main(int argc, char *argv[])
         calc_root_recursively(dir);
         break;
     }
-    case 4:
+    case 5:
     {
-        const char *dir       = argv[1];
-        const char *key_file  = argv[2];
-        const char *sign_file = argv[3];
-        unsigned char sha256[SHA256_DIGEST_LENGTH];
+        const char *dir           = argv[1];
+        const char *pri_key_file  = argv[2];
+        const char *pub_key_file  = argv[3];
+        const char *sign_file     = argv[4];
+
+        unsigned char sha256[4098];
+        memset(sha256, 0, sizeof (sha256));
+
         bool ret = gen_meta_digest_for_dir(dir, sha256);
         for(size_t i = 0; i < SHA256_DIGEST_LENGTH; i++) {
             printf("%02x", sha256[i]);
         }
+        printf("\n");
+
+        unsigned char  encrypted[4098];
+        unsigned char decrypted[4098];
+        int encrypted_length, decrypted_length;
+
+        encrypted_length= private_encrypt(sha256, SHA256_DIGEST_LENGTH, pri_key_file, encrypted);
+        if (encrypted_length != 256) {
+            fprintf(stderr, "The encrypted length RSA 2048 should be 256 bytes\n");
+            exit(1);
+        }
+
+        decrypted_length = public_decrypt(encrypted, (size_t)encrypted_length, pub_key_file, decrypted);
+        if (decrypted_length != SHA256_DIGEST_LENGTH) {
+            fprintf(stderr, "The decrypted length should be 32, a SHA256_DIGEST_LENGTH\n");
+            exit(1);
+        }
+        for(size_t i = 0; i < decrypted_length; i++) {
+            printf("%02x", decrypted[i]);
+        }
+        printf("\n");
+        if (memcmp(sha256, decrypted, SHA256_DIGEST_LENGTH) != 0) {
+            fprintf(stderr, "decrypted text and the plain text are mismatch\n");
+            exit(1);
+        }
+
+        FILE *f_sign = fopen(sign_file, "wb");
+        if (f_sign == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+        size_t written = fwrite(encrypted, 1, encrypted_length, f_sign);
+        if (written != encrypted_length) {
+            fprintf(stderr, "Writing the signature error\n");
+            exit(1);
+        }
+        fclose(f_sign);
 
         break;
     }
