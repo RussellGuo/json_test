@@ -33,7 +33,7 @@
 
 void system_partition_mismatch_process(void)
 {
-#if 1 //!defined(USERDEBUG_BUILD)
+#if !defined(USERDEBUG_BUILD)
     while(1)
     {
         int ret = mkdir("/cache/recovery/", S_IRWXU | S_IRWXG | S_IRWXO);
@@ -69,6 +69,8 @@ void system_partition_mismatch_process(void)
         android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
         sleep(10000000);
     }
+#else
+    exit(1);
 #endif
 }
 
@@ -96,10 +98,9 @@ bool check_signature(const unsigned char *hash, const char *signature_file, cons
         return false;
     }
     for(int i = 0; i < decrypted_length; i++) {
-        printf("%02x", decrypted[i]);
+        fprintf(stderr, "%02x", decrypted[i]);
     }
-    printf("\n");
-    fflush(stdout);
+    fprintf(stderr, "\n");
     if (memcmp(hash, decrypted, SHA256_DIGEST_LENGTH) != 0) {
         fprintf(stderr, "decrypted text and the plain text are mismatch\n");
         return false;
@@ -116,14 +117,27 @@ int main(int argc, char *argv[])
         const char *key_file  = "/rsapub.key";
         const char *sign_file = "/system/signature-all.bin";
         unsigned char sha256[SHA256_DIGEST_LENGTH];
-        bool ret = gen_meta_digest_for_dir(dir, sha256);
-        for(size_t i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-            printf("%02x", sha256[i]);
+
+        int log_fd = open("/data/check_sys_part_sign.log", O_WRONLY|O_CREAT|O_TRUNC, 0777);
+        if (log_fd < 0) {
+            perror("creat log file");
+        } else {
+            if (dup2(log_fd, 2) < 0) {
+                perror("dup");
+            }
+            close(log_fd);
+            log_fd = -1;
         }
-        printf("\n");
-        fflush(stdout);
+
+        bool ret = gen_meta_digest_for_dir(dir, sha256, stderr);
+        for(size_t i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+            fprintf(stderr, "%02x", sha256[i]);
+        }
+        fprintf(stderr, "\n");
 
         bool is_ok = check_signature(sha256, sign_file, key_file);
+        fprintf(stderr, "\nCheck the system partition signature %s\n", is_ok ? "succeed" : "FAILED");
+        fflush(stderr);
         if (is_ok) {
             return 0;
         }

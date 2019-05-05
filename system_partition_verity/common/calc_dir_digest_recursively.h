@@ -8,7 +8,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 void calc_root_recursively(const char *root);
-bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST_LENGTH]);
+bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST_LENGTH], FILE *debug_file);
 

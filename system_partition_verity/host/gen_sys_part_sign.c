@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         unsigned char sha256[4098];
         memset(sha256, 0, sizeof (sha256));
 
-        bool ret = gen_meta_digest_for_dir(dir, sha256);
+        bool ret = gen_meta_digest_for_dir(dir, sha256, NULL);
         for(size_t i = 0; i < SHA256_DIGEST_LENGTH; i++) {
             printf("%02x", sha256[i]);
         }

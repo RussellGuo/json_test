@@ -246,7 +246,7 @@ static enum file_type_t calc_hash_sha256_and_mode_info(const char full_path[], i
     return file_type;
 }
 
-bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST_LENGTH])
+bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST_LENGTH], FILE *debug_file)
 {
     int pipe_fds[2];
     if (pipe(pipe_fds) < 0) {
@@ -290,6 +290,9 @@ bool gen_meta_digest_for_dir(const char *dir, unsigned char sha256[SHA256_DIGEST
             if (!ret) {
                 fprintf(stderr, "SHA256_Update error\n");
                 return false;
+            }
+            if (debug_file) {
+                fwrite(buf, 1, read_count, debug_file);
             }
         }
         close(pipe_fds[0]);
