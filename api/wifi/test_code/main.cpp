@@ -9,7 +9,7 @@
 
 
 int main( int argc, char *argv[] )
-{   int WiFiIsOnline(char* p_rssi);
+{
     DBGMSG("........ wifitest enter ........\n");
     DBGMSG("argc is %d\n", argc);
     for(int i = 0; i < argc ; i++){
