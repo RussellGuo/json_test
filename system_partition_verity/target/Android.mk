@@ -3,15 +3,18 @@ include $(CLEAR_VARS)
 
 LOCAL_CFLAGS += -std=c99
 ifeq ($(TARGET_BUILD_VARIANT),userdebug)
-LOCAL_CFLAGS += -DUSERDEBUG_BUILD=1
+LOCAL_CFLAGS += -DCONTINUE_THE_SYSTEM_BOOTING=1
 endif
 
-LOCAL_SRC_FILES := ../common/calc_dir_digest_recursively.c check_sys_part_sign.c target_fs_config.c
-LOCAL_C_INCLUDES += external/openssl/include $(LOCAL_PATH)/../common
+LOCAL_CPPFLAGS += -std=c++11
+
+LOCAL_SRC_FILES := ../common/calc_dir_digest_recursively.c check_sys_part_sign.c target_fs_config.c ../../api/gdi/adf_class.cpp
+LOCAL_C_INCLUDES += external/openssl/include $(LOCAL_PATH)/../common system/core/adf/libadf/include $(LOCAL_PATH)/../../api/gdi
 
 LOCAL_MODULE := target_chk_sys_part_sign
 LOCAL_STATIC_LIBRARIES := \
         libc \
+        libadf \
         libcutils \
     libcrypto_static
 

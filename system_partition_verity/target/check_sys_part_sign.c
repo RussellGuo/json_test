@@ -31,46 +31,28 @@
 #include "calc_dir_digest_recursively.h"
 #include "../common/rsa_warpper.h"
 
+#include "adf_class.h"
+
+static inline void show_mismatch_error(void)
+{
+    void *fbmem;
+    uint32_t width, height, linelen;
+    if (initAdfDevice(&fbmem, &width, &height, &linelen)) {
+        memset(fbmem, 0xFF, linelen * height);
+        AdfFlip();
+    }
+}
+
 void system_partition_mismatch_process(void)
 {
-#if !defined(USERDEBUG_BUILD)
-    while(1)
-    {
-        int ret = mkdir("/cache/recovery/", S_IRWXU | S_IRWXG | S_IRWXO);
-        if (-1 == ret && (errno != EEXIST)){
-            perror("mkdir");
-            sleep(10);
-            continue;
-        }
-        int fd = open("/cache/recovery/command", O_WRONLY | O_CREAT, 0777);
-        if(fd < 0){
-            perror("open /cache/recovery/command for write");
-            sleep(10);
-            continue;
-        }
-
-        const char *data[] = { "--system_check_error\n", "--reason=system_check_error\n" , (const char *)NULL };
-        bool wrote_all = true;
-        for (const char **ptr = data ; *ptr != (const char *)NULL ; ptr++) {
-            size_t len = strlen(*ptr);
-            ssize_t wrote = write(fd, *ptr, len + 1);
-            if ( (size_t)wrote != len + 1) {
-                wrote_all = false;
-                break;
-            }
-        }
-        close(fd);
-
-        if (!wrote_all) {
-            sleep(10);
-            continue;
-        }
-        sync();
-        android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
-        sleep(10000000);
-    }
-#else
+    show_mismatch_error();
+#if defined(CONTINUE_THE_SYSTEM_BOOTING)
+    sleep(3);
     exit(1);
+#else
+    while(true) {
+        sleep(-1);
+    }
 #endif
 }
 

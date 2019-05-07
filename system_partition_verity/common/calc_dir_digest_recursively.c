@@ -134,7 +134,7 @@ void calc_root_recursively(const char *root)
         fprintf(stderr, "calc_root_recursively for a NON-directory\n");
         exit(1);
     }
-    int fd = open(root, O_RDONLY|O_NONBLOCK);
+    int fd = open(root, O_RDONLY);
     calc_dir_recursively(fd, NULL);
     close(fd);
     fflush(stdout);
