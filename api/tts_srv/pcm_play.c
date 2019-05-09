@@ -149,7 +149,6 @@ bool play_sample(FILE *file, unsigned int card, unsigned int device, unsigned ms
     buffer = malloc(size);
     if (!buffer) {
         fprintf(stderr, "Unable to allocate %d bytes\r\n", size);
-        free(buffer);
         pcm_close(pcm);
         return false;
     }

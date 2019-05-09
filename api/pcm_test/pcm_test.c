@@ -9,7 +9,7 @@
 #include <sched.h>
 
 #define SAMPLE_RATE 48000
-#define MS_TO_SAMPLE_COUNT(msec) (msec * SAMPLE_RATE / 1000)
+#define MS_TO_SAMPLE_COUNT(msec) ( (msec) * SAMPLE_RATE / 1000)
 
 static bool play_sample(unsigned int card, unsigned int device, const int16_t *samples, unsigned msec)
 {

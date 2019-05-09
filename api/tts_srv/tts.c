@@ -44,6 +44,8 @@
 
 #include "ipc_cmd.h"
 
+#define MAX_SAMPLE_COUNT_IN_TTS_PLAYING 400
+
 static bool tts_init(void)
 {
     char *pMemoryBufferForTTS = malloc(YT_TTS_MEM_SIZE_IN_BYTE);
@@ -71,36 +73,39 @@ static bool tts_init(void)
 
 }
 
-// TODO: reduce memory cost of the buzzer playing
-#define BUZZER_MIN_FRQ 100
-#define BUZZER_MAX_FRQ (BUZZER_PCM_SAMPLE_RATE / 2)
 #define BUZZER_MIN_MSEC 70
 #define BUZZER_MAX_MSEC 600
 
-#define MAX_SAMPLE_COUNT (BUZZER_MAX_MSEC * BUZZER_PCM_SAMPLE_RATE / 1000)
+#define MS_TO_SAMPLE_COUNT(msec) ( (msec) * BUZZER_PCM_SAMPLE_RATE / 1000)
+#define MAX_SAMPLE_COUNT ( MS_TO_SAMPLE_COUNT(BUZZER_MAX_MSEC))
 
-static void feed_empty(void)
+static void feed_empty(uint32_t msec)
 {
-    static int16_t silence[ 30 * BUZZER_PCM_SAMPLE_RATE / 1000];
-    pcm_feed(silence, sizeof silence);
+    if (msec == 0) {
+        msec = 128;
+    }
+#define SILENCE_BUF_LEN_IN_MS 50
+    int16_t silence[ MS_TO_SAMPLE_COUNT(SILENCE_BUF_LEN_IN_MS) ];
+    memset(silence, 0, sizeof silence);
+    uint32_t remain = MS_TO_SAMPLE_COUNT(msec) * sizeof (int16_t);
+    while (remain > 0) {
+        uint32_t len = remain < sizeof(silence) ? remain : sizeof(silence);
+        pcm_feed(silence, len);
+        remain -= len;
+    }
 }
 
 static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
 {
     bool feed_ok = true;
     bool cancelled = false;
-    if (freq < BUZZER_MIN_FRQ) {
-        freq = BUZZER_MIN_FRQ;
-    } else if (freq > BUZZER_MAX_FRQ) {
-        freq = BUZZER_MAX_FRQ;
-    }
     if (msec < BUZZER_MIN_MSEC) {
         msec = BUZZER_MIN_MSEC;
     } else if (msec > BUZZER_MAX_MSEC) {
         msec = BUZZER_MAX_MSEC;
     }
     int16_t sample[MAX_SAMPLE_COUNT];
-    size_t sample_count = msec * BUZZER_PCM_SAMPLE_RATE / 1000;
+    size_t sample_count = MS_TO_SAMPLE_COUNT(msec);
     volume = volume * 7 / 10;
     for (unsigned n = 0; n < sample_count; n++) {
         sample[n] = (2 * n * freq / BUZZER_PCM_SAMPLE_RATE) % 2 == 0 ? -volume : +volume;
@@ -110,9 +115,9 @@ static void buzzer_play(uint16_t freq, uint16_t msec, uint16_t volume)
     }
 
     pcm_begin(0);
-    feed_empty();
+    feed_empty(0);
     feed_ok = pcm_feed(sample, sample_count * 2);
-    feed_empty();
+    feed_empty(0);
     if (cancelled) {
         pcm_abort();
     }
@@ -131,7 +136,7 @@ static bool pcm_feed_16K_to_48K(const void *buf, unsigned size)
 #define PCM_MULTI 3
     const int16_t *sample = buf;
     size_t sample_count = size / 2;
-    int16_t multi_sample[sample_count * PCM_MULTI];
+    int16_t multi_sample[MAX_SAMPLE_COUNT_IN_TTS_PLAYING * PCM_MULTI];
     for (size_t i = 0, j = 0; i < sample_count; i++, j+=PCM_MULTI) {
         const int16_t v = sample[i];
         multi_sample[j] = multi_sample[j + 1] = multi_sample[j + 2] = v;
@@ -165,10 +170,10 @@ static bool tts_play(bool isGBK, char *buf)
         return false;
     }
     pcm_begin(0);
-    feed_empty();
+    feed_empty(0);
 
     while(1) {
-        short pSpeechFrame[400];
+        short pSpeechFrame[MAX_SAMPLE_COUNT_IN_TTS_PLAYING];
         unsigned int nSampleNumber;
 
         if (has_ipc_cmd_from_caller(0)) {
@@ -185,18 +190,9 @@ static bool tts_play(bool isGBK, char *buf)
         }
 
         if(1 == nReturn) {
-            // TODO: sentence complete.
-            nSampleNumber = 62;
-            memset(pSpeechFrame,0,nSampleNumber * 2);
-             for(int j = 50; j <50; j++) {
-                 feed_ok = pcm_feed_16K_to_48K(pSpeechFrame, nSampleNumber * 2);
-                 if (!feed_ok) {
-                     break;
-                 }
-             }
-             if (!feed_ok) {
-                 break;
-             }
+            // sentence complete.
+            feed_empty(194);
+
         }
 
         if(0 == nReturn) break; //complete the entire input text
@@ -206,7 +202,7 @@ static bool tts_play(bool isGBK, char *buf)
     if (nReturn) {
         pcm_abort();
     } else {
-        feed_empty();
+        feed_empty(0);
     }
     pcm_end();
 
