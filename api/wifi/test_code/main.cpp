@@ -48,7 +48,8 @@ int main( int argc, char *argv[] )
             DBGMSG("wifiConnectNetwork argv");
             char * ssid = "\"华勤通讯_Hq\"";
             char * psk  = "\"12345678\"";
-             char ip_addr[15];
+            char ip_mask[15];
+            char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];
 			char rssi[15];
@@ -64,6 +65,8 @@ int main( int argc, char *argv[] )
              WiFiGetGATE(ip_gate);
 			 DBGMSG("ip_add : %s\n", ip_addr);
              DBGMSG("ip_gate : %s\n", ip_gate);
+             WiFiGetipMask(ip_mask);
+             DBGMSG("ip_mask : %s\n", ip_mask);
              usleep(20000 * 1000);
         }
 	else if(0 == strcmp("wifiAddNetOpenwork", argv[i])){
