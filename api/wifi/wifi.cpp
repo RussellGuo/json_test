@@ -1059,7 +1059,7 @@ int  WiFiIsOnline(char* p_rssi){
 	close(fd);
 	/* remove /data/misc/wifi/sockets/wpa_ctrl_%d_%d */
 	unlink(local.sun_path);
-	strcpy(p_rssi,rssi);
+	strncpy(p_rssi,rssi,strlen(rssi));
 	return 0;
 } 
 	
@@ -1079,9 +1079,6 @@ int wifiDhcp(){
     DBGMSG("---- wifiDhcp dhcp_stop end----\n");
 	
     char  ipaddr[PROPERTY_VALUE_MAX];
-	
-    char  ipmask[PROPERTY_VALUE_MAX];
-	
     uint32_t prefixLength;
     char gateway[PROPERTY_VALUE_MAX];
     char    dns1[PROPERTY_VALUE_MAX];
@@ -1102,18 +1099,15 @@ int wifiDhcp(){
         INFMSG("dhcp_do_request failed : wlan0");
     }else{
         INFMSG("wifiConnectNetwork dhcp_do_request  ipaddr = %s\n", ipaddr);
-		INFMSG("wifiConnectNetwork dhcp_do_request  ipmask = %s\n", ipmask);
         INFMSG("wifiConnectNetwork dhcp_do_request  gateway = %s\n", gateway);
         INFMSG("wifiConnectNetwork dhcp_do_request  dns1 = %s\n", dns[0]);
         INFMSG("wifiConnectNetwork dhcp_do_request  dns2 = %s  length = %d\n", dns[1], strlen(dns[1]));
         INFMSG("wifiConnectNetwork dhcp_do_request  server = %s\n", server);
         INFMSG("wifiConnectNetwork dhcp_do_request  vendorInfo = %s\n", vendorInfo);
         INFMSG("wifiConnectNetwork dhcp_do_request  mtu = %s\n", mtu);
-        strcpy(ip_addr,ipaddr);
-		strcpy(ip_mask,ipmask);
-	strcpy(ip_gate,gateway);
+        strncpy(ip_addr,ipaddr,strlen(ipaddr));
+	strncpy(ip_gate,gateway,strlen(gateway));
 	INFMSG("wifiConnectNetwork dhcp_do_request  ip_addr = %s\n", ip_addr);
-	INFMSG("wifiConnectNetwork dhcp_do_request  ip_mask = %s\n", ip_mask);
 	INFMSG("wifiConnectNetwork dhcp_do_request  ip_gate = %s\n", ip_gate);
     }
     DBGMSG("---- wifiDhcp exit ----\n");
@@ -1236,7 +1230,7 @@ int wifiGetipaddr(char* p_ip_addr)
   //      *(p_ip_addr+i)=ip_addr[i];
 
   //  }
-    strcpy(p_ip_addr,ip_addr);
+    strncpy(p_ip_addr,ip_addr,strlen(ip_addr));
     INFMSG("wifiGetipaddr ipaddr = %s\n", p_ip_addr); 
     FUN_EXIT;
     return 0;
@@ -1245,9 +1239,10 @@ int wifiGetipaddr(char* p_ip_addr)
 int WiFiGetipMask(char *p_ip_mask)
 {
     FUN_ENTER;
-     INFMSG("wifiGetmask   ipmask = %s\n", ip_mask); 
-	 strcpy(p_ip_mask,ip_mask);
-	 INFMSG("wifiGetipaddr ipaddr = %s\n", p_ip_mask); 
+    memset( ip_mask, 0, sizeof( ip_mask));
+    property_get(ENG_IP_MASK,  ip_mask, "");
+    INFMSG("iP_MASK = %s\n",  ip_mask);
+    strncpy(p_ip_mask,ip_mask,strlen(ip_mask));
     FUN_EXIT;
     return 0;
 }
@@ -1256,7 +1251,7 @@ int WiFiGetGATE(char *p_ip_gate)
 {
     FUN_ENTER;
     INFMSG("wifiGetipgate   ip_gate = %s\n", ip_gate); 
-    strcpy(p_ip_gate,ip_gate); 
+    strncpy(p_ip_gate,ip_gate,strlen(ip_gate)); 
     INFMSG("wifiGetipgate   p_ip_gate = %s\n", p_ip_gate); 
     FUN_EXIT;
     return 0;

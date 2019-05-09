@@ -25,7 +25,7 @@ struct wifi_ap_t {
 #define WIFI_STATUS_OPENED      0x0002
 #define WIFI_STATUS_SCANNING    0x0004
 #define WIFI_STATUS_SCAN_END    0x0008
-
+#define ENG_IP_MASK             "dhcp.wlan0.mask"
 
 int wifiGetStatus( void );
 
@@ -59,6 +59,7 @@ int wifiGetCurrentStatus( void );
 //char* wifiGetipaddr(void);
 int wifiGetipaddr(char* p_ip_addr);
 int WiFiGetGATE(char *p_ip_gate);
+int WiFiGetipMask(char *p_ip_mask);
 //char* WiFiGetGATE(void);
 int WiFiIsOnline(char* p_rssi);
 int softapOpen( void );
