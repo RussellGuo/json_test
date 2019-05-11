@@ -11,7 +11,6 @@
 #include <sys/mman.h>
 
 #include <adf/adf.h>
-#include <linux/sync.h>
 
 class adf_t {
 public:
@@ -33,25 +32,12 @@ public:
         return true;
     }
 
-    bool flip() {
-        int curr_fence_fd = adf_interface_simple_post(intf_fd, eng_id, intf_data.current_mode.hdisplay,intf_data.current_mode.vdisplay, format, surf_fd, surf_offset, surf_pitch, -1);
-        if (curr_fence_fd >= 0) {
-            int err;
-            if (last_fence_fd >= 0) {
-                int timeout = 3000;
-                err = ioctl(last_fence_fd, SYNC_IOC_WAIT, &timeout);
-                if (err < 0) {
-                    perror("adf sync fence wait");
-                }
-                close(last_fence_fd);
-            } else {
-                err = 0;
-            }
-            last_fence_fd = curr_fence_fd;
-            return err >= 0;
-        } else {
-            return false;
+    bool flip() const {
+        int ret = adf_interface_simple_post(intf_fd, eng_id, intf_data.current_mode.hdisplay,intf_data.current_mode.vdisplay, format, surf_fd, surf_offset, surf_pitch, -1);
+        if (ret >= 0) {
+            close(ret);
         }
+        return ret >= 0;
     }
 
 
@@ -66,8 +52,6 @@ private:
     __u32 surf_offset;
     __u32 surf_pitch;
     void *surf_base;
-
-    int last_fence_fd = -1;
 
     bool init() {
         int err;
@@ -131,8 +115,6 @@ public:
         surf_fd = -1;
         close(intf_fd);
         intf_fd = -1;
-        close(last_fence_fd);
-        last_fence_fd = -1;
 
         adf_free_interface_data(&intf_data);
         fprintf(stderr, "closed\n");
