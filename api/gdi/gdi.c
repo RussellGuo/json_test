@@ -29,7 +29,7 @@ void deInitDisplay(void)
 
 static timer_id_t gui_flip_timer_id = -1;
 
-#define DRAW_FREQ 15
+#define DRAW_FREQ 13
 #define ONE_TO_NANO (1000 * 1000 * 1000)
 #define DRAW_PERIOD_IN_NS (ONE_TO_NANO / DRAW_FREQ + (ONE_TO_NANO % DRAW_FREQ != 0))
 static struct timespec drawing_end_time;
