@@ -52,7 +52,7 @@ int main( int argc, char *argv[] )
             char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];
-			char rssi[15];
+	    char rssi[15];
             //the netid is for wifiConnectNetwork
             int netid = wifiAddNetwork(ssid, psk);
             wifiConnectNetwork(netid);
@@ -63,7 +63,7 @@ int main( int argc, char *argv[] )
              wifiGetipaddr(ip_addr);
              DBGMSG("ip_add : %s\n", ip_addr);
              WiFiGetGATE(ip_gate);
-			 DBGMSG("ip_add : %s\n", ip_addr);
+	     DBGMSG("ip_add : %s\n", ip_addr);
              DBGMSG("ip_gate : %s\n", ip_gate);
              WiFiGetipMask(ip_mask);
              DBGMSG("ip_mask : %s\n", ip_mask);
@@ -71,10 +71,10 @@ int main( int argc, char *argv[] )
         }
 	else if(0 == strcmp("wifiAddNetOpenwork", argv[i])){
             DBGMSG("wifiAddNetwork argv");
- 	        char ip_addr[15];
+ 	    char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];
-            char * ssid = "\"HQ_guest\"";
+            char * ssid = "\"华勤open\"";
             //the netid is for wifiConnectNetwork
             int netid = wifiAddOpenNetwork(ssid);
             usleep(2000 * 1000);
@@ -83,25 +83,29 @@ int main( int argc, char *argv[] )
 
 	else if(0 == strcmp("wifiConnectOpenNetwork", argv[i])){
             DBGMSG("wifiAddNetwork argv");
+            char ip_mask[15];
  	    char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];
-            char * ssid = "\"HQ_guest\"";
+            char * ssid = "\"华勤open\"";
             //the netid is for wifiConnectNetwork
             int netid = wifiAddOpenNetwork(ssid);
             usleep(2000 * 1000);
             DBGMSG("wifiAddNetwork netid : %d ", netid);
-	        /* wifiConnectNetwork(netid);
+	    wifiConnectNetwork(netid);
              wifiGetMACAddr(mac_addr, 19);
              DBGMSG("mac_addr : %s\n", mac_addr);
              wifiGetipaddr(ip_addr);
              DBGMSG("ip_add : %s\n", ip_addr);
              WiFiGetGATE(ip_gate);
-             DBGMSG("ip_gate : %s\n", ip_gate);*/
+             DBGMSG("ip_gate : %s\n", ip_gate);
+             WiFiGetipMask(ip_mask);
+             DBGMSG("ip_mask : %s\n", ip_mask);
         }else if(0 == strcmp("wifiConnectNetwork", argv[i])){
             DBGMSG("wifiConnectNetwork argv");
             char * ssid = "\"VIP-guest\"";
             char * psk  = "\"huaqin2018\"";
+            char ip_mask[15];
             char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];       
@@ -113,8 +117,10 @@ int main( int argc, char *argv[] )
              wifiGetipaddr(ip_addr);
              DBGMSG("ip_add : %s\n", ip_addr);
              WiFiGetGATE(ip_gate);
-			 DBGMSG("ip_add : %s\n", ip_addr);
+	     DBGMSG("ip_add : %s\n", ip_addr);
              DBGMSG("ip_gate : %s\n", ip_gate);
+             WiFiGetipMask(ip_mask);
+             DBGMSG("ip_mask : %s\n", ip_mask);
              usleep(20000 * 1000);
         }else if(0 == strcmp("wifiClose", argv[i])){
             DBGMSG("wifiClose argv");
