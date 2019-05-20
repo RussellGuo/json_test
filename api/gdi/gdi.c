@@ -7,14 +7,22 @@
 
 #include "timer_api.h"
 
+static void *fbmem, *fbuser, *fbuser_cache;
+static size_t fbmem_size;
 void initDisplay(void)
 {
-    void *fb_ptr;
     uint32_t width, height, linelen;
-    bool ret = initAdfDevice(&fb_ptr, &width, &height, &linelen);
+    bool ret = initAdfDevice(&fbmem, &width, &height, &linelen);
     fprintf(stderr, "Hello World! ret = %d\n", ret);
 
-    initDisplayMemInfo(fb_ptr, (uint16_t)width, (uint16_t)height, linelen);
+    fbmem_size = height * linelen;
+    fbuser = malloc(fbmem_size);
+    fbuser_cache = malloc(fbmem_size);
+    if (!ret || fbuser == NULL || fbuser_cache == NULL) {
+        fprintf(stderr, "not enough memory for User FB and cache FB\n");
+        return;
+    }
+    initDisplayMemInfo(fbuser, (uint16_t)width, (uint16_t)height, linelen);
 }
 
 void deInitDisplay(void)
@@ -33,8 +41,9 @@ static timer_id_t gui_flip_timer_id = -1;
 #define ONE_TO_NANO (1000 * 1000 * 1000)
 #define DRAW_PERIOD_IN_NS (ONE_TO_NANO / DRAW_FREQ + (ONE_TO_NANO % DRAW_FREQ != 0))
 static struct timespec drawing_end_time;
-static void start_drawing(void)
+static void start_drawing(const void *data)
 {
+    memcpy(fbmem, data, fbmem_size);
     AdfFlip();
 
     struct timespec drawing_begin_time;
@@ -54,7 +63,7 @@ static void start_drawing(void)
 
 static void flip_timeout(timer_id_t id , uint64_t arg)
 {
-    start_drawing();
+    start_drawing(fbuser_cache);
 }
 
 
@@ -70,9 +79,10 @@ void displayFlush(void)
     }
     if (current.tv_sec > drawing_end_time.tv_sec || (current.tv_sec == drawing_end_time.tv_sec && current.tv_nsec > drawing_end_time.tv_nsec)) {
         //fprintf(stderr, "Drawing at once\n");
-        start_drawing();
+        start_drawing(fbuser);
     } else {
         //fprintf(stderr, "Drawing later\n");
+        memcpy(fbuser_cache, fbuser, fbmem_size);
         // should delay our flipping
         struct itimerspec itimerspec;
         itimerspec.it_value = drawing_end_time;

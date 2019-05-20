@@ -41,6 +41,7 @@ static void key_event_callback (unsigned key_value, bool pressed)
         draw();
         break;
     default:
+        break;
         clearScreen(yellow);
         displayFlush();
         DisplaySetBrightness(0);
