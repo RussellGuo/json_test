@@ -8,13 +8,15 @@ extern "C" {
 struct get_status {
         int getBatvol;
         int getTemperature;
-	int getPresent;
+		int getPresent;
+		int getUsbonline;
     	char getStatus[64];
 }bat_status;
 
 int getBatvol(void);
 int getTemperature(void);
 int getPresent(void);
+int getUsbonline(void);
 void getStatus(char *getStatus);
 #ifdef __cplusplus
 } // extern "C"
