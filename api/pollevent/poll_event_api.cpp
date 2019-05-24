@@ -9,6 +9,7 @@
 #include <linux/input.h>
 
 #include "poll_event_api.h"
+#include <pthread.h>
 
 namespace {
 
@@ -24,12 +25,25 @@ struct event_info_t {
             callback(fd, arg);
         }
     }
+    void clean() {
+        fd = -1;
+        callback = nullptr;
+        arg = 0;
+        enabled = false;
+    }
 };
 
 constexpr ssize_t MAX_COUNT_EVENT = 32;
 event_info_t event_info_map[MAX_COUNT_EVENT];
 ssize_t event_last_item_idx = -1;
 
+static pthread_mutex_t mutex_polling = PTHREAD_MUTEX_INITIALIZER;
+
+class auto_lock_t {
+public:
+    auto_lock_t() { pthread_mutex_lock(&mutex_polling);}
+    ~auto_lock_t() { pthread_mutex_unlock(&mutex_polling);}
+};
 }
 
 static void inline debug_poll_event_tab(int ret, const char *func_name)
@@ -44,6 +58,7 @@ extern "C" bool setPollEventFd(int fd, callback_t callback, uint64_t arg, bool e
     if (fd <= 0) {
         return false;
     }
+    auto_lock_t autolock;
     if (event_last_item_idx >= MAX_COUNT_EVENT - 1 - 1) { // MAX_COUNT_EVENT - 1 is the last room, must has 1 room left.
         return false;
     }
@@ -71,11 +86,13 @@ extern "C" bool enablePollEventFd(int fd, bool enabled)
 
 extern "C" bool delPollEventFd(int fd)
 {
+    auto_lock_t autolock;
     for (ssize_t i = 0; i <= event_last_item_idx; i++) {
         if (event_info_map[i].fd == fd) {
             fprintf(stderr, "SHOULD remove %d at[%zd]\r\n", fd, i);
             if (i != event_last_item_idx) { // not the last one, just move the last one here
                 event_info_map[i] = event_info_map[event_last_item_idx];
+                event_info_map[event_last_item_idx].clean();
             }
             --event_last_item_idx;
             debug_poll_event_tab(true, __FUNCTION__);
@@ -90,14 +107,18 @@ extern "C" int PollEventSpinOnce(void)
 {
     pollfd poll_fd_tab[MAX_COUNT_EVENT];
     ssize_t count = 0;
-    for (ssize_t i = 0; i <= event_last_item_idx; i++) {
-        if (!event_info_map[i].enabled) {
-            continue;
+    {
+        auto_lock_t autolock;
+
+        for (ssize_t i = 0; i <= event_last_item_idx; i++) {
+            if (!event_info_map[i].enabled) {
+                continue;
+            }
+            poll_fd_tab[count].fd      = event_info_map[i].fd;
+            poll_fd_tab[count].events  = POLLIN;
+            poll_fd_tab[count].revents = 0;
+            count++;
         }
-        poll_fd_tab[count].fd      = event_info_map[i].fd;
-        poll_fd_tab[count].events  = POLLIN;
-        poll_fd_tab[count].revents = 0;
-        count++;
     }
     if (count <= 0) {
         return false;
