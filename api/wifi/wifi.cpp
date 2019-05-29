@@ -663,6 +663,7 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
         }
         pcur++;
     }
+    ap->flags[flagsindex] = 0;
     INFMSG("flags = %s\n", ap->flags);
     AT_ASSERT( '\t' == *pcur );
     pcur++;
