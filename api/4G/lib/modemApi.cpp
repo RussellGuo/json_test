@@ -1273,10 +1273,10 @@ int getPdpState(void){
 //Add by wangcong for PDP
 extern "C"
 int getPdptruestate(){
-    ALOGI("getPdptruestate: %d",pdpState);
+    /*ALOGI("getPdptruestate: %d",pdpState);
     if(pdpState == 1){
     return pdpState;
-    }
+    }*/
     return getPdpState();
 }
 //end
@@ -1902,7 +1902,7 @@ void getIccid(char* CCID){
     struct timespec outtime;
     pthread_mutex_lock(&s_network_api_mutex);
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 10;
+    outtime.tv_sec = now.tv_sec + 3;
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_api_cond, &s_network_api_mutex, &outtime);
     pthread_mutex_unlock(&s_network_api_mutex);
@@ -2203,6 +2203,7 @@ void processSolicited(Parcel &p){
                 ALOGI("net reg status: %d", value);
                 ALOGI("regState: %d", regState);
                 if(regState == RIL_REG_STATE_UNKNOWN){
+                ALOGI("UNKNOWNUP: %d", s_net_type);
                    if(s_net_type == 14){
                        strcpy(netType,"LTE");
                     }else {
@@ -2325,9 +2326,9 @@ void processSolicited(Parcel &p){
                       strcpy(imsiid,value);
                       free(value);
                                 }
-                     /* pthread_mutex_lock(&s_network_imsi_mutex);
+                      pthread_mutex_lock(&s_network_imsi_mutex);
                       pthread_cond_signal(&s_network_imsi_cond);
-                      pthread_mutex_unlock(&s_network_imsi_mutex);*///Modifeid by wangcong in 5.27 
+                      pthread_mutex_unlock(&s_network_imsi_mutex);//Modifeid by wangcong in 5.27 
                     break;
                 //Add by wangcong for PDP
                 case RIL_REQUEST_DATA_CALL_LIST:
@@ -2422,20 +2423,25 @@ int getIMSI(char* imsi){
         ALOGE("send at ERROR!");
     }
     ALOGI("write 'get imsi' into socket OVER!");
+    if(strcmp(imsiid,"0") > 0){
+      ALOGI("imsi1 %s \n" ,imsi);
+      strcpy(imsi,imsiid);
+      ALOGI("imsi %s \n" ,imsi);
+    }
     //Add by wangcong
-    /*struct timeval now;
+    struct timeval now;
     struct timespec outtime;
     pthread_mutex_lock(&s_network_imsi_mutex);
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 3;
-    outtime.tv_nsec = now.tv_usec * 1000;
+    outtime.tv_sec = now.tv_sec + 1;
+    outtime.tv_nsec = now.tv_usec * 50;
     int red = pthread_cond_timedwait(&s_network_imsi_cond, &s_network_imsi_mutex, &outtime);
     pthread_mutex_unlock(&s_network_imsi_mutex);
     // printf("=================> %s ?? \n",imsiid);
-    if(red == ETIMEDOUT)
-        return -100;
+    /*if(red == ETIMEDOUT)
+        return -100;*/
     if(imsiid == NULL)
-        return -1;*///Modifeid by wangcong for 5.27
+        return -1;//Modifeid by wangcong for 5.27
     strcpy(imsi,imsiid);
     return 0;
 }
@@ -2561,7 +2567,7 @@ int setupDataCall(){
     if(!already_regist)
     {
 		//Add by wangcong
-		struct timeval now;
+		/*struct timeval now;
 		struct timespec outtime;
 		pthread_mutex_lock(&s_network_register_mutex);
 		gettimeofday(&now, NULL);
@@ -2570,10 +2576,10 @@ int setupDataCall(){
 		int red = pthread_cond_timedwait(&s_network_register_cond, &s_network_register_mutex, &outtime);
 		pthread_mutex_unlock(&s_network_register_mutex);
 		if(red == ETIMEDOUT)
-			return -100;
-       /* pthread_mutex_lock(&s_network_register_mutex);
+			return -100;*/
+        pthread_mutex_lock(&s_network_register_mutex);
         pthread_cond_wait(&s_network_register_cond, &s_network_register_mutex);
-        pthread_mutex_unlock(&s_network_register_mutex);*/
+        pthread_mutex_unlock(&s_network_register_mutex);
         ALOGI("already_regist1 %d", already_regist);
     }
 
@@ -2589,8 +2595,16 @@ int DataCallDisconnect(){
     if ( PDP_STATUS_ACTIVE == pdp_info.active){
          deactivateDataCall( pdp_info.cid );
          ALOGI("%s: 1DataCallDisconnect, cid = %d, active = %d.", __FUNCTION__, pdp_info.cid, pdp_info.active );
+         if(pdp_info.active == PDP_STATUS_DEACTIVE)
+         {
+         pdpState = 0;
+         return 1;
+         }else if ( PDP_STATUS_ACTIVE == pdp_info.active){
+         pdpState = 1;
          return 0;
+         }
     }
+    pdpState = 0;
     return 1;
 }
 
