@@ -69,7 +69,7 @@ int wifiGetCurrentStatus( void );
 int wifiGetipaddr(char* p_ip_addr);
 int WiFiGetGATE(char *p_ip_gate);
 int WiFiGetipMask(char *p_ip_mask);
-int WiFiIsOnline(char* p_rssi);
+int WiFiIsOnline();
 int softapOpen( void );
 int softapSet(char ssid[], char psk[]);
 int softapClose( void );

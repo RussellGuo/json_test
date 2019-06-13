@@ -290,7 +290,6 @@ int wifiOpen( void )
     pthread_attr_init (&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     pthread_create(&ptid, &attr, wifiEventLoop, NULL);
-
     sStatus |= WIFI_STATUS_OPENED;
     FUN_EXIT;
     return 0;
@@ -494,13 +493,11 @@ void * wifiEventLoop( void *param )
     #define EVT_MAX_LEN 127
     char evt[EVT_MAX_LEN + 1];
     int len = 0;
-
     evt[EVT_MAX_LEN] = 0;
     while( sEventLooping ) {
         evt[0] = 0;
         len = wifi_wait_for_event(evt,EVT_MAX_LEN);
         INFMSG("event: %s\n", evt);
-
         if( (len > 0) &&(NULL != strstr(evt, "SCAN-RESULTS")) ) {
             DBGMSG(".... scan complete ....\n");
             pthread_mutex_lock(&sMutxEvent);
@@ -990,81 +987,48 @@ int wifiConnectNetwork(int netId){
     return CONNECTED;
 }
 
+int  WiFiIsOnline(){
+    char reply[256];
+    int  len;
 
+    //select_network
+    reply[0] = 0;
+    len = sizeof reply;
 
-int  WiFiIsOnline(char* p_rssi){
-    char rssi[15];
-    size_t cmd_len;
-	char reply[2048];
-	char * cmd = "IFNAME=wlan0 STATUS";
-	int res;
-	int fd;
-	cmd_len = strlen(cmd);
-    fd = socket(PF_UNIX, SOCK_DGRAM, 0);
-	local.sun_family = AF_UNIX;
-	snprintf(local.sun_path,
-			sizeof(local.sun_path),
-			"/data/misc/wifi/sockets/wpa_ctrl_%d_%d",
-			(int) getpid(), ++counter);
-	/* bind addr */
-	if (bind(fd, (struct sockaddr *) &local,
-		    sizeof(local)) < 0) {
-		if (errno == EADDRINUSE) {
-			INFMSG("bind failed: %s\n", strerror(errno));	
-		}
-		close(fd);
-		return -1;
-	}
+    char * wifistatus = "STATUS";
+    char cmdstatus[64] = "";
+    strcat(cmdstatus,wifistatus);
 
-	/* connect to server */
-	if (socket_local_client_connect(fd, PATH,
-			ANDROID_SOCKET_NAMESPACE_RESERVED, SOCK_DGRAM) < 0) {
-		INFMSG("connect to wpa_supplicant failed: %s\n", strerror(errno));	
-		close(fd);
-		unlink(local.sun_path);
-		return -2;
-	}
-
-	/* send cmd */
-	if (send(fd, cmd, cmd_len, 0) < 0) {
-		INFMSG("send cmd failed failed: %s\n", strerror(errno));	
-		return -3;
-	}
-
-/* get replay */
-	res = recv(fd, reply, sizeof(reply), 0);
-	reply[res] = '\0';
-	INFMSG("replay:\n %s \n", reply);
-	/* parse wpa_state value */
-    if(res > 0) {
+    if((wifiCommand(cmdstatus, reply, len) <= 0)) {
+        ERRMSG("WiFiIsOnline cmdstatus fail: reply = %s len = %d\n", reply,len);
+        return -1;
+    }else{
+        INFMSG("WiFiIsOnline cmdstatus success: reply = %s  len = %d\n", reply, len);
+    }
+	reply[strlen(reply)+1] = '\0';
+    if(len > 0) {
         const char * split = "\n";
         char * p = NULL;
-        char rssi[15];
+        char status[64];
         int wpa_state_value = 0;
         p = strtok(reply, split);
         while(p != NULL){
+            INFMSG("Wifi p %s \n",p);
             if( strncmp("wpa_state",p,9) ==0 ){
-                strncpy(rssi, p+10, strlen(p)-10);
+                memset(status,0,sizeof(status));
+                strncpy(status, p+10, strlen(p)-10);
                 usleep(1000 * 1000);
                //INFMSG("wpa_state_value = %s \n", rssi);
-                if(strcmp(rssi,"COMPLETED") == 0){
+                if(strcmp(status,"COMPLETED") == 0){
                 INFMSG("Wifi Link Succeeded\n");
-                    break;
+                    return 0;
                 }
             }
-             p=strtok(NULL,split);
+            p=strtok(NULL,split);
         }
     }
-        
-	/* close fd */
-	close(fd);
-	/* remove /data/misc/wifi/sockets/wpa_ctrl_%d_%d */
-	unlink(local.sun_path);
-	strncpy(p_rssi,rssi,strlen(rssi));
-	return 0;
-} 
-	
-
+    return -1;
+}
 
 int wifiDhcp(){
     DBGMSG("---- wifiDhcp enter ----\n");
@@ -1221,18 +1185,19 @@ int wifiGetCurrentStatus( void ){
     }
 }
 
-int wifiGetipaddr(char* p_ip_addr)
+int wifiGetipaddr(char *p_ip_addr)
 {
     FUN_ENTER;
-    INFMSG("wifiGetipaddr ipaddr = %s\n", ip_addr);
+    INFMSG("wifiGetipaddr ip_addr = %s\n", ip_addr);
   //  for(int i=0;i<strlen(ip_addr);i++){
 
     //    INFMSG("wifiGetipaddr   ipaddr = %c\n", ip_addr[i]);
   //      *(p_ip_addr+i)=ip_addr[i];
 
   //  }
-    strncpy(p_ip_addr,ip_addr,strlen(ip_addr));
-    INFMSG("wifiGetipaddr ipaddr = %s\n", p_ip_addr); 
+    //memset(ip_addr,0,sizeof(ip_addr));
+    strncpy(p_ip_addr,ip_addr,strlen(ip_addr)+3);
+   // INFMSG("wifiGetipaddr p_ip_addr = %s\n", p_ip_addr); 
     FUN_EXIT;
     return 0;
 }
@@ -1379,5 +1344,4 @@ int softapSetMoreParam(int argc, char *argv[]){
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--} // namespace
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 

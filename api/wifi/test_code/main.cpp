@@ -36,34 +36,33 @@ int main( int argc, char *argv[] )
                     DBGMSG("sig_level : %d", aps[i].sig_level);
                 }
             }
-        }else if(0 == strcmp("wifiAddNetwork", argv[i])){
+        }/*else if(0 == strcmp("wifiAddNetwork", argv[i])){
             DBGMSG("wifiAddNetwork argv");
-            char * ssid = "\"华勤通讯_Hq\"";
+            char * ssid = "\"huaqin\"";
             char * psk  = "\"12345678\"";
             //the netid is for wifiConnectNetwork
             int netid = wifiAddNetwork(ssid, psk);
             usleep(2000 * 1000);
              DBGMSG("wifiAddNetwork netid : %d ", netid);
-	}else if(0 == strcmp("wifiConnectNetwork", argv[i])){
+	}*/
+else if(0 == strcmp("wifiConnectNetwork", argv[i])){
             DBGMSG("wifiConnectNetwork argv");
-            char * ssid = "\"华勤通讯_Hq\"";
+            char * ssid = "\"huaqin\"";
             char * psk  = "\"12345678\"";
             char ip_mask[15];
             char ip_addr[15];
             char ip_gate[15];
             char mac_addr[19];
-	    char rssi[15];
             //the netid is for wifiConnectNetwork
             int netid = wifiAddNetwork(ssid, psk);
             wifiConnectNetwork(netid);
-             WiFiIsOnline(rssi);
-             DBGMSG("rssi : %s\n",rssi);
+            int pstatus = WiFiIsOnline();
+           DBGMSG("pstatus : %d", pstatus);
              wifiGetMACAddr(mac_addr, 19);
              DBGMSG("mac_addr : %s\n", mac_addr);
              wifiGetipaddr(ip_addr);
-             DBGMSG("ip_add : %s\n", ip_addr);
+             DBGMSG("ip_addr : %s\n", ip_addr);
              WiFiGetGATE(ip_gate);
-	     DBGMSG("ip_add : %s\n", ip_addr);
              DBGMSG("ip_gate : %s\n", ip_gate);
              WiFiGetipMask(ip_mask);
              DBGMSG("ip_mask : %s\n", ip_mask);
@@ -164,3 +163,4 @@ int main( int argc, char *argv[] )
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
