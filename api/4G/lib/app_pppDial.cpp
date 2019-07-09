@@ -25,6 +25,8 @@ static pthread_mutex_t s_pppd_killed_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t s_pppd_killed_cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t s_timer_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t s_timer_cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t g_pdp_state_change_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t g_pdp_state_change_cond = PTHREAD_COND_INITIALIZER;
 
 
 /**** extern external vars & func ****/
@@ -39,7 +41,7 @@ static bool isNetworkRegSuccess(void);
 static void detachPppd(void);
 static void setTimespecRelative(struct timespec *p_ts, long long msec);
 static void *monitor_pppd_state_thread(void* para);
-static void *detect_dataConn_thread(void* para);
+void detect_dataConn_changed(void);
 static void *timer_thread(void* para);
 void initPppDial(void);
 void attachPppd(void);
@@ -146,47 +148,41 @@ static void *timer_thread(void* para){
     return NULL;
 }
 
-static void *detect_dataConn_thread(void* para){
+void detect_dataConn_changed(void){
 
     ALOGI("%s", __FUNCTION__);
-    while(1){
+    if (s_pppd_attached_flag == true){
+    //if ( s_pppd_attached_flag == true) {
 
-        //here, process time wait 10s, check data connection state again.
-        if ( (s_setup_dataconn_done == false) && (s_pppd_attached_flag == true) ){
-        //if ( s_pppd_attached_flag == true) {
+        ALOGI("%s: current pppd has attached, when data link may disconnect, start timer to ensure data link really disconnected.",  __FUNCTION__);
+        pthread_t tid;
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
 
-            ALOGI("%s: current pppd has attached, when data link may disconnect, start timer to ensure data link really disconnected.",  __FUNCTION__);
-            pthread_t tid;
-            pthread_attr_t attr;
-            pthread_attr_init(&attr);
+        pthread_mutex_init( &s_timer_mutex, NULL );
+        pthread_cond_init( &s_timer_cond, NULL );
 
-            pthread_mutex_init( &s_timer_mutex, NULL );
-            pthread_cond_init( &s_timer_cond, NULL );
-
-            //create a child thread, to monitor child process state
-            if (pthread_create(&tid, &attr, timer_thread, NULL) < 0){
-                ALOGI("%s: Failed to create timer_thread", __FUNCTION__);
-            }
-
-            pthread_join( tid, NULL );
-            ALOGI("%s: wait tid thread finished.", __FUNCTION__);
-            if ( (s_setup_dataconn_done == false) && (s_pppd_attached_flag == true) ){
-            //if ( s_pppd_attached_flag == true) {
-                ALOGI("%s: pdp link really disconnected, to detach pppd and reboot uart", __FUNCTION__);
-
-                //release pppd
-                detachPppd();
-
-                //set flag = false
-                s_pppd_attached_flag = false;
-
-                //reboot uart
-                rebootUsb();
-            }
+        //create a child thread, to monitor child process state
+        if (pthread_create(&tid, &attr, timer_thread, NULL) < 0){
+            ALOGI("%s: Failed to create timer_thread", __FUNCTION__);
         }
 
+        pthread_join( tid, NULL );
+        ALOGI("%s: wait tid thread finished.", __FUNCTION__);
+        if ( (s_setup_dataconn_done == false) && (s_pppd_attached_flag == true) ){
+        //if ( s_pppd_attached_flag == true) {
+            ALOGI("%s: pdp link really disconnected, to detach pppd and reboot uart", __FUNCTION__);
+
+            //release pppd
+            detachPppd();
+
+            //set flag = false
+            s_pppd_attached_flag = false;
+
+            //reboot uart
+            rebootUsb();
+        }
     }
-    return NULL; 
 }
 
 static void *monitor_pppd_state_thread(void* para){
@@ -217,13 +213,4 @@ void initPppDial(void){
     ALOGI("%s", __FUNCTION__);
 
     initUsb();
-
-    pthread_t tid;
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-    if (pthread_create(&tid, &attr, detect_dataConn_thread, NULL) < 0){
-        ALOGI("%s: Failed to create detect_dataConn_thread", __FUNCTION__);
-    }
 }
