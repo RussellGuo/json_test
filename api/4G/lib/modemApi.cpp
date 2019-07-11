@@ -14,6 +14,8 @@
 #include <cutils/jstring.h>
 #include <utils/Log.h>
 #include <sys/wait.h>
+//Add by wangcong
+#include <sys/prctl.h>
 #include <signal.h>
 #include <cutils/properties.h>
 #include "include/ril_command.h"
@@ -1877,8 +1879,12 @@ void getCellInfo(){
     //AT+SPQ4GNCELLEX
     //AT+SPQ4GNCELLEX=5,6
     //AT+SPNCELLSCAN=16 
-    sendAtCmd("AT^MBCELLID=1");
-    strcpy(AT,"AT^MBCELLID=1");
+    sendAtCmd("AT+SPIPTYPECHANGE");
+    ALOGI("AT+CCED=0,5");
+    sendAtCmd("AT+CSSAC");
+    sendAtCmd("AT+CPUC?");
+    sendAtCmd("AT+COPS=?");
+    //strcpy(AT,"AT+CCED=0,2");
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
@@ -2306,7 +2312,11 @@ void processSolicited(Parcel &p){
                           pthread_mutex_lock(&s_network_cellid_mutex);
                           pthread_cond_signal(&s_network_cellid_cond);
                           pthread_mutex_unlock(&s_network_cellid_mutex);
+                      }else if(strcmp(AT,"AT+CCED=0,2") == 0){
+                          ALOGI( "return is : %s >>>=========================================<<<  ", resp );
+                          free(resp);
                             }
+                            
                      }
                      //test get grps attach
                           getGprsAttachState();
@@ -2434,12 +2444,13 @@ int getIMSI(char* imsi){
     pthread_mutex_lock(&s_network_imsi_mutex);
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 1;
-    outtime.tv_nsec = now.tv_usec * 50;
+    outtime.tv_nsec = now.tv_usec * 100;
     int red = pthread_cond_timedwait(&s_network_imsi_cond, &s_network_imsi_mutex, &outtime);
     pthread_mutex_unlock(&s_network_imsi_mutex);
     // printf("=================> %s ?? \n",imsiid);
     /*if(red == ETIMEDOUT)
         return -100;*/
+    ALOGI("imsi LATER%s \n" ,imsi);
     if(imsiid == NULL)
         return -1;//Modifeid by wangcong for 5.27
     strcpy(imsi,imsiid);
@@ -2567,19 +2578,19 @@ int setupDataCall(){
     if(!already_regist)
     {
 		//Add by wangcong
-		/*struct timeval now;
+		struct timeval now;
 		struct timespec outtime;
 		pthread_mutex_lock(&s_network_register_mutex);
 		gettimeofday(&now, NULL);
-		outtime.tv_sec = now.tv_sec + 1;
+		outtime.tv_sec = now.tv_sec + 5;
 		outtime.tv_nsec = now.tv_usec * 1000;
 		int red = pthread_cond_timedwait(&s_network_register_cond, &s_network_register_mutex, &outtime);
 		pthread_mutex_unlock(&s_network_register_mutex);
 		if(red == ETIMEDOUT)
-			return -100;*/
-        pthread_mutex_lock(&s_network_register_mutex);
+			return -1;
+       /*pthread_mutex_lock(&s_network_register_mutex);
         pthread_cond_wait(&s_network_register_cond, &s_network_register_mutex);
-        pthread_mutex_unlock(&s_network_register_mutex);
+        pthread_mutex_unlock(&s_network_register_mutex);*/
         ALOGI("already_regist1 %d", already_regist);
     }
 
@@ -2626,6 +2637,7 @@ int open4G()
     initRequestList();
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    prctl(PR_SET_NAME,"WIRELESS",0,0,0);
     if(pthread_create(&tid, &attr, rilReceiver, NULL) < 0){
         ALOGE("%s: create rilReceiver task failed!!!", __FUNCTION__);
     }
