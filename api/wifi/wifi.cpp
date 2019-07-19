@@ -352,7 +352,7 @@ int wifiGetMACAddr( char * addr, int size )
     AT_ASSERT( addr != NULL );
     AT_ASSERT( size >  18 );
 
-    char reply[256];
+    char reply[256]={0};
     int  len = sizeof reply;
 
     len = wifiCommand("DRIVER MACADDR", reply, len);
@@ -375,7 +375,7 @@ int wifiGetMACAddr( char * addr, int size )
 
 int wifiGetRssi( void )
 {
-    char reply[256];
+    char reply[256]={0};
     int  len = sizeof reply;
     int  ret = 0;
 
@@ -385,7 +385,7 @@ int wifiGetRssi( void )
         const char * split = "\n";
         char * p;
         p = strtok (reply, split);
-        char rssi[8];
+        char rssi[16] = {0};
         strncpy(rssi,p+5,strlen(p)-5);
         ret = atoi(rssi);
     }
@@ -398,7 +398,7 @@ int wifiSyncScanAP(struct wifi_ap_t * aps, int maxnum)
     AT_ASSERT( aps != NULL );
     AT_ASSERT( maxnum >  0 );
 
-    char reply[64];
+    char reply[64]={0};
     int  len;
 
     reply[0] = 0;
@@ -431,7 +431,7 @@ int wifiGetScanResult(struct wifi_ap_t * aps, int maxnum)
     AT_ASSERT( aps != NULL );
     AT_ASSERT( maxnum >  0 );
 
-    char reply[4096];
+    char reply[4096]={0};
     int  len;
 
     len = wifiCommand("SCAN_RESULTS", reply, sizeof reply);
@@ -740,7 +740,7 @@ int wifiAddNetwork( char * ssid, char * psk )
     AT_ASSERT( ssid != NULL );
     AT_ASSERT( psk != NULL );
 
-    char reply[64];
+    char reply[64]={0};
     int  len;
     int netId = -1;
 
@@ -827,7 +827,7 @@ int wifiAddOpenNetwork( char * ssid )
     FUN_ENTER;
     AT_ASSERT( ssid != NULL );
 
-    char reply[64];
+    char reply[64]={0};
     int  len;
     int netId = -1;
 
@@ -923,7 +923,7 @@ int wifiConnectNetwork(int netId){
     AT_ASSERT( netId != NULL );
 
     sConnectStatus = CONNECTING;
-    char reply[64];
+    char reply[64]={0};
     int  len;
     char netIdchar[4];
     sprintf(netIdchar,"%d",netId);
@@ -988,7 +988,7 @@ int wifiConnectNetwork(int netId){
 }
 
 int  WiFiIsOnline(){
-    char reply[256];
+    char reply[2048]={0};
     int  len;
 
     //select_network
@@ -996,7 +996,7 @@ int  WiFiIsOnline(){
     len = sizeof reply;
 
     char * wifistatus = "STATUS";
-    char cmdstatus[64] = "";
+    char cmdstatus[64] = {0};
     strcat(cmdstatus,wifistatus);
 
     if((wifiCommand(cmdstatus, reply, len) <= 0)) {
@@ -1110,9 +1110,9 @@ int wifiForgetNetwork( int netId){
     FUN_ENTER;
     AT_ASSERT( netId != NULL );
 
-    char reply[64];
+    char reply[64]={0};
     int  len;
-    char netIdchar[4];
+    char netIdchar[4]={0};
     sprintf(netIdchar,"%d",netId);
 
     //remove_network
@@ -1143,7 +1143,7 @@ int wifiForgetNetwork( int netId){
 }
 
 int wifiSaveConfig(){
-    char reply[64];
+    char reply[64]={0};
     int  len;
     reply[0] = 0;
     len = sizeof reply;
@@ -1158,21 +1158,23 @@ int wifiSaveConfig(){
 
 
 int wifiDisconnect( void ){
-    char reply[64];
+    char reply[64]={0};
     int  len;
     reply[0] = 0;
     len = sizeof reply;
     if((wifiCommand("DISCONNECT", reply, len) <= 0) || (NULL == strstr(reply, "OK"))) {
         ERRMSG("wifiDisconnect DISCONNECT fail: reply = %s\n", reply);
+		system("ip addr flush dev wlan0");//改动点
         return -1;
     }else{
         INFMSG("wifiDisconnect DISCONNECT success: reply = %s  len = %d\n", reply, len);
+		system("ip addr flush dev wlan0");//改动点
         return 0;
     }
 }
 
 int wifiGetCurrentStatus( void ){
-    char reply[256];
+    char reply[256]={0};
     int  len;
     reply[0] = 0;
     len = sizeof reply;
@@ -1326,7 +1328,7 @@ int softapClose( void ){
 
 int softapSet(char ssid[], char psk[]){
     FUN_ENTER;
-    char cmd[256];
+    char cmd[256]={0};
     snprintf(cmd,256,"ndc softap set wlan0 %s broadcast 6 wpa2-psk %s", ssid, psk);
     system(cmd);
     FUN_EXIT;
@@ -1335,7 +1337,7 @@ int softapSet(char ssid[], char psk[]){
 
 int softapSetMoreParam(int argc, char *argv[]){
     FUN_ENTER;
-    char cmd[256];
+    char cmd[256]={0};
     snprintf(cmd,256,"ndc softap set %s %s broadcast %s %s %s", argv[2], argv[3], argv[5], argv[6], argv[7]);
     system(cmd);
     FUN_EXIT;
