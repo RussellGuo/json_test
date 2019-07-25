@@ -10,6 +10,8 @@
 
 #define LOG_TAG "libsuspendapi"
 #include <cutils/log.h>
+#include <cutils/android_reboot.h>
+#include <cutils/properties.h>
 
 
 #define EARLYSUSPEND_SYS_POWER_STATE "/sys/power/state"
@@ -43,5 +45,11 @@ int suspend_enable(void)
     return 0;
 
 err:
+    return ret;
+}
+
+int halt_system(bool reboot)
+{
+    int ret = property_set(ANDROID_RB_PROPERTY, reboot ? "reboot" : "shutdown");
     return ret;
 }
