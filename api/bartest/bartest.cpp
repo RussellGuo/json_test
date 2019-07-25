@@ -175,6 +175,10 @@ static int minicamera_load_lib(struct minicamera_context *cxt) {
 
     if (!cxt->oem_dev) {
         cxt->oem_dev = (oem_module_t *)malloc(sizeof(oem_module_t));
+		if(cxt->oem_dev == NULL){
+			CMR_LOGE("oem dev malloc failed\n");
+			goto loaderror;
+		}
         handle = dlopen(OEM_LIBRARY_PATH, RTLD_NOW);
         cxt->oem_dev->dso = handle;
 
@@ -952,6 +956,15 @@ int Cam_Init(void){
     tempSize = cxt.width * cxt.height * 3 /2;
     //temp_buff = (void *)malloc(tempSize);
     mbuffer.data = (void *)malloc(tempSize);
+	if(mbuffer.data == NULL){
+		CMR_LOGE("mbuffer data malloc failed\n");
+		cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
+		cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
+		sem_destroy(&mbuffer.buf_sem);
+		goto exit;
+	}else{
+		CMR_LOGE("mbuffer data malloc succeed\n");
+	}
 
    return ret;
 exit:
