@@ -281,6 +281,14 @@ int wifiOpen( void )
         return -3;
     }
 
+    int disconnectFlag = -1;
+    disconnectFlag = wifiDisconnect();   //调用wifiDisconnect函数
+    if(disconnectFlag == 0){
+        DBGMSG("Wifi disconnect ok\n");
+    } else {
+        DBGMSG("Wifi disconnect fail\n");
+    }
+
     sStatus       = 0;
     sAPNum        = -1;
     sEventLooping = 1;
