@@ -852,7 +852,8 @@ int getCellInfoList(Cellinfo* cellinfo){
     if (ret < 0) {
         ALOGE("send at ERROR!");
     }
-
+    if(cellinfo != NULL){
+    }
     ALOGI("write 'get cell info list' into socket OVER!");
     //Add by wangcong
     struct timeval now;
@@ -1375,6 +1376,38 @@ char* getEFPath(int efid){
     }
 }
 
+//Add by wangcong for cellinfo in 0807
+void handlerCellInfoCcedMessage(Parcel &p){
+    int num;
+    RIL_CellInfo_CCED *cell_info;
+
+    p.readInt32(&num);
+    ALOGI("num = %d", num);
+
+    cell_info = (RIL_CellInfo_CCED *)malloc(sizeof(RIL_CellInfo_CCED) * num);
+    if(cell_info == NULL){
+        ALOGE("malloc mem failed.");
+        return;
+    }
+    for(int i = 0; i < num; i++){
+
+        p.readInt32(&(cell_info[i].rat));
+        p.readInt32(&(cell_info[i].mcc));
+        p.readInt32(&(cell_info[i].mnc));
+        p.readInt32(&(cell_info[i].lac));
+        p.readInt32(&(cell_info[i].ci));
+        p.readInt32(&(cell_info[i].pci));
+        p.readInt32(&(cell_info[i].frq));
+        p.readInt32(&(cell_info[i].rsrp));
+
+        ALOGI("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d", 
+            num-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
+        printf("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d\n", 
+            num-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
+    }
+    //finally free mem
+        free(cell_info);
+}
 extern "C"
 int getSimIccId(char* sw0){
     if(strcmp(SimResponse,"0") > 0){
@@ -1879,12 +1912,15 @@ void getCellInfo(){
     //AT+SPQ4GNCELLEX
     //AT+SPQ4GNCELLEX=5,6
     //AT+SPNCELLSCAN=16 
-    sendAtCmd("AT+SPIPTYPECHANGE");
+    //sendAtCmd("AT+SPIPTYPECHANGE");
+    sendAtCmd("AT+CCED=0,5");
     ALOGI("AT+CCED=0,5");
-    sendAtCmd("AT+CSSAC");
-    sendAtCmd("AT+CPUC?");
-    sendAtCmd("AT+COPS=?");
-    //strcpy(AT,"AT+CCED=0,2");
+    sleep(3);
+    //sendAtCmd("AT+CSSAC");
+    //sendAtCmd("AT+CPUC?");
+    //sendAtCmd("AT+COPS=?");
+    sendAtCmd("AT+CCED=0,2");
+    strcpy(AT,"AT+CCED=0,2");
     //Add by wangcong
     struct timeval now;
     struct timespec outtime;
@@ -2020,6 +2056,10 @@ static void processUnsolicited(Parcel &p){
             urc = strdupReadString(p);
             ALOGI("ril unsolicited string:%s",urc);
             break;
+            //Add by wangcong for cellinfo
+        case RIL_UNSOL_CELL_INFO_CCED:
+            ALOGI("ril unsolicited data cell info cced."); //6036
+            handlerCellInfoCcedMessage(p);
         default:
         ALOGI("default not handle");
         break;

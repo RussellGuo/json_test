@@ -37,5 +37,10 @@
 #define RIL_UNSOL_DATA_CALL_LIST_CHANGED 1010
 //Add by wangcong for Dial
 #define RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED 1001
+//Add by wangcong for Cell
+#define RIL_UNSOL_URC_STRING 6034
+/* SPRD: add for sprd unsolicited ril @{ */
+#define RIL_SPRD_UNSOL_RESPONSE_BASE 6000
+#define RIL_UNSOL_CELL_INFO_CCED (RIL_SPRD_UNSOL_RESPONSE_BASE + 36)
 
 #endif

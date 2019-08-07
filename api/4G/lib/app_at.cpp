@@ -60,10 +60,8 @@ static void read_or_write_USB(bool flag){
         while(1) {
             n = read(s_usb_fd, atcmd, sizeof(atcmd) - 1);
 
-            if(n==0){
-              sleep(1);
-              continue;
-            }
+            if(n==0)
+                continue;
             atcmd[n]=0;
             ALOGI("%s: Get AT and send OK,n=%d, atcmd = %s. \n", __FUNCTION__, n, atcmd);
             break;

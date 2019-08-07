@@ -26,6 +26,18 @@ extern "C" {
 */
 int open4G();
 /**
+* 函数说明：得到基站信息
+* 参数：无
+* 返回值：无
+*/
+void getCellInfo();
+/**
+* 函数说明：更改4G/3G/2G网络
+* 参数：网络值  6:4G   14:3G   10:2G    
+* 返回值：无
+*/
+void changeNetWork(char* Type);
+/**
 * 函数说明：初始化网络 ，否则后面函数不能运行
 * 示例：setupDataCall();
 * 返回值：0： 成功
@@ -152,6 +164,10 @@ void acceptCall();
 *        -1：失败
 */
 int close4G();
+
+typedef void (*callBackF)();
+
+void setAnswerCallBack(void (*callBackF)());
 
 #ifdef __cplusplus
 }

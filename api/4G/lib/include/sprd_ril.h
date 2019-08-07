@@ -224,6 +224,19 @@ typedef struct
   RIL_AppStatus applications[RIL_CARD_MAX_APPS];
 } RIL_CardStatus;
 
+//Add for cellinfo by wangcong
+typedef struct 
+{
+    int rat;
+    int mcc;
+    int mnc;
+    int lac;
+    int ci;
+    int pci;
+    int frq;
+    int rsrp;
+}RIL_CellInfo_CCED;
+//end
 /*signal strength start*/
 typedef struct {
     int signalStrength;  /* Valid values are (0-31, 99) as defined in TS 27.007 8.5 */
