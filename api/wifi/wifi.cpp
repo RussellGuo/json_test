@@ -39,7 +39,7 @@
 
 #define WIFI_CMD_RETRY_NUM          3
 #define WIFI_CMD_RETRY_TIME         1 // second
-#define WIFI_MAX_AP                20
+#define WIFI_MAX_AP                30
 #define PROP_VALUE_MAX             92
 #define PROPERTY_VALUE_MAX  PROP_VALUE_MAX
 #define DISABLED_UNKNOWN_REASON     0
@@ -55,7 +55,7 @@
 
 struct sockaddr_un local;
 static int counter;
-
+static int  swifiisonlinflag = 1; //定义一个标志位
 //------------------------------------------------------------------------------
 static wifi_ap_t       sAPs[WIFI_MAX_AP];
 static int             sStatus       = 0;
@@ -65,8 +65,9 @@ static pthread_mutex_t sMutxEvent    = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  sCondEvent    = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t sMutxDhcp     = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  sCondDhcp     = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t sMutxCmd     = PTHREAD_MUTEX_INITIALIZER;
 static volatile int    sEventLooping = 0;
-static char mInterfaceCmd[64];
+static char mInterfaceCmd[128];
 //------------------------------------------------------------------------------
 static void * wifiEventLoop( void *param );
 static void * wifiScanThread( void *param );
@@ -243,7 +244,7 @@ int wifiOpen( void )
     if( is_wifi_driver_loaded() ) {
         wifiClose();
     }
-    DBGMSG("........ wifi_load_driver begin ........\n");
+    DBGMSG("........ wifi_load_driver begin 0801 ........\n");
     if( wifi_load_driver() != 0 ) {
         ERRMSG("wifi_load_driver fail!\n");
         return -1;
@@ -262,6 +263,7 @@ int wifiOpen( void )
 
     int cnn_num = 5;
     int cnn_ret = -1;
+#if 1
     while( cnn_num-- ) {
         usleep(200 * 1000);
 
@@ -280,15 +282,7 @@ int wifiOpen( void )
         ERRMSG("wifi_connect_to_supplicant fail!\n");
         return -3;
     }
-
-    int disconnectFlag = -1;
-    disconnectFlag = wifiDisconnect();   //调用wifiDisconnect函数
-    if(disconnectFlag == 0){
-        DBGMSG("Wifi disconnect ok\n");
-    } else {
-        DBGMSG("Wifi disconnect fail\n");
-    }
-
+#endif
     sStatus       = 0;
     sAPNum        = -1;
     sEventLooping = 1;
@@ -394,8 +388,12 @@ int wifiGetRssi( void )
         char * p;
         p = strtok (reply, split);
         char rssi[16] = {0};
-        strncpy(rssi,p+5,strlen(p)-5);
-        ret = atoi(rssi);
+        if(strncmp(reply,"RSSI",4) == 0)
+        {
+            strncpy(rssi,p+5,strlen(p)-5);
+            ret = atoi(rssi);
+            DBGMSG("====wifi rssi=%d",ret);
+        }
     }
 
     return ret;
@@ -409,7 +407,6 @@ int wifiSyncScanAP(struct wifi_ap_t * aps, int maxnum)
     char reply[64]={0};
     int  len;
 
-    reply[0] = 0;
     len = sizeof reply;
     if( (wifiCommand("SCAN", reply, len) <= 0) || (NULL == strstr(reply, "OK")) ) {
         ERRMSG("scan fail: %s\n", reply);
@@ -515,7 +512,8 @@ void * wifiEventLoop( void *param )
 
         if( (len > 0) &&(NULL != strstr(evt, "CTRL-EVENT-CONNECTED")) ) {
             DBGMSG(".... connect complete ....\n");
-            if(sConnectStatus != CONNECTING){
+            if((sConnectStatus != CONNECTING) && swifiisonlinflag) {  //增加这个标志位
+                DBGMSG("sConnectStatus status is %d +swifiisonlinflag is %d \n",sConnectStatus,swifiisonlinflag);
                 wifiDhcp();
             }else{
                 sConnectStatus = CONNECTED;
@@ -585,18 +583,22 @@ int wifiCommand(const char * cmder, char * replyBuf, int replySize)
 
     snprintf(mInterfaceCmd, sizeof(mInterfaceCmd), "IFNAME=wlan0 %s", cmder);
     DBGMSG("---- mInterfaceCmd = %s ----\n", mInterfaceCmd);
+	pthread_mutex_lock(&sMutxCmd);
     for( int i = 0; i < WIFI_CMD_RETRY_NUM; ++i ) {
         replyLen = (size_t)(replySize - 1);
-
+        //pthread_mutex_lock(&sMutxCmd);
         if( wifi_command(mInterfaceCmd, replyBuf, &replyLen) != 0 ) {
             WRNMSG("'%s'(%d): error, %s(%d)\n", mInterfaceCmd, i, strerror(errno), errno);
+           // pthread_mutex_unlock(&sMutxCmd);
             sleep(WIFI_CMD_RETRY_TIME);
             continue;
         } else {
+        	  //pthread_mutex_unlock(&sMutxCmd);
             fail = 0;
             break;
         }
     }
+	pthread_mutex_unlock(&sMutxCmd);
 
     if( fail ) {
         ERRMSG("'%s' retry %d, always fail!\n", cmder, WIFI_CMD_RETRY_NUM);
@@ -694,7 +696,7 @@ void wifiParseLine(const char * begin, const char * end, struct wifi_ap_t * ap)
     strncpy(ssid,ap->name,len);
     INFMSG("set wifi before ssid:%s len =%d \n",ssid,len);
     int length = printf_decode((char *) ssid_1, len, ssid);
-    INFMSG("set wifi end ssid:%s length=%x \n",ssid_1,length);
+    INFMSG("set wifi end ssid:%s length=%d \n",ssid_1,length);
     strncpy(ap->name,ssid_1,len);   
     if(needConvert(ssid_1,length) && (ssid_1[length - 1] == GB_FLAG)){
      ssid_1[length - 1] = '\0';//remove the last GB_FLAG
@@ -931,7 +933,7 @@ int wifiConnectNetwork(int netId){
     AT_ASSERT( netId != NULL );
 
     sConnectStatus = CONNECTING;
-    char reply[64]={0};
+    char reply[64] = {0};
     int  len;
     char netIdchar[4];
     sprintf(netIdchar,"%d",netId);
@@ -996,22 +998,23 @@ int wifiConnectNetwork(int netId){
 }
 
 int  WiFiIsOnline(){
-    char reply[2048]={0};
+    char reply[2048] = {0};
     int  len;
 
     //select_network
     reply[0] = 0;
     len = sizeof reply;
-
+    swifiisonlinflag = 0;   //把这个标志位置为0
     char * wifistatus = "STATUS";
     char cmdstatus[64] = {0};
     strcat(cmdstatus,wifistatus);
 
     if((wifiCommand(cmdstatus, reply, len) <= 0)) {
         ERRMSG("WiFiIsOnline cmdstatus fail: reply = %s len = %d\n", reply,len);
+        swifiisonlinflag = 1; //在return之前，还原这个标志位的初始值
         return -1;
     }else{
-        INFMSG("WiFiIsOnline cmdstatus success: reply = %s  len = %d\n", reply, len);
+        INFMSG("WiFiIsOnline fzqcmdstatus success: reply = %s  len = %d\n", reply, len);
     }
 	reply[strlen(reply)+1] = '\0';
     if(len > 0) {
@@ -1025,16 +1028,18 @@ int  WiFiIsOnline(){
             if( strncmp("wpa_state",p,9) ==0 ){
                 memset(status,0,sizeof(status));
                 strncpy(status, p+10, strlen(p)-10);
-                usleep(1000 * 1000);
+        //        usleep(1000 * 1000);
                //INFMSG("wpa_state_value = %s \n", rssi);
                 if(strcmp(status,"COMPLETED") == 0){
                 INFMSG("Wifi Link Succeeded\n");
+                    swifiisonlinflag = 1;   //在return之前，还原这个标志位的初始值
                     return 0;
                 }
             }
             p=strtok(NULL,split);
         }
     }
+    swifiisonlinflag = 1; //在return之前，还原这个标志位的初始值
     return -1;
 }
 
@@ -1182,7 +1187,7 @@ int wifiDisconnect( void ){
 }
 
 int wifiGetCurrentStatus( void ){
-    char reply[256]={0};
+    char reply[512]={0};
     int  len;
     reply[0] = 0;
     len = sizeof reply;
@@ -1351,7 +1356,54 @@ int softapSetMoreParam(int argc, char *argv[]){
     FUN_EXIT;
     return 0;
 }
+
+char *GetApInfo(void){
+    char reply[512] = {0};
+    int  len;
+    int  ret;
+    //select_network
+    reply[0] = 0;
+    len = sizeof reply;
+        
+    char * wifistatus = "STATUS";
+    char cmdstatus[64] = "";
+    strcat(cmdstatus,wifistatus);
+        
+        
+//  if (flag!=1 )
+//      return NULL;
+        
+    if((wifiCommand(cmdstatus, reply, len) <= 0)) {
+        ERRMSG("WiFigetinfo cmdstatus fail: reply = %s len = %d\n", reply,len);
+        return NULL;
+    }else{
+        INFMSG("WiFigetinfo cmdstatus success: reply = %s  len = %d\n", reply, len);
+    }   
+        
+    reply[strlen(reply)+1] = '\0';
+    if(len > 0) {
+        const char * split = "\n";
+        char * p = NULL;
+        char status[64];
+        char ssid[256];
+        int wpa_state_value = 0;
+        p = strtok(reply, split);
+        while(p != NULL){
+        
+            INFMSG("Wifi_bcy %s \n",p);
+            if( strncmp("ssid",p,4) ==0 ){
+                memset(ssid,0,sizeof(ssid));
+                strncpy(ssid, p+5, strlen(p)-5);
+                INFMSG("WiFissid success: ssid = %s\n",ssid);
+                return ssid;
+            }
+            p=strtok(NULL,split);
+        }                    
+    }
+    return NULL;
+} 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--} // namespace
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 

@@ -65,6 +65,8 @@ int WiFiIsOnline();
 int softapOpen( void );
 int softapSet(char ssid[], char psk[]);
 int softapClose( void );
+char *GetApInfo(void);
+
 //-----------------------------------------------------------------------------
 //--};
 #ifdef __cplusplus

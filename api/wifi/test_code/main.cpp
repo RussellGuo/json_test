@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
 	}*/
 else if(0 == strcmp("wifiConnectNetwork", argv[i])){
             DBGMSG("wifiConnectNetwork argv");
-            char * ssid = "\"huaqin\"";
+            char * ssid = "\"hexin\"";
             char * psk  = "\"12345678\"";
             char ip_mask[15];
             char ip_addr[15];
