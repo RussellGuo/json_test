@@ -159,8 +159,8 @@ typedef enum {
     RIL_APPSTATE_ILLEGAL               = -1,
     RIL_APPSTATE_UNKNOWN               = 0,
     RIL_APPSTATE_DETECTED              = 1,
-    RIL_APPSTATE_PIN                   = 2, 
-    RIL_APPSTATE_PUK                   = 3, 
+    RIL_APPSTATE_PIN                   = 2,
+    RIL_APPSTATE_PUK                   = 3,
     RIL_APPSTATE_SUBSCRIPTION_PERSO    = 4,
     RIL_APPSTATE_READY                 = 5,
     RIL_APPSTATE_BLOCKED               = 6
@@ -203,11 +203,11 @@ typedef struct
 {
   RIL_AppType      app_type;
   RIL_AppState     app_state;
-  RIL_PersoSubstate perso_substate; 
-                                       
-  char             *aid_ptr;        
-                                       
-  char             *app_label_ptr;  
+  RIL_PersoSubstate perso_substate;
+
+  char             *aid_ptr;
+
+  char             *app_label_ptr;
   int              pin1_replaced;
   RIL_PinState     pin1;
   RIL_PinState     pin2;
@@ -216,26 +216,27 @@ typedef struct
 typedef struct
 {
   RIL_CardState card_state;
-  RIL_PinState  universal_pin_state;             
-  int           gsm_umts_subscription_app_index; 
-  int           cdma_subscription_app_index;     
-  int           ims_subscription_app_index;      
+  RIL_PinState  universal_pin_state;
+  int           gsm_umts_subscription_app_index;
+  int           cdma_subscription_app_index;
+  int           ims_subscription_app_index;
   int           num_applications;
   RIL_AppStatus applications[RIL_CARD_MAX_APPS];
 } RIL_CardStatus;
 
 //Add for cellinfo by wangcong
-typedef struct 
+typedef struct
 {
     int rat;
-    int mcc;
-    int mnc;
-    int lac;
-    int ci;
+    int mcc;//国家码
+    int mnc;//运营商码
+    int lac;//地区码
+    int ci; //编号
     int pci;
     int frq;
-    int rsrp;
+    int rsrp;//信号强度
 }RIL_CellInfo_CCED;
+
 //end
 /*signal strength start*/
 typedef struct {
@@ -514,4 +515,3 @@ typedef struct {
 } RIL_Call;
 /*call end*/
 #endif
-

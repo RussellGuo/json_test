@@ -1,6 +1,9 @@
 #ifndef MODEMAPI_H
 #define MODEMAPI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -11,9 +14,18 @@ typedef struct
     int tac;
 } Cellinfo;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct
+{
+    int rat;
+    int mcc;//国家码
+    int mnc;//运营商码
+    int lac;//地区码
+    int ci; //编号
+    int pci;
+    int frq;
+    int rsrp;//信号强度
+}CellInfo_CCED;
+
 
 /**
 *  说明：所有含SIM卡信息的接口必须需要插上SIM卡后才能运行，不然会报错
@@ -25,6 +37,19 @@ extern "C" {
 *        -1：失败
 */
 int open4G();
+/**
+* 函数说明：得到基站信息
+* 参数：无
+* 返回值：无
+*/
+CellInfo_CCED * getCellInfo(int* cellcount);
+//void getCellInfo();
+/**
+* 函数说明：更改4G/3G/2G网络
+* 参数：网络值  6:4G   14:3G   10:2G
+* 返回值：无
+*/
+void changeNetWork(char* Type);
 /**
 * 函数说明：初始化网络 ，否则后面函数不能运行
 * 示例：setupDataCall();
@@ -152,6 +177,10 @@ void acceptCall();
 *        -1：失败
 */
 int close4G();
+
+typedef void (*callBackF)();
+
+void setAnswerCallBack(void (*callBackF)());
 
 #ifdef __cplusplus
 }

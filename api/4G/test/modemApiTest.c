@@ -9,7 +9,7 @@
 #include <errno.h>
 
 #define TEST_PHONE_CALL 0
-#define TEST_PHONE_WITH_DIAL 1
+#define TEST_PHONE_WITH_DIAL 0
 
 
 int main(int argc, char** argv)
@@ -57,6 +57,7 @@ int main(int argc, char** argv)
     DataCallConconnect("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
     int strength = getSignalStrength();
     sleep(1);
+#if 0
     getSignalStrength();
     getSignalStrength();
     getSignalStrength();
@@ -114,8 +115,23 @@ int main(int argc, char** argv)
     DataCallConconnect("16", "0", "3gnet", "", NULL, "0", "IPV4V6");
     //int states1 = getPdptruestate();
     //printf("states1 = %d\n",states1);
-    getCellInfo();
-    //6:4G   14:3G   10:2G    
+#endif
+    int cell_info_count = 0;
+    CellInfo_CCED* cell_info = getCellInfo(&cell_info_count);
+    if(cell_info)
+    {
+        printf("======count:%d\n",cell_info_count);
+        int i;
+        for(i = 0; i< cell_info_count;i++)
+        {
+            printf("cell++[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d\n",
+                i,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
+        }
+        //需要在使用后释放
+        free(cell_info);
+        cell_info = NULL;
+    }
+    //6:4G   14:3G   10:2G
     //char netWorkType[8] = "6";
     //changeNetWork(netWorkType);
 #endif

@@ -59,6 +59,18 @@ typedef struct
     int tac;
 } Cellinfo;
 
+typedef struct
+{
+    int rat;
+    int mcc;//国家码
+    int mnc;//运营商码
+    int lac;//地区码
+    int ci; //编号
+    int pci;
+    int frq;
+    int rsrp;//信号强度
+}CellInfo_CCED;
+
 struct PDP_INFO pdp_info;
 int MCC,MNC,CI,PCI,TAC = 0;
 int signal_strength = -100;
@@ -367,7 +379,7 @@ void getIMEI(char* imei){
     rnode = findFreeListNode();
 
     if(rnode == NULL) return;
-    
+
     rnode->serial = s_serial++;
     rnode->requestId = RIL_REQUEST_GET_IMEI;
     rnode->isFree = false;
@@ -569,14 +581,14 @@ int getIccCardState(){
     if(red == ETIMEDOUT)
         return -100;
     ALOGI("write 'get sim status' into socket OVER!");
-	outState = 0;*/	
+	outState = 0;*/
 	/*while(simFlag == 0){
 	  ALOGI("simFlagBefore: %d",simFlag);
 	  sleep(1);
 	  getIccCardStateInner();
 	  ALOGI("simFlagInside: %d",simFlag);
 	}*/
-	if(simFlag == 0){ 
+	if(simFlag == 0){
 	ALOGI("05302022");
 	ALOGI("simFlagBefore: %d",simFlag);
 	sleep(1);
@@ -1261,11 +1273,11 @@ int getPdpState(void){
       for(int i = 0; i < num_pdp; i++){
         std::string s = pdplist[i].ip;
         if(pdplist[i].active==PDP_STATUS_ACTIVE && !s.empty()){
-         
+
             ALOGI(" pdp active !");
             pdpState = 1;
             return 1;
-      
+
         }
     }
     ALOGI("there is no active pdp!");
@@ -1376,20 +1388,21 @@ char* getEFPath(int efid){
     }
 }
 
+
+CellInfo_CCED *cell_info;
+int cell_info_count = 0;
 //Add by wangcong for cellinfo in 0807
 void handlerCellInfoCcedMessage(Parcel &p){
-    int num;
-    RIL_CellInfo_CCED *cell_info;
 
-    p.readInt32(&num);
-    ALOGI("num = %d", num);
-
-    cell_info = (RIL_CellInfo_CCED *)malloc(sizeof(RIL_CellInfo_CCED) * num);
+    p.readInt32(&cell_info_count);
+    ALOGI("num = %d", cell_info_count);
+    printf("num = %d", cell_info_count);
+    cell_info = (CellInfo_CCED *)malloc(sizeof(CellInfo_CCED) * cell_info_count);
     if(cell_info == NULL){
         ALOGE("malloc mem failed.");
         return;
     }
-    for(int i = 0; i < num; i++){
+    for(int i = 0; i < cell_info_count; i++){
 
         p.readInt32(&(cell_info[i].rat));
         p.readInt32(&(cell_info[i].mcc));
@@ -1400,18 +1413,18 @@ void handlerCellInfoCcedMessage(Parcel &p){
         p.readInt32(&(cell_info[i].frq));
         p.readInt32(&(cell_info[i].rsrp));
 
-        ALOGI("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d", 
-            num-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
-        printf("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d\n", 
-            num-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
+        ALOGI("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d",
+            cell_info_count-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
+        printf("cell[%d]:rat = %d,mcc = %d,mnc = %d,lac = %d,ci = %d,pci = %d,frq = %d,rsrp = %d\n",
+            cell_info_count-1,cell_info[i].rat,cell_info[i].mcc,cell_info[i].mnc,cell_info[i].lac,cell_info[i].ci,cell_info[i].pci,cell_info[i].frq,cell_info[i].rsrp);
     }
     //finally free mem
-        free(cell_info);
 }
+
 extern "C"
 int getSimIccId(char* sw0){
     if(strcmp(SimResponse,"0") > 0){
-     ALOGI("The last time SimResponse is %s",SimResponse); 
+     ALOGI("The last time SimResponse is %s",SimResponse);
      strcpy(sw0,SimResponse);
      return 0;
     }
@@ -1474,7 +1487,7 @@ static void hanldeDataCallListChangeMessage(Parcel &p){
         ALOGI("ifname = %s", datalist[i].ifname);
         ALOGI("addr = %s", datalist[i].addresses);
         ALOGI("dns = %s", datalist[i].dnses);
-        
+
     }
     if(datalist[s_active_pdp_cid - 1].active == PDP_STATUS_ACTIVE)//Add by wangcong in 05301544
     {
@@ -1621,7 +1634,7 @@ int handleGetSignalStrengthComplete(Parcel &p){
     p.readInt32( &signalStrength->LTE_SignalStrength.cqi );
     signalStrength->LTE_SignalStrength.timingAdvance = 2147483647;//INT_MAX
     signalStrength->TD_SCDMA_SignalStrength.rscp = 2147483647;//INT_MAX
-    
+
     ALOGI("GW_SignalStrength.signalStrength = %d", signalStrength->GW_SignalStrength.signalStrength);
     ALOGI("GW_SignalStrength.bitErrorRate = %d", signalStrength->GW_SignalStrength.bitErrorRate);
     ALOGI("CDMA_SignalStrength.dbm = %d", signalStrength->CDMA_SignalStrength.dbm);
@@ -1905,13 +1918,13 @@ static void handleGetCurrentCallList(Parcel &p){
 
 //Add bu wangcong for CellInfo
 extern "C"
-void getCellInfo(){
+CellInfo_CCED * getCellInfo(int* cellcount){
     int ret;
     //AT+SPFREQSCAN=3,\"\",\"\",2,\"\",\"\",3,\"\",\"\"
     //AT^MBCELLID=1
     //AT+SPQ4GNCELLEX
     //AT+SPQ4GNCELLEX=5,6
-    //AT+SPNCELLSCAN=16 
+    //AT+SPNCELLSCAN=16
     //sendAtCmd("AT+SPIPTYPECHANGE");
     sendAtCmd("AT+CCED=0,5");
     ALOGI("AT+CCED=0,5");
@@ -1926,10 +1939,17 @@ void getCellInfo(){
     struct timespec outtime;
     pthread_mutex_lock(&s_network_cellid_mutex);
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 10;
+    outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
     int red = pthread_cond_timedwait(&s_network_cellid_cond, &s_network_cellid_mutex, &outtime);
     pthread_mutex_unlock(&s_network_cellid_mutex);
+    *cellcount = cell_info_count;
+    cell_info_count = 0;
+    if(*cellcount == 0 || cell_info == NULL)
+    {
+        return NULL;
+    }
+    return cell_info;
 
 }
 
@@ -2043,14 +2063,14 @@ static void processUnsolicited(Parcel &p){
             ALOGI("ril unsolicited data call list changed.==================================");
             hanldeDataCallListChangeMessage(p);
             break;
-            
+
             //Add by wangcong for Dial
         case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED: //1001
             ALOGI("call state changed.==================================");
             //to get Current Calls
             getCurrentCalls();
             break;
-            
+
             //Add by wangcong for cellinfo
         case RIL_UNSOL_URC_STRING:   //6034
             urc = strdupReadString(p);
@@ -2060,6 +2080,10 @@ static void processUnsolicited(Parcel &p){
         case RIL_UNSOL_CELL_INFO_CCED:
             ALOGI("ril unsolicited data cell info cced."); //6036
             handlerCellInfoCcedMessage(p);
+            pthread_mutex_lock(&s_network_cellid_mutex);
+            pthread_cond_signal(&s_network_cellid_cond);
+            pthread_mutex_unlock(&s_network_cellid_mutex);
+
         default:
         ALOGI("default not handle");
         break;
@@ -2349,14 +2373,11 @@ void processSolicited(Parcel &p){
                           sscanf(resp, "%*[^:]:%[^A-Z]", cellInfoForNoCard);
                           printf("无卡获取的基站信息：%s",cellInfoForNoCard );
                           free(resp);
-                          pthread_mutex_lock(&s_network_cellid_mutex);
-                          pthread_cond_signal(&s_network_cellid_cond);
-                          pthread_mutex_unlock(&s_network_cellid_mutex);
                       }else if(strcmp(AT,"AT+CCED=0,2") == 0){
                           ALOGI( "return is : %s >>>=========================================<<<  ", resp );
                           free(resp);
                             }
-                            
+
                      }
                      //test get grps attach
                           getGprsAttachState();
@@ -2378,7 +2399,7 @@ void processSolicited(Parcel &p){
                                 }
                       pthread_mutex_lock(&s_network_imsi_mutex);
                       pthread_cond_signal(&s_network_imsi_cond);
-                      pthread_mutex_unlock(&s_network_imsi_mutex);//Modifeid by wangcong in 5.27 
+                      pthread_mutex_unlock(&s_network_imsi_mutex);//Modifeid by wangcong in 5.27
                     break;
                 //Add by wangcong for PDP
                 case RIL_REQUEST_DATA_CALL_LIST:
@@ -2500,16 +2521,16 @@ int getIMSI(char* imsi){
 extern "C"
 void changeNetWork(char* Type){
 
-    ALOGI("persist.radio.ssda.testmodetestmode========"); 
+    ALOGI("persist.radio.ssda.testmodetestmode========");
     property_set("persist.radio.ssda.testmode",Type);//
     ALOGI("persist.radio.ssda.testmodetestmode!!!!!!!!!!");
     char testmode[92 + 1];
     ALOGI("persist.radio.ssda.testmodetestmode~~~~~~~");
     property_get("persist.radio.ssda.testmode",testmode, "0");
-    ALOGI("persist.radio.ssda.testmodetestmode is %s",testmode); 
+    ALOGI("persist.radio.ssda.testmodetestmode is %s",testmode);
     radioPower(0);
-    sleep(5); 
-    radioPower(1); 
+    sleep(5);
+    radioPower(1);
     sleep(5);
 
 }
