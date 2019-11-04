@@ -45,8 +45,8 @@ using namespace android;
 
 #define SET_PARM(h, x, y, z)                                                   \
     do {                                                                       \
-        if (NULL != h && NULL != h->ops)                                       \
-            h->ops->camera_set_param(x, y, z);                                 \
+    if (NULL != h && NULL != h->ops)                                       \
+    h->ops->camera_set_param(x, y, z);                                 \
     } while (0)
 
 /*
@@ -71,9 +71,9 @@ typedef enum {
 } camera_data_format_type_t;
 
 typedef struct buffer_mate {
-void* data;
-sem_t buf_sem;
-bool bufferEnable;
+    void* data;
+    sem_t buf_sem;
+    bool bufferEnable;
 }buffer_mate_t;
 
 buffer_mate_t  mbuffer;
@@ -109,10 +109,10 @@ static struct minicamera_context *minicamera_dev;
 
 static void usage(void) {
     fprintf(
-        stderr,
-        "usage:\n"
-        "bartest -cameraid camera_id -w preview_width -h preview_height\n"
-        "for example: bartest -cameraid 0 -w 640 -h 480\n");
+                stderr,
+                "usage:\n"
+                "bartest -cameraid camera_id -w preview_width -h preview_height\n"
+                "for example: bartest -cameraid 0 -w 640 -h 480\n");
 }
 
 static int minicamera_parse_param(struct minicamera_context *cxt, int argc,
@@ -175,10 +175,10 @@ static int minicamera_load_lib(struct minicamera_context *cxt) {
 
     if (!cxt->oem_dev) {
         cxt->oem_dev = (oem_module_t *)malloc(sizeof(oem_module_t));
-		if(cxt->oem_dev == NULL){
-			CMR_LOGE("oem dev malloc failed\n");
-			goto loaderror;
-		}
+        if(cxt->oem_dev == NULL){
+            CMR_LOGE("oem dev malloc failed\n");
+            goto loaderror;
+        }
         handle = dlopen(OEM_LIBRARY_PATH, RTLD_NOW);
         cxt->oem_dev->dso = handle;
 
@@ -196,57 +196,57 @@ static int minicamera_load_lib(struct minicamera_context *cxt) {
         cxt->oem_dev->ops = omi->ops;
 
         CMR_LOGD("loaded libcamoem handle=%p", handle);
-    
 
-    if(mini_lsensor_ops_en){
 
-	cxt->lib_handle = dlopen("minicam_api.so", RTLD_NOW);
-	if (!cxt->lib_handle) {
-		CMR_LOGE("fail to dlopen minicam_api lib");
+        if(mini_lsensor_ops_en){
 
-		goto loaderror;
-	}
-	CMR_LOGE("Lucas loaded minicam_api.so handle=%p", cxt->lib_handle);
+            cxt->lib_handle = dlopen("minicam_api.so", RTLD_NOW);
+            if (!cxt->lib_handle) {
+                CMR_LOGE("fail to dlopen minicam_api lib");
 
-	cxt->lib_ops.set_contrast = (void (*)(minicamera_context*, unsigned char))dlsym(cxt->lib_handle, "set_contrast");
-	if (!cxt->lib_ops.set_contrast) {
-		error = dlerror();
-		CMR_LOGE("sym fail to dlsym set_contrast failed.error = %s", error);
-		goto loaderror;
-	}
-	
-	cxt->lib_ops.get_contrast = (void (*)(minicamera_context*, get_range_t*))dlsym(cxt->lib_handle, "get_contrast");
-	if (!cxt->lib_ops.get_contrast) {
-		CMR_LOGE("fail to dlsym get_contrast");
-		goto loaderror;
-	}
-	
-	cxt->lib_ops.set_shutter = (void (*)(minicamera_context*, int))dlsym(cxt->lib_handle, "set_shutter");
-	if (!cxt->lib_ops.set_shutter) {
-		CMR_LOGE("fail to dlsym set_shutter");
-		goto loaderror;
-	}
-	
-	cxt->lib_ops.get_shutter = (void (*)(minicamera_context*, get_range_t*))dlsym(cxt->lib_handle, "get_shutter");
-	if (!cxt->lib_ops.get_shutter) {
-		CMR_LOGE("fail to dlsym get_shutter");
-		goto loaderror;
-	}
+                goto loaderror;
+            }
+            CMR_LOGE("Lucas loaded minicam_api.so handle=%p", cxt->lib_handle);
 
-	cxt->lib_ops.set_gain = (void (*)(minicamera_context*, int))dlsym(cxt->lib_handle, "set_gain");
-	if (!cxt->lib_ops.set_gain) {
-		CMR_LOGE("fail to dlsym set_gain");
-		goto loaderror;
-	}
+            cxt->lib_ops.set_contrast = (void (*)(minicamera_context*, unsigned char))dlsym(cxt->lib_handle, "set_contrast");
+            if (!cxt->lib_ops.set_contrast) {
+                error = dlerror();
+                CMR_LOGE("sym fail to dlsym set_contrast failed.error = %s", error);
+                goto loaderror;
+            }
 
-	cxt->lib_ops.get_gain = (void (*)(minicamera_context*, get_range_t *))dlsym(cxt->lib_handle, "get_gain");
-	if (!cxt->lib_ops.get_gain) {
-		CMR_LOGE("fail to dlsym get_gain");
-		goto loaderror;
-	}
+            cxt->lib_ops.get_contrast = (void (*)(minicamera_context*, get_range_t*))dlsym(cxt->lib_handle, "get_contrast");
+            if (!cxt->lib_ops.get_contrast) {
+                CMR_LOGE("fail to dlsym get_contrast");
+                goto loaderror;
+            }
 
-	}
-   }
+            cxt->lib_ops.set_shutter = (void (*)(minicamera_context*, int))dlsym(cxt->lib_handle, "set_shutter");
+            if (!cxt->lib_ops.set_shutter) {
+                CMR_LOGE("fail to dlsym set_shutter");
+                goto loaderror;
+            }
+
+            cxt->lib_ops.get_shutter = (void (*)(minicamera_context*, get_range_t*))dlsym(cxt->lib_handle, "get_shutter");
+            if (!cxt->lib_ops.get_shutter) {
+                CMR_LOGE("fail to dlsym get_shutter");
+                goto loaderror;
+            }
+
+            cxt->lib_ops.set_gain = (void (*)(minicamera_context*, int))dlsym(cxt->lib_handle, "set_gain");
+            if (!cxt->lib_ops.set_gain) {
+                CMR_LOGE("fail to dlsym set_gain");
+                goto loaderror;
+            }
+
+            cxt->lib_ops.get_gain = (void (*)(minicamera_context*, get_range_t *))dlsym(cxt->lib_handle, "get_gain");
+            if (!cxt->lib_ops.get_gain) {
+                CMR_LOGE("fail to dlsym get_gain");
+                goto loaderror;
+            }
+
+        }
+    }
 
     return 0;
 
@@ -282,10 +282,10 @@ static void minicamera_cb(enum camera_cb_type cb, const void *client_data,
     oem_module_t *oem_dev = minicamera_dev->oem_dev;
     cmr_handle oem_handle = minicamera_dev->oem_handle;
     struct img_addr addr_vir;
-int codetype = -1;
-char data[1024];
-int ret = -1;
-memset(data, 0, sizeof data);
+    int codetype = -1;
+    char data[1024];
+    int ret = -1;
+    memset(data, 0, sizeof data);
 
     UNUSED(client_data);
 
@@ -321,33 +321,33 @@ memset(data, 0, sizeof data);
     }
 
 
-     //copy image buffer
-     int c_size = frame->width * frame->height * 3/2;
-   //  memset(temp_buff,0,sizeof(temp_buff));
-   //  memcpy(temp_buff, (void *)frame->y_vir_addr,c_size);
-      if(mbuffer.bufferEnable){
-       memset(mbuffer.data,0,c_size);
-       memcpy(mbuffer.data, (void *)frame->y_vir_addr,c_size);
-       mbuffer.bufferEnable = false;
-       sem_post(&mbuffer.buf_sem);
+    //copy image buffer
+    int c_size = frame->width * frame->height * 3/2;
+    //  memset(temp_buff,0,sizeof(temp_buff));
+    //  memcpy(temp_buff, (void *)frame->y_vir_addr,c_size);
+    if(mbuffer.bufferEnable){
+        memset(mbuffer.data,0,c_size);
+        memcpy(mbuffer.data, (void *)frame->y_vir_addr,c_size);
+        mbuffer.bufferEnable = false;
+        sem_post(&mbuffer.buf_sem);
     }
 #if 1  //test
-  if (minicamera_dump_cnt < 20 && flag == 1) {
-	//dump buffer
-    char file_name[0x40];
-    char tmp_str[10];
-    strcpy(file_name, CAMERA_DUMP_PATH);
-    sprintf(tmp_str, "%08x_", minicamera_dump_cnt);
-    strcat(file_name, tmp_str);
+    if (minicamera_dump_cnt < 20 && flag == 1) {
+        //dump buffer
+        char file_name[0x40];
+        char tmp_str[10];
+        strcpy(file_name, CAMERA_DUMP_PATH);
+        sprintf(tmp_str, "%08x_", minicamera_dump_cnt);
+        strcat(file_name, tmp_str);
 
-    sprintf(tmp_str, "%d", frame->width);
-    strcat(file_name, tmp_str);
-    strcat(file_name, "X");
-    sprintf(tmp_str, "%d", frame->height);
-    strcat(file_name, tmp_str);
-     strcat(file_name, ".yuv");
+        sprintf(tmp_str, "%d", frame->width);
+        strcat(file_name, tmp_str);
+        strcat(file_name, "X");
+        sprintf(tmp_str, "%d", frame->height);
+        strcat(file_name, tmp_str);
+        strcat(file_name, ".yuv");
 
-	FILE *fp = NULL;
+        FILE *fp = NULL;
         fp = fopen(file_name, "wb");
         if (NULL == fp) {
             CMR_LOGD("zyy can not open file");
@@ -357,24 +357,24 @@ memset(data, 0, sizeof data);
         fwrite((void *)frame->y_vir_addr, 1, c_size, fp);
         fclose(fp);
         minicamera_dump_cnt++;
-	flag = 0;
+        flag = 0;
     }
 #endif
-/*
+    /*
     addr_vir.addr_y = frame->y_vir_addr;
     addr_vir.addr_u = frame->y_vir_addr + frame->width * frame->height;
    // if (minicamera_dump_cnt < 10) {
    //    camera_save_yuv_to_file(minicamera_dump_cnt, IMG_DATA_TYPE_YUV420,
    // 		 frame->width, frame->height, &addr_vir);
-  *bar = (char *)addr_vir.addr_y;                
+  *bar = (char *)addr_vir.addr_y;
 
         minicamera_dump_cnt++;
 */
     if (oem_dev != NULL && oem_dev->ops != NULL) {
         oem_dev->ops->camera_set_preview_buffer(
-            oem_handle, (cmr_uint)previewHeapArray[frame->buf_id]->phys_addr,
-            (cmr_uint)previewHeapArray[frame->buf_id]->data,
-            (cmr_s32)previewHeapArray[frame->buf_id]->fd);
+                    oem_handle, (cmr_uint)previewHeapArray[frame->buf_id]->phys_addr,
+                (cmr_uint)previewHeapArray[frame->buf_id]->data,
+                (cmr_s32)previewHeapArray[frame->buf_id]->fd);
     } else {
         CMR_LOGE("oem_dev is null");
         return;
@@ -426,7 +426,7 @@ static sprd_camera_memory_t *alloc_camera_mem(int buf_size, int num_bufs,
 
     CMR_LOGI("buf_size=%d, num_bufs=%d", buf_size, num_bufs);
     sprd_camera_memory_t *memory =
-        (sprd_camera_memory_t *)malloc(sizeof(sprd_camera_memory_t));
+            (sprd_camera_memory_t *)malloc(sizeof(sprd_camera_memory_t));
     if (NULL == memory) {
         CMR_LOGE("failed: fatal error! memory pointer is null");
         goto getpmem_fail;
@@ -758,7 +758,7 @@ static cmr_int callback_malloc(enum camera_mem_cb_type type, cmr_u32 *size_ptr,
     CMR_LOGI("type=%d", type);
     pthread_mutex_lock(&previewlock);
     if (!phy_addr || !vir_addr || !size_ptr || !sum_ptr || (0 == *size_ptr) ||
-        (0 == *sum_ptr)) {
+            (0 == *sum_ptr)) {
         CMR_LOGE("alloc error 0x%lx 0x%lx 0x%lx", (cmr_uint)phy_addr,
                  (cmr_uint)vir_addr, (cmr_uint)size_ptr);
         pthread_mutex_unlock(&previewlock);
@@ -854,8 +854,8 @@ static int minicamera_init(struct minicamera_context *cxt) {
     minicamera_dev = cxt;
 
     ret = cxt->oem_dev->ops->camera_init(
-        cameraId, minicamera_cb, &client_data, 0, &cxt->oem_handle,
-        (void *)callback_malloc, (void *)callback_free);
+                cameraId, minicamera_cb, &client_data, 0, &cxt->oem_handle,
+                (void *)callback_malloc, (void *)callback_free);
 
     s_mem_method = iommu_is_enabled(cxt);
     CMR_LOGI("s_mem_method=%d", s_mem_method);
@@ -907,7 +907,7 @@ static int minicamera_startpreview(struct minicamera_context *cxt) {
              (cmr_uint)&fps_param);
 
     ret = cxt->oem_dev->ops->camera_set_mem_func(
-        cxt->oem_handle, (void *)callback_malloc, (void *)callback_free, NULL);
+                cxt->oem_handle, (void *)callback_malloc, (void *)callback_free, NULL);
     if (CMR_CAMERA_SUCCESS != ret) {
         CMR_LOGE("camera_set_mem_func failed");
         goto exit;
@@ -925,7 +925,8 @@ exit:
     return -1;
 }
 
-int Cam_Init(void){
+int Cam_Init(void)
+{
     int ret = 0;
     int tempSize;
     memset((void *)&cxt, 0, sizeof(cxt));
@@ -935,19 +936,19 @@ int Cam_Init(void){
 
     cxt.camera_id = MINICAMERA_CAMERA_BACK;
     cxt.width = MINICAMERA_WIDTH_MAX;
-    cxt.height = MINICAMERA_HEIGHT_MAX; 
+    cxt.height = MINICAMERA_HEIGHT_MAX;
     ret = minicamera_load_lib(&cxt);
     if (ret) {
         CMR_LOGE("minicamera_load_lib failed");
         goto exit;
     }
-//dayingheight
+    //dayingheight
     ret = minicamera_init(&cxt);
     if (ret) {
         CMR_LOGE("minicamera_init failed");
         goto exit;
     }
-//dayingoem_dev
+    //dayingoem_dev
     ret = minicamera_startpreview(&cxt);
     if (ret) {
         CMR_LOGE("minicamera_startpreview failed");
@@ -956,56 +957,57 @@ int Cam_Init(void){
     tempSize = cxt.width * cxt.height * 3 /2;
     //temp_buff = (void *)malloc(tempSize);
     mbuffer.data = (void *)malloc(tempSize);
-	if(mbuffer.data == NULL){
-		CMR_LOGE("mbuffer data malloc failed\n");
-		cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
-		cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
-		sem_destroy(&mbuffer.buf_sem);
-		goto exit;
-	}else{
-		CMR_LOGE("mbuffer data malloc succeed\n");
-	}
+    if(mbuffer.data == NULL) {
+        CMR_LOGE("mbuffer data malloc failed\n");
+        cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
+        cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
+        sem_destroy(&mbuffer.buf_sem);
+        goto exit;
+    } else {
+        CMR_LOGE("mbuffer data malloc succeed\n");
+    }
 
-   return ret;
+    return ret;
 exit:
     return -1;
 }
 
 
-int Cam_DeInit(void) {
+int Cam_DeInit(void)
+{
     if (cxt.oem_handle == NULL || cxt.oem_dev == NULL ||
-        cxt.oem_dev->ops == NULL) {
+            cxt.oem_dev->ops == NULL) {
         CMR_LOGE("failed: input param is null");
         goto exit;
     }
 
-   cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
-   cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
-   sem_destroy(&mbuffer.buf_sem);
-   free(mbuffer.data);
-   mbuffer.data = NULL;
-   return 0;
+    cxt.oem_dev->ops->camera_stop_preview(cxt.oem_handle);
+    cxt.oem_dev->ops->camera_deinit(cxt.oem_handle);
+    sem_destroy(&mbuffer.buf_sem);
+    free(mbuffer.data);
+    mbuffer.data = NULL;
+    return 0;
 exit:
-   return -1;
+    return -1;
 }
 
 bool mini_get_img_info(struct minicamera_context *cxt,img_info_t *out_param_ptr){
-   if(cxt ==NULL || mbuffer.data ==NULL){
-   	CMR_LOGE("failed: input cxt is null or temp_buff is null");
+    if(cxt ==NULL || mbuffer.data ==NULL){
+        CMR_LOGE("failed: input cxt is null or temp_buff is null");
         goto exit;
-   }
-   out_param_ptr->width = cxt->width;
-   out_param_ptr->height = cxt->height;
-   out_param_ptr->format = cxt->prev_format;
-  // out_param_ptr->data = temp_buff;
-  mbuffer.bufferEnable  = true;
-  out_param_ptr->data =mbuffer.data;
-  sem_wait(&mbuffer.buf_sem);
- // fprintf(stdout,"yuzan1 imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
- //		 out_param_ptr->width,out_param_ptr->height,out_param_ptr->format,(unsigned int)out_param_ptr->data);
-   return 0;
+    }
+    out_param_ptr->width = cxt->width;
+    out_param_ptr->height = cxt->height;
+    out_param_ptr->format = cxt->prev_format;
+    // out_param_ptr->data = temp_buff;
+    mbuffer.bufferEnable  = true;
+    out_param_ptr->data =mbuffer.data;
+    sem_wait(&mbuffer.buf_sem);
+    // fprintf(stdout,"yuzan1 imginfo: w %d,h %d,fmt %d,data vir_addr 0x%x\n",
+    //		 out_param_ptr->width,out_param_ptr->height,out_param_ptr->format,(unsigned int)out_param_ptr->data);
+    return 0;
 exit:
-   return -1;
+    return -1;
 }
 
 int mini_set_CropRegion(struct minicamera_context *cxt,float zoomRatio,float aspect_ratio){
@@ -1023,5 +1025,3 @@ int mini_set_CropRegion(struct minicamera_context *cxt,float zoomRatio,float asp
     flag = 1;    //test
     return 0;
 }
-
-
