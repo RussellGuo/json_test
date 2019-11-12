@@ -929,7 +929,7 @@ int Cam_Init(void)
 {
     int ret = 0;
     int tempSize;
-    memset((void *)&cxt, 0, sizeof(cxt));
+    
     mbuffer.bufferEnable = false;
     pthread_mutex_init(&previewlock, NULL);
     sem_init(&mbuffer.buf_sem, 0, 0);

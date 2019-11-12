@@ -59,6 +59,10 @@ bool mini_get_img_info(struct minicamera_context *cxt,img_info_t *out_param_ptr)
 /*第二个参数是缩放比例，最大到4X，第三个参数是宽高比，宽高比不同于全尺寸的话，会裁剪*/
 int  mini_set_CropRegion(struct minicamera_context *cxt,float zoomRatio,float aspect_ratio);
 
+void dlmalloc_stats(void);
+int  dlmalloc_trim(size_t);
+
+#define MALLOC_STAT() do { dlmalloc_trim(0); fprintf(stderr, "malloc stats at %s:%d\n", __func__, __LINE__); dlmalloc_stats(); } while (0)
 
 #ifdef __cplusplus
 }
