@@ -155,6 +155,9 @@ pthread_cond_t  s_network_gprs_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t s_network_detactive_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  s_network_detactive_cond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t s_writeMutex = PTHREAD_MUTEX_INITIALIZER;
+
 /*extern external vars & func */
 #if defined (APP_PPPDIAL_MODULE)
 extern void initPppDial(void);
@@ -312,19 +315,22 @@ int sendRequest (const void *data, size_t dataSize, int fd) {
         return -1;
     }
 
+	pthread_mutex_lock(&s_writeMutex);
     header = htonl(dataSize);
     ret = blockingWrite(fd, (void *)&header, sizeof(header));
     if (ret < 0) {
         ALOGE(" blockingWrite header error");
+		pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
 
     ret = blockingWrite(fd, data, dataSize);
     if (ret < 0) {
         ALOGE(" blockingWrite data error");
+		pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
-
+	pthread_mutex_unlock(&s_writeMutex);
     ALOGI("send request over");
     return 0;
 }
@@ -623,7 +629,7 @@ int getVoiceNetworkRegistrationState(char* netTypeWork){
     if(rnode == NULL) return 0;
 
     rnode->serial = s_serial++;
-    rnode->requestId = RIL_REQUEST_VOICE_REGISTRATION_STATE;
+    rnode->requestId = RIL_REQUEST_DATA_REGISTRATION_STATE;
     rnode->isFree = false;
 
     Parcel p;
@@ -636,7 +642,7 @@ int getVoiceNetworkRegistrationState(char* netTypeWork){
         ALOGE("send at ERROR!");
     }
     ALOGE("NETWORK REGISTRA:(%d)",rnode->requestId);
-    ALOGE("NETWORK REGISTRA1:(%d)",RIL_REQUEST_VOICE_REGISTRATION_STATE);
+    ALOGE("NETWORK REGISTRA1:(%d)",RIL_REQUEST_DATA_REGISTRATION_STATE);
     ALOGE("NETWORK REGISTRA2:(%d)",ret);
     //Add by wangcong
     /*struct timeval now;
@@ -1314,8 +1320,7 @@ int attachGprs(){
     ALOGI("test1===getPdpState: %d", getPdpState());
     if(getPdpState() == 1)
     sleep(5);
-       return 0;
-       return 1;
+    return 0;
 }
 
 //Add by wangcong for detachGprs
@@ -1337,8 +1342,7 @@ int detachGprs(){
     ALOGI("test6===getPdpState: %d", getPdpState());
     if(getPdpState() == 0)
     sleep(5);
-       return 0;
-       return 1;
+    return 0;
 }
 //Add by wangcong for ICCID
 extern "C"
@@ -2231,6 +2235,46 @@ void processSolicited(Parcel &p){
                 s_reg_state = (RIL_RegState)value;
                 ALOGI("net reg status: %d", value);
                 netRegStatus = value;
+
+                // RADIO_TECH_GPRS = 1,
+                // RADIO_TECH_EDGE = 2,
+                // RADIO_TECH_UMTS = 3,
+                // RADIO_TECH_IS95A = 4,
+                // RADIO_TECH_IS95B = 5,
+                // RADIO_TECH_1xRTT =  6,
+                // RADIO_TECH_EVDO_0 = 7,
+                // RADIO_TECH_EVDO_A = 8,
+                // RADIO_TECH_HSDPA = 9,
+                // RADIO_TECH_HSUPA = 10,
+                // RADIO_TECH_HSPA = 11,
+                // RADIO_TECH_EVDO_B = 12,
+                // RADIO_TECH_EHRPD = 13,
+                // RADIO_TECH_LTE = 14,
+                // RADIO_TECH_HSPAP = 15, // HSPA+
+                // RADIO_TECH_GSM = 16, // Only supports voice
+                // RADIO_TECH_TD_SCDMA = 17,
+                // RADIO_TECH_IWLAN = 18,
+                // RADIO_TECH_LTE_CA = 19
+
+
+                if(s_reg_state == RIL_REG_STATE_HOME){
+                    s_net_type = atoi(responsed[3]);
+                    ALOGI("===========>net type: %d", s_net_type);
+                    ALOGI("s_net_type: %d", s_net_type);
+                    if(s_net_type == 14){
+                       strcpy(netType,"LTE");
+                    }else if(s_net_type == 2){
+                       strcpy(netType,"EDGE");
+                    }else if(s_net_type == 9){
+                       strcpy(netType,"HSPAP");
+                    }else if(s_net_type == 11){
+                       strcpy(netType,"HSPAP");
+                    }else if(s_net_type == 15){
+                       strcpy(netType,"HSPAP");
+                    }
+                    ALOGI("netType3: %s \n",netType);
+                }
+
                 for(index = 0; index < num; index++){
                     free(responsed[index]);
                 }
