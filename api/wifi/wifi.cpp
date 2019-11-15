@@ -495,12 +495,13 @@ void * wifiEventLoop( void *param )
 {
     DBGMSG("---- wifiEventLoop enter ----\n");
 
-    #define EVT_MAX_LEN 127
+    #define EVT_MAX_LEN 4095
     char evt[EVT_MAX_LEN + 1];
     int len = 0;
-    evt[EVT_MAX_LEN] = 0;
+    //evt[EVT_MAX_LEN] = 0;
     while( sEventLooping ) {
-        evt[0] = 0;
+        memset(evt, 0, sizeof(evt));
+        DBGMSG("event msg len = %\n", sizeof(evt));
         len = wifi_wait_for_event(evt,EVT_MAX_LEN);
         INFMSG("event: %s\n", evt);
         if( (len > 0) &&(NULL != strstr(evt, "SCAN-RESULTS")) ) {
@@ -779,6 +780,12 @@ int wifiAddNetwork( char * ssid, char * psk )
     strcat(cmdssid,netIdchar);
     strcat(cmdssid,SSID);
     strcat(cmdssid,ssid);
+    int ssidlen=strlen(ssid);
+    
+    INFMSG("---ssid = %s---\n\r",ssid);
+    for(int i=0;i<ssidlen;i++)  
+        INFMSG("%02x ",ssid[i]);
+    
     INFMSG("wifiAddNetwork cmdssid = %s\n", cmdssid);
     if((wifiCommand(cmdssid, reply, len) <= 0) || (NULL == strstr(reply, "OK"))) {
         ERRMSG("wifiAddNetwork cmdssid fail: reply = %s\n", reply);
@@ -1385,7 +1392,7 @@ char *GetApInfo(void){
         const char * split = "\n";
         char * p = NULL;
         char status[64];
-        char ssid[256];
+        char ssid[256] = {0};
         int wpa_state_value = 0;
         p = strtok(reply, split);
         while(p != NULL){
@@ -1395,7 +1402,12 @@ char *GetApInfo(void){
                 memset(ssid,0,sizeof(ssid));
                 strncpy(ssid, p+5, strlen(p)-5);
                 INFMSG("WiFissid success: ssid = %s\n",ssid);
-                return ssid;
+            #if 1
+                char ssid_1[256] = {0};
+                int length = printf_decode((char *) ssid_1, len, ssid);
+                INFMSG("GetApInfo set wifi end ssid:%s length=%d \n",ssid_1,length);
+            #endif
+                return ssid_1;
             }
             p=strtok(NULL,split);
         }                    
@@ -1405,5 +1417,4 @@ char *GetApInfo(void){
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //--} // namespace
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
