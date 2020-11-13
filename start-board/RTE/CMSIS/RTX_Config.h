@@ -93,7 +93,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_THREAD_OBJ_MEM
-#define OS_THREAD_OBJ_MEM           0
+#define OS_THREAD_OBJ_MEM           1
 #endif
  
 //     <o>Number of user Threads <1-1000>
@@ -107,7 +107,7 @@
 //     <i> Defines maximum number of user threads with default stack size.
 //     <i> Applies to user threads with zero stack size specified.
 #ifndef OS_THREAD_DEF_STACK_NUM
-#define OS_THREAD_DEF_STACK_NUM     0
+#define OS_THREAD_DEF_STACK_NUM     1
 #endif
  
 //     <o>Total Stack size [bytes] for user Threads with user-provided Stack size <0-1073741824:8>

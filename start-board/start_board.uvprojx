@@ -388,6 +388,16 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
+            <File>
+              <FileName>task_led_blink.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\task_led_blink.h</FilePath>
+            </File>
+            <File>
+              <FileName>task_led_blink.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\task_led_blink.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
