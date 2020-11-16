@@ -5,6 +5,13 @@
 #include <stdbool.h>
 #include "gd32e10x.h"
 
+
+// API
 bool init_thread_of_led_blink(void);
+
+
+// const of this module
+#define LED_GPIO_PORT  GPIOA
+#define LED_GPIO_PIN   GPIO_PIN_8
 
 #endif

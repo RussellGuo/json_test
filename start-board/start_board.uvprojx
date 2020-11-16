@@ -398,6 +398,16 @@
               <FileType>1</FileType>
               <FilePath>.\task_led_blink.c</FilePath>
             </File>
+            <File>
+              <FileName>user_key_isr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\user_key_isr.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_key_isr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\user_key_isr.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
