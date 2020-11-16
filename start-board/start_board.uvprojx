@@ -408,6 +408,16 @@
               <FileType>5</FileType>
               <FilePath>.\user_key_isr.h</FilePath>
             </File>
+            <File>
+              <FileName>task_uart_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\task_uart_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>task_uart_demo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\task_uart_demo.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
