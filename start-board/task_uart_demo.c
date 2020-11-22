@@ -7,7 +7,7 @@
 __NO_RETURN static void uart_demo_thread(void *argument);
 
 static const osThreadAttr_t thread_attr_uart_demo = {
-	.name = "uart_demo_thread", //This decleration requires C99
+	.name = "uart_demo_thread",
     .priority = osPriorityBelowNormal,
 };
 
@@ -19,15 +19,7 @@ bool init_thread_of_uart_demo(void)
    return tid_uart_demo != NULL;
 }
 
-
-
 static void init_uart(void);
-#define UART_NO                     USART2
-#define UART_CLK                    RCU_USART2
-#define UART_TX_PIN                 GPIO_PIN_10
-#define UART_RX_PIN                 GPIO_PIN_11
-#define UART_GPIO_PORT              GPIOB
-#define UART_GPIO_CLK               RCU_GPIOB
 
 __NO_RETURN static void uart_demo_thread(void *argument)
 {
@@ -35,29 +27,19 @@ __NO_RETURN static void uart_demo_thread(void *argument)
     init_uart();
 
 
-    for(int i = 0;;) {
-        char c;
-
-       if (RESET != usart_flag_get(UART_NO, USART_FLAG_RBNE)){
-            // echo if got a char
-           /* receive data */
-           c = (char) usart_data_receive(UART_NO);
-       } else {
-           // otherwise, output a pre-defined string
-            const char *msg = "Hello World!\r\n";
-            c = msg[i];
-            if (c != 0) {
-                i++;
-            } else {
-                i = 0;
-                continue;
-            }
-       }
-
-        usart_data_transmit(UART_NO, c);
-        osDelay(50);
+    for(;;) {
+        osDelay(osWaitForever);
     }
 }
+
+
+
+#define UART_NO                     USART2
+#define UART_CLK                    RCU_USART2
+#define UART_TX_PIN                 GPIO_PIN_10
+#define UART_RX_PIN                 GPIO_PIN_11
+#define UART_GPIO_PORT              GPIOB
+#define UART_GPIO_CLK               RCU_GPIOB
 
 
 static void init_uart(void)
@@ -80,4 +62,39 @@ static void init_uart(void)
     usart_receive_config(UART_NO, USART_RECEIVE_ENABLE);
     usart_transmit_config(UART_NO, USART_TRANSMIT_ENABLE);
     usart_enable(UART_NO);
+    
+    nvic_irq_enable(USART2_IRQn, 0, 0);
+    usart_interrupt_enable(USART2, USART_INT_RBNE);
+    usart_interrupt_enable(USART2, USART_INT_TBE);
+    
+}
+
+void USART2_IRQHandler(void)
+{
+    static int idx;
+    static uint16_t recv_char;
+    if(RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_RBNE)){
+        /* receive data */
+        recv_char = usart_data_receive(USART2);
+    }
+    if(RESET != usart_interrupt_flag_get(USART2, USART_INT_FLAG_TBE)){
+        /* transmit data */
+        char c = 0;
+
+       if (recv_char) {
+           c = (char) recv_char;
+           recv_char = 0;
+       } else {
+           // otherwise, output a pre-defined string
+            const char *msg = "Hello World!\r";
+            c = msg[idx];
+            if (c != 0) {
+                idx++;
+            } else {
+                idx = 0;
+                c = '\n';
+            }
+       }
+       usart_data_transmit(UART_NO, c);
+   }
 }
