@@ -8,13 +8,11 @@
 
 // TODO: Support multiple UARTs
 
-static osMessageQueueAttr_t mq_attr_uart_recv = {
+const static osMessageQueueAttr_t mq_attr_uart_recv = {
     .name = "mq_uart_recv",
 };
 
-static osMessageQueueId_t mq_id_uart_recv;
-
-static osMessageQueueAttr_t mq_attr_uart_send = {
+const static osMessageQueueAttr_t mq_attr_uart_send = {
     .name = "mq_uart_send",
 };
 
@@ -23,6 +21,13 @@ static osMessageQueueId_t mq_id_uart_recv;
 // a message quque for uart sending buffer, ISR will gey data from it, and send function will save data into it
 static osMessageQueueId_t mq_id_uart_send;
 
+#define SEND_QUEUE_DELIVERY_FLAG 2
+const static osEventFlagsAttr_t evt_flags_attr_of_sending_queue_delivery = {
+    .name = "evt_flags_of_sending_queue_changed",
+};
+
+static osEventFlagsId_t evt_flags_id_of_sending_queue_delivery; // ISR notifies sending function
+ 
 // pin define for UART
 static void init_uart_pins_uart2(void);
 // controller configuration for UART
@@ -36,8 +41,9 @@ bool init_uart_io_api(void)
 {
     mq_id_uart_recv = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_recv);
     mq_id_uart_send = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_send);
+    evt_flags_id_of_sending_queue_delivery = osEventFlagsNew(&evt_flags_attr_of_sending_queue_delivery);
 
-    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL;
+    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL;
     if (ret) {
         init_uart_pins_uart2();
         init_uart_controller(USART2, USART2_IRQn);
@@ -86,8 +92,8 @@ bool uart_send_data(const uint8_t *buf, size_t size, uint32_t delay)
         if (osMessageQueueGetSpace(mq_id_uart_send) >= size) {
             break;
         }
-        // TODO: Use Event-Flags to detect whether the buffer size is enough
-        osDelay(1000);
+        uint32_t evt_flags_wait_ret = osEventFlagsWait(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG, osFlagsWaitAny, delay);
+        evt_flags_wait_ret = 0;
     }
 
     bool ret = true;
@@ -167,6 +173,8 @@ static inline void uart_irq(uint32_t uart_no)
         uint8_t byte;
         osStatus_t status = osMessageQueueGet(mq_id_uart_send, &byte, 0, 0);
         if (status == osOK) {
+            uint32_t evt_set_ret = osEventFlagsSet(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG);
+            evt_set_ret = 0;
             usart_data_transmit(uart_no, byte);
         } else {
             usart_interrupt_disable(uart_no, USART_INT_TBE);
