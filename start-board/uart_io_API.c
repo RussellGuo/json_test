@@ -58,7 +58,7 @@ bool init_uart_io_api(void)
 //  [in] delay, max time tick before the operation
 // return value:
 //   true if done; otherwise failed
-bool uart_recv_byte(uint8_t *byte, uint32_t delay)
+bool uart_recv_byte(uint8_t *byte, const uint32_t delay)
 {
     osStatus_t status = osMessageQueueGet(mq_id_uart_recv, byte, NULL, delay);
     return status == osOK;
@@ -71,11 +71,12 @@ bool uart_recv_byte(uint8_t *byte, uint32_t delay)
 //  [in]delay, max time tick before the operation
 // return value:
 //   true if done; otherwise failed
-bool uart_send_data(const uint8_t *buf, size_t size, uint32_t delay)
+bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
 {
-    // TODO: limited delay time should be processed correctly; multipile invoking process
-
     (void)delay;
+
+    // TODO: multipile invoking process
+
 
     if (buf == NULL) {
         return false;
@@ -88,18 +89,39 @@ bool uart_send_data(const uint8_t *buf, size_t size, uint32_t delay)
         return false;
     }
 
+    uint32_t begin_tick = osKernelGetTickCount();
+
     for(;;) {
         if (osMessageQueueGetSpace(mq_id_uart_send) >= size) {
             break;
         }
-        uint32_t evt_flags_wait_ret = osEventFlagsWait(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG, osFlagsWaitAny, delay);
-        evt_flags_wait_ret = 0;
+
+        // to calc the left delay time
+        uint32_t delay_from_now;
+        if (delay == osWaitForever) {
+            // forever
+            delay_from_now = osWaitForever;
+        } else {
+            uint32_t now = osKernelGetTickCount();
+            if (now >= begin_tick + delay) {
+                // already time out
+                return false;
+            } else {
+                // a smaller delay time
+                delay_from_now = delay + begin_tick - now;
+            }
+        }
+        uint32_t evt_flags_wait_ret = osEventFlagsWait(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG, osFlagsWaitAny, delay_from_now);
+        if (evt_flags_wait_ret == (uint32_t)osErrorTimeout) {
+            return false;
+        }
     }
 
     bool ret = true;
     for (size_t i = 0; i < size; i++) {
         osStatus_t status = osMessageQueuePut(mq_id_uart_send, buf + i, 0, 0);
         if (status != osOK) {
+            // I think it's never be reached if only one thread access sending
             ret = false;
             break;
         }

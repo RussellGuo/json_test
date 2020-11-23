@@ -30,8 +30,8 @@ static void test_sending_wait(void)
         buf[i] = (uint8_t)(' ' + i);
     }
     buf[94] = '\r'; buf[95] = '\n';
-    uart_send_data(buf, sizeof buf, osWaitForever);
-    uart_send_data(buf, sizeof buf, osWaitForever);
+    uart_send_data(buf, sizeof buf, 10);
+    uart_send_data(buf, sizeof buf, 10);
 }
 
 __NO_RETURN static void uart_demo_thread(void *argument)

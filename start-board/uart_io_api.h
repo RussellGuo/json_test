@@ -20,7 +20,7 @@ bool init_uart_io_api(void);
 //  [in] delay, max time tick before the operation
 // return value:
 //   true if done; otherwise failed
-bool uart_recv_byte(uint8_t *byte, uint32_t delay);
+bool uart_recv_byte(uint8_t *byte, const uint32_t delay);
 
 // NOT ready yet
 // receive a line from UART(for now, it's USART2)
@@ -40,7 +40,7 @@ bool uart_recv_line(uint8_t *bytes, size_t *len, uint32_t delay);
 //  [in]delay, max time tick before the operation
 // return value:
 //   true if done; otherwise failed
-bool uart_send_data(const uint8_t *buf, size_t size, uint32_t delay);
+bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay);
 
 // to override default ISR of USART2
 void USART2_IRQHandler(void);
