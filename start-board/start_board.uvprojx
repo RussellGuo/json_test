@@ -421,12 +421,12 @@
             <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\uart_io_API.c</FilePath>
+              <FilePath>..\common\source\uart_io_API.c</FilePath>
             </File>
             <File>
               <FileName>uart_io_api.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\uart_io_api.h</FilePath>
+              <FilePath>..\common\include\uart_io_api.h</FilePath>
             </File>
           </Files>
         </Group>

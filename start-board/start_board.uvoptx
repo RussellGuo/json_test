@@ -296,7 +296,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\uart_io_API.c</PathWithFileName>
+      <PathWithFileName>..\common\source\uart_io_API.c</PathWithFileName>
       <FilenameWithoutPath>uart_io_API.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -308,7 +308,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\uart_io_api.h</PathWithFileName>
+      <PathWithFileName>..\common\include\uart_io_api.h</PathWithFileName>
       <FilenameWithoutPath>uart_io_api.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
