@@ -124,7 +124,7 @@
 //   <i> Defines stack size for threads with zero stack size specified.
 //   <i> Default: 3072
 #ifndef OS_STACK_SIZE
-#define OS_STACK_SIZE               3072
+#define OS_STACK_SIZE               1024
 #endif
  
 //   <o>Idle Thread Stack size [bytes] <72-1073741824:8>
@@ -153,7 +153,7 @@
 //   <i> Initializes thread stack with watermark pattern for analyzing stack usage.
 //   <i> Enabling this option increases significantly the execution time of thread creation.
 #ifndef OS_STACK_WATERMARK
-#define OS_STACK_WATERMARK          0
+#define OS_STACK_WATERMARK          1
 #endif
  
 //   <o>Processor mode for Thread execution 
@@ -315,14 +315,14 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_MSGQUEUE_OBJ_MEM
-#define OS_MSGQUEUE_OBJ_MEM         0
+#define OS_MSGQUEUE_OBJ_MEM         1
 #endif
  
 //     <o>Number of Message Queue objects <1-1000>
 //     <i> Defines maximum number of objects that can be active at the same time.
 //     <i> Applies to objects with system provided memory for control blocks.
 #ifndef OS_MSGQUEUE_NUM
-#define OS_MSGQUEUE_NUM             1
+#define OS_MSGQUEUE_NUM             2
 #endif
  
 //     <o>Data Storage Memory size [bytes] <0-1073741824:8>
@@ -330,7 +330,7 @@
 //     <i> Applies to objects with system provided memory for data storage.
 //     <i> Default: 0
 #ifndef OS_MSGQUEUE_DATA_SIZE
-#define OS_MSGQUEUE_DATA_SIZE       0
+#define OS_MSGQUEUE_DATA_SIZE       10240
 #endif
  
 //   </e>
