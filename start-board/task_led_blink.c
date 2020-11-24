@@ -17,7 +17,8 @@ static void led_blink_until_key_pressed(uint16_t half_period)
 
 __NO_RETURN static void led_blink_thread(void *argument)
 {
-    argument = 0;
+    (void)argument;
+
     /* configure LED GPIO port */
     rcu_periph_clock_enable(RCU_GPIOA);
     gpio_init(LED_GPIO_PORT, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ,LED_GPIO_PIN);

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>GD32E103R_START</Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>..\common\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -407,6 +407,26 @@
               <FileName>user_key_isr.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\user_key_isr.h</FilePath>
+            </File>
+            <File>
+              <FileName>task_uart_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\task_uart_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>task_uart_demo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\task_uart_demo.h</FilePath>
+            </File>
+            <File>
+              <FileName>uart_io_API.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\uart_io_API.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_io_api.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\uart_io_api.h</FilePath>
             </File>
           </Files>
         </Group>
