@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>GD32E103R_START</Define>
               <Undefine></Undefine>
-              <IncludePath>..\common\include</IncludePath>
+              <IncludePath>..\common\include;..\host-mcu-common\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -418,15 +418,55 @@
               <FileType>5</FileType>
               <FilePath>.\task_uart_demo.h</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>driver</GroupName>
+          <Files>
+            <File>
+              <FileName>uart_io_api.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\uart_io_api.h</FilePath>
+            </File>
             <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\uart_io_API.c</FilePath>
             </File>
             <File>
-              <FileName>uart_io_api.h</FileName>
+              <FileName>crc32-API.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\uart_io_api.h</FilePath>
+              <FilePath>..\host-mcu-common\include\crc32-API.h</FilePath>
+            </File>
+            <File>
+              <FileName>crc32-API.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\host-mcu-common\source\crc32-API.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>host-mcu-protocol</GroupName>
+          <Files>
+            <File>
+              <FileName>serial_datagram.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\serial_datagram.h</FilePath>
+            </File>
+            <File>
+              <FileName>serial_datagram_common.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\serial_datagram_common.h</FilePath>
+            </File>
+            <File>
+              <FileName>interface_with_mainboard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\interface_with_mainboard.c</FilePath>
+            </File>
+            <File>
+              <FileName>serial_datagram_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\serial_datagram_common.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -636,5 +676,14 @@
       </file>
     </files>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>start_board</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

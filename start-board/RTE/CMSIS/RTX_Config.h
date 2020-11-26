@@ -247,7 +247,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_MUTEX_OBJ_MEM
-#define OS_MUTEX_OBJ_MEM            0
+#define OS_MUTEX_OBJ_MEM            1
 #endif
  
 //     <o>Number of Mutex objects <1-1000>
