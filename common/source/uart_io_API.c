@@ -5,6 +5,43 @@
 
 #include <string.h>
 
+#define UART2_TX_PIN                 GPIO_PIN_10
+#define UART2_RX_PIN                 GPIO_PIN_11
+#define UART2_GPIO_PORT              GPIOB
+#define UART2_GPIO_CLK               RCU_GPIOB
+
+#define UART0_TX_PIN                 GPIO_PIN_9
+#define UART0_RX_PIN                 GPIO_PIN_10
+#define UART0_GPIO_PORT              GPIOA
+#define UART0_GPIO_CLK               RCU_GPIOA
+
+#if defined(GD32E103R_START)
+
+#define USART                       USART2
+#define USART_IRQn                  USART2_IRQn
+
+#define UART_CLK                    RCU_USART2
+#define UART_TX_PIN                 UART2_TX_PIN
+#define UART_RX_PIN                 UART2_RX_PIN
+#define UART_GPIO_PORT              UART2_GPIO_PORT
+#define UART_GPIO_CLK               UART2_GPIO_CLK
+
+#elif defined(SAIP_BOARD)
+
+#define USART                       USART0
+#define USART_IRQn                  USART0_IRQn
+
+#define UART_CLK                    RCU_USART0
+#define UART_TX_PIN                 UART0_TX_PIN
+#define UART_RX_PIN                 UART0_RX_PIN
+#define UART_GPIO_PORT              UART0_GPIO_PORT
+#define UART_GPIO_CLK               UART0_GPIO_CLK
+
+#else
+
+#error "for now, we support START board and SAIP_BOARD only"
+
+#endif
 
 // TODO: Support multiple UARTs
 
@@ -27,13 +64,13 @@ const static osEventFlagsAttr_t evt_flags_attr_of_sending_queue_delivery = {
 };
 
 static osEventFlagsId_t evt_flags_id_of_sending_queue_delivery; // ISR notifies sending function
- 
+
 // pin define for UART
-static void init_uart_pins_uart2(void);
+static void init_uart_pins_uart(void);
 // controller configuration for UART
 static void init_uart_controller(uint32_t uart_no, uint8_t uart_irq);
 
-// init the UART(for now, it's USART2)
+// init the UART
 // parameters: NONE
 // return value:
 //   true if done; otherwise failed
@@ -45,14 +82,14 @@ bool init_uart_io_api(void)
 
     bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL;
     if (ret) {
-        init_uart_pins_uart2();
-        init_uart_controller(USART2, USART2_IRQn);
+        init_uart_pins_uart();
+        init_uart_controller(USART, USART_IRQn);
     }
 
     return ret;
 }
 
-// receive one byte from UART(for now, it's USART2)
+// receive one byte from UART
 // parameters:
 //  [out]byte, ptr to store the received byte
 //  [in] delay, max time tick before the operation
@@ -64,7 +101,7 @@ bool uart_recv_byte(uint8_t *byte, const uint32_t delay)
     return status == osOK;
 }
 
-// send data into UART(for now, it's USART2)
+// send data into UART
 // parameters:
 //  [in]buf, ptr to store the data
 //  [in]size, size of the 'buf'
@@ -127,33 +164,26 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
         }
     }
 
-    // FIXME: USART2 is too ugly
-    usart_interrupt_enable(USART2, USART_INT_TBE);
+    usart_interrupt_enable(USART, USART_INT_TBE);
     return ret;
 }
 
 
-#define UART2_CLK                    RCU_USART2
-#define UART2_TX_PIN                 GPIO_PIN_10
-#define UART2_RX_PIN                 GPIO_PIN_11
-#define UART2_GPIO_PORT              GPIOB
-#define UART2_GPIO_CLK               RCU_GPIOB
-
 
 // pin define for UART
-static void init_uart_pins_uart2(void)
+static void init_uart_pins_uart(void)
 {
     /* enable GPIO clock */
-    rcu_periph_clock_enable(UART2_GPIO_CLK);
+    rcu_periph_clock_enable(UART_GPIO_CLK);
 
     /* enable USART clock */
-    rcu_periph_clock_enable(UART2_CLK);
+    rcu_periph_clock_enable(UART_CLK);
 
     /* connect port to USARTx_Tx */
-    gpio_init(UART2_GPIO_PORT, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, UART2_TX_PIN);
+    gpio_init(UART_GPIO_PORT, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, UART_TX_PIN);
 
     /* connect port to USARTx_Rx */
-    gpio_init(UART2_GPIO_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, UART2_RX_PIN);
+    gpio_init(UART_GPIO_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, UART_RX_PIN);
 
 }
 
