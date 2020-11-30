@@ -65,6 +65,14 @@ const static osEventFlagsAttr_t evt_flags_attr_of_sending_queue_delivery = {
 
 static osEventFlagsId_t evt_flags_id_of_sending_queue_delivery; // ISR notifies sending function
 
+
+// a mutex for sending
+static osMutexId_t mutex_uart_sending_id;
+static const osMutexAttr_t mutex_uart_sending_attr = {
+    .name = "uart_sending_mutex",                          // human readable mutex name
+    .attr_bits = osMutexRecursive | osMutexPrioInherit,    // attr_bits
+};
+
 // pin define for UART
 static void init_uart_pins_uart(void);
 // controller configuration for UART
@@ -79,8 +87,9 @@ bool init_uart_io_api(void)
     mq_id_uart_recv = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_recv);
     mq_id_uart_send = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_send);
     evt_flags_id_of_sending_queue_delivery = osEventFlagsNew(&evt_flags_attr_of_sending_queue_delivery);
+    mutex_uart_sending_id = osMutexNew (&mutex_uart_sending_attr);
 
-    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL;
+    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL && mutex_uart_sending_id != NULL;
     if (ret) {
         init_uart_pins_uart();
         init_uart_controller(USART, USART_IRQn);
@@ -112,9 +121,6 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
 {
     (void)delay;
 
-    // TODO: multipile invoking process
-
-
     if (buf == NULL) {
         return false;
     }
@@ -126,10 +132,16 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
         return false;
     }
 
+    bool ret = false;
     uint32_t begin_tick = osKernelGetTickCount();
+
+    if (osMutexAcquire(mutex_uart_sending_id, delay) != osOK) {
+        return false;
+    }
 
     for(;;) {
         if (osMessageQueueGetSpace(mq_id_uart_send) >= size) {
+            ret = true;
             break;
         }
 
@@ -142,7 +154,8 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
             uint32_t now = osKernelGetTickCount();
             if (now >= begin_tick + delay) {
                 // already time out
-                return false;
+                ret = false;
+                break;
             } else {
                 // a smaller delay time
                 delay_from_now = delay + begin_tick - now;
@@ -150,21 +163,24 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
         }
         uint32_t evt_flags_wait_ret = osEventFlagsWait(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG, osFlagsWaitAny, delay_from_now);
         if (evt_flags_wait_ret == (uint32_t)osErrorTimeout) {
-            return false;
-        }
-    }
-
-    bool ret = true;
-    for (size_t i = 0; i < size; i++) {
-        osStatus_t status = osMessageQueuePut(mq_id_uart_send, buf + i, 0, 0);
-        if (status != osOK) {
-            // I think it's never be reached if only one thread access sending
             ret = false;
             break;
         }
     }
 
-    usart_interrupt_enable(USART, USART_INT_TBE);
+    if (ret) {
+        for (size_t i = 0; i < size; i++) {
+            osStatus_t status = osMessageQueuePut(mq_id_uart_send, buf + i, 0, 0);
+            if (status != osOK) {
+                // I think it's never be reached
+                ret = false;
+                break;
+            }
+        }
+        usart_interrupt_enable(USART, USART_INT_TBE);
+    }
+
+    osMutexRelease(mutex_uart_sending_id);
     return ret;
 }
 
@@ -237,4 +253,9 @@ static inline void uart_irq(uint32_t uart_no)
 void USART2_IRQHandler(void)
 {
     uart_irq(USART2);
+}
+
+void USART0_IRQHandler(void)
+{
+    uart_irq(USART0);
 }
