@@ -10,8 +10,9 @@
       <TargetName>start_board</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6140001::V6.14.1::ARMCLANG</pCCUsed>
-      <uAC6>1</uAC6>
+      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>GD32E103CB</Device>
@@ -80,9 +81,9 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>fromelf --bin -o "$L@L.bin" "$L@L.axf"</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -325,7 +326,7 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>3</v6Lang>
@@ -424,24 +425,9 @@
           <GroupName>driver</GroupName>
           <Files>
             <File>
-              <FileName>uart_io_api.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\common\include\uart_io_api.h</FilePath>
-            </File>
-            <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\uart_io_API.c</FilePath>
-            </File>
-            <File>
-              <FileName>crc32-API.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\crc32-API.h</FilePath>
-            </File>
-            <File>
-              <FileName>crc32-API.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\host-mcu-common\source\crc32-API.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -451,22 +437,42 @@
             <File>
               <FileName>serial_datagram.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\serial_datagram.h</FilePath>
+              <FilePath>..\host-mcu-common\include\serial_datagram.h</FilePath>
             </File>
             <File>
-              <FileName>serial_datagram_common.h</FileName>
+              <FileName>serial_datagram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\host-mcu-common\source\serial_datagram.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>host-mcu-api</GroupName>
+          <Files>
+            <File>
+              <FileName>mcu-crc32-soft.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\serial_datagram_common.h</FilePath>
+              <FilePath>..\host-mcu-common\include\mcu-crc32-soft.h</FilePath>
             </File>
             <File>
-              <FileName>interface_with_mainboard.c</FileName>
+              <FileName>uart_io_api.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\uart_io_api.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mcu-side</GroupName>
+          <Files>
+            <File>
+              <FileName>task_serial_datagram_recv.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\interface_with_mainboard.c</FilePath>
+              <FilePath>..\common\source\task_serial_datagram_recv.c</FilePath>
             </File>
             <File>
-              <FileName>serial_datagram_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\common\source\serial_datagram_common.c</FilePath>
+              <FileName>task_serial_datagram_recv.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\task_serial_datagram_recv.h</FilePath>
             </File>
           </Files>
         </Group>

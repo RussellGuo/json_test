@@ -8,7 +8,7 @@
 static void led_blink_until_key_pressed(uint16_t half_period)
 {
     for(bool value = 0;; value ^= 1) {
-        gpio_bit_write(LED_GPIO_PORT, LED_GPIO_PIN, value);
+        gpio_bit_write(LED_GPIO_PORT, LED_GPIO_PIN, value ? SET : RESET);
         uint32_t wait = osThreadFlagsWait(KEY_PRESSED_FLAG, osFlagsWaitAny, half_period);
         if (wait == KEY_PRESSED_FLAG)
             break;

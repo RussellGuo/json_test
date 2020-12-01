@@ -3,6 +3,8 @@
 
 #include "uart_io_api.h"
 
+#include "serial_datagram.h"
+
 #include <string.h>
 
 __NO_RETURN static void uart_demo_thread(void *argument);
@@ -20,36 +22,30 @@ bool init_thread_of_uart_demo(void)
     return tid_uart_demo != NULL;
 }
 
-// test UART sending pending
-// sending 2 long string will cause pending,
-// then enter the debug mode, and watch evt_flags_id_of_sending_queue_delivery related statments at the file 'uart_io_API.c'
-static void test_sending_wait(void)
-{
-    uint8_t buf[96];
-    for (size_t i = 0; i < sizeof buf; i++) {
-        buf[i] = (uint8_t)(' ' + i);
-    }
-    buf[94] = '\r'; buf[95] = '\n';
-    uart_send_data(buf, sizeof buf, 10);
-    uart_send_data(buf, sizeof buf, 10);
-}
-
 __NO_RETURN static void uart_demo_thread(void *argument)
 {
     (void)argument;
-    test_sending_wait();
+    bool ret;
+    uint32_t item[3] = { 0x12345678, 0xabcd};
+    ret = serial_datagram_send(1, 1, item, 3);
+    ret = serial_datagram_send(2, 1, item, 3);
+    ret = ret;
 
     for(;;) {
-        uint8_t byte;
-        bool ret = uart_recv_byte(&byte, osWaitForever);
-        if (!ret) {
-            break;
-        }
-        uart_send_data(&byte, 1, osWaitForever);
-        if (byte == '\r') {
-            uart_send_data((uint8_t *)"\n", 1, osWaitForever);
-        }
+        osDelay(osWaitForever);
     }
-    while(1);
 }
 
+// Once a datagram be received from remote, this function will be invoked
+// Parameters:
+//   [in]seq, msg_id, data list and data count
+void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
+    const serial_datagram_item_t *restrict data_list, const size_t len)
+{
+    (void)seq;
+    (void)msg_id;
+    (void)data_list;
+    (void)len;
+    static uint32_t count;
+    count++;
+}
