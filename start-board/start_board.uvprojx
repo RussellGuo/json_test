@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>GD32E103R_START</Define>
+              <Define>GD32E103R_START,IS_MCU_SIDE=1</Define>
               <Undefine></Undefine>
               <IncludePath>..\common\include;..\host-mcu-common\include</IncludePath>
             </VariousControls>
@@ -443,6 +443,16 @@
               <FileName>serial_datagram.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\host-mcu-common\source\serial_datagram.c</FilePath>
+            </File>
+            <File>
+              <FileName>semantic_api.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\semantic_api.h</FilePath>
+            </File>
+            <File>
+              <FileName>semantic_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\host-mcu-common\source\semantic_api.c</FilePath>
             </File>
           </Files>
         </Group>
