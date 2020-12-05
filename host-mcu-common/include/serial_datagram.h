@@ -37,6 +37,10 @@ typedef uint32_t serial_datagram_item_t;
 // (that is, a 32-bit unsigned integer array, and separate the sequence number,
 //message ID, parameter/return-value sequence and CRC), check CRC.
 // Finally, the message is dispatched by calling the interface of the semantic layer.
+// Note: Messages with incorrect format will not return an error flag, but will look
+// for the next message and record the number of characters skipped. The only possibility
+// for error return is that the serial port can no longer be read. At this time, the 
+// entire receiving task will be aborted and returned
 void serial_datagram_receive_loop(void *arg);
 
 // Once a datagram be received from remote, this function will be invoked

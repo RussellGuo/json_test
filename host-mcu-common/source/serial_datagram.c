@@ -26,12 +26,16 @@
 //   [out]skipped_byte_count_ptr, unrecognized byte count at this calling
 // Return value:
 //   true means success, otherwise failure
+//   Note: format error 
+// Note: Messages with incorrect format will not return an error flag, but will look
+// for the next message and record the number of characters skipped. The only possibility
+// for error return is that the serial port can no longer be read.
 static bool get_raw_datagram_from_serial(
     uint8_t *restrict raw_datagram, size_t max_size,
     size_t *restrict actual_size_ptr, size_t *restrict skipped_byte_count_ptr)
 {
     *skipped_byte_count_ptr = 0;
-
+Top:
     // found the SOT
     for (;;) {
         uint8_t byte = 0;
@@ -52,7 +56,8 @@ static bool get_raw_datagram_from_serial(
 
         if (curr_idx + 1 >= max_size) {
             // TODO: Log error record
-            return false;
+            (*skipped_byte_count_ptr) += curr_idx;
+            goto Top;
         }
 
         if (!uart_recv_byte(raw_datagram + curr_idx, (uint32_t)(-1))) {
@@ -75,6 +80,10 @@ static bool get_raw_datagram_from_serial(
 // (that is, a 32-bit unsigned integer array, and separate the sequence number,
 //message ID, parameter/return Value sequence and CRC), check CRC.
 // Finally, the message is dispatched by calling the interface of the semantic layer.
+// Note: Messages with incorrect format will not return an error flag, but will look
+// for the next message and record the number of characters skipped. The only possibility
+// for error return is that the serial port can no longer be read. At this time, the 
+// entire receiving task will be aborted and returned
 void serial_datagram_receive_loop(void *arg)
 {
     (void)arg;
@@ -88,7 +97,7 @@ void serial_datagram_receive_loop(void *arg)
         int ret = get_raw_datagram_from_serial( (uint8_t *)datagram_str, sizeof datagram_str, &datagram_str_size, &skipped_count);
         if (!ret) {
             // TODO: record log
-            continue;
+            return;
         }
 
         if (datagram_str[0] == 'L') {

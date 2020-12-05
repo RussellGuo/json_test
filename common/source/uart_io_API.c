@@ -106,7 +106,16 @@ bool init_uart_io_api(void)
 //   true if done; otherwise failed
 bool uart_recv_byte(uint8_t *byte, const uint32_t delay)
 {
-    osStatus_t status = osMessageQueueGet(mq_id_uart_recv, byte, NULL, delay);
+    osStatus_t status;
+    for(;;) {
+        status = osMessageQueueGet(mq_id_uart_recv, byte, NULL, delay);
+        if (status != osErrorResource) {
+            break;
+        }
+
+        // Temporarily unable to read the data, then wait and try again
+        osDelay(1);
+    }
     return status == osOK;
 }
 
