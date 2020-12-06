@@ -5,6 +5,43 @@
 
 #include <string.h>
 
+#define UART2_TX_PIN                 GPIO_PIN_10
+#define UART2_RX_PIN                 GPIO_PIN_11
+#define UART2_GPIO_PORT              GPIOB
+#define UART2_GPIO_CLK               RCU_GPIOB
+
+#define UART0_TX_PIN                 GPIO_PIN_9
+#define UART0_RX_PIN                 GPIO_PIN_10
+#define UART0_GPIO_PORT              GPIOA
+#define UART0_GPIO_CLK               RCU_GPIOA
+
+#if defined(GD32E103R_START)
+
+#define USART                       USART2
+#define USART_IRQn                  USART2_IRQn
+
+#define UART_CLK                    RCU_USART2
+#define UART_TX_PIN                 UART2_TX_PIN
+#define UART_RX_PIN                 UART2_RX_PIN
+#define UART_GPIO_PORT              UART2_GPIO_PORT
+#define UART_GPIO_CLK               UART2_GPIO_CLK
+
+#elif defined(SAIP_BOARD)
+
+#define USART                       USART0
+#define USART_IRQn                  USART0_IRQn
+
+#define UART_CLK                    RCU_USART0
+#define UART_TX_PIN                 UART0_TX_PIN
+#define UART_RX_PIN                 UART0_RX_PIN
+#define UART_GPIO_PORT              UART0_GPIO_PORT
+#define UART_GPIO_CLK               UART0_GPIO_CLK
+
+#else
+
+#error "for now, we support START board and SAIP_BOARD only"
+
+#endif
 
 // TODO: Support multiple UARTs
 
@@ -27,13 +64,21 @@ const static osEventFlagsAttr_t evt_flags_attr_of_sending_queue_delivery = {
 };
 
 static osEventFlagsId_t evt_flags_id_of_sending_queue_delivery; // ISR notifies sending function
- 
+
+
+// a mutex for sending
+static osMutexId_t mutex_uart_sending_id;
+static const osMutexAttr_t mutex_uart_sending_attr = {
+    .name = "uart_sending_mutex",                          // human readable mutex name
+    .attr_bits = osMutexRecursive | osMutexPrioInherit,    // attr_bits
+};
+
 // pin define for UART
-static void init_uart_pins_uart2(void);
+static void init_uart_pins_uart(void);
 // controller configuration for UART
 static void init_uart_controller(uint32_t uart_no, uint8_t uart_irq);
 
-// init the UART(for now, it's USART2)
+// init the UART
 // parameters: NONE
 // return value:
 //   true if done; otherwise failed
@@ -42,17 +87,18 @@ bool init_uart_io_api(void)
     mq_id_uart_recv = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_recv);
     mq_id_uart_send = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_send);
     evt_flags_id_of_sending_queue_delivery = osEventFlagsNew(&evt_flags_attr_of_sending_queue_delivery);
+    mutex_uart_sending_id = osMutexNew (&mutex_uart_sending_attr);
 
-    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL;
+    bool ret = mq_id_uart_recv != NULL && mq_id_uart_send != NULL && evt_flags_id_of_sending_queue_delivery != NULL && mutex_uart_sending_id != NULL;
     if (ret) {
-        init_uart_pins_uart2();
-        init_uart_controller(USART2, USART2_IRQn);
+        init_uart_pins_uart();
+        init_uart_controller(USART, USART_IRQn);
     }
 
     return ret;
 }
 
-// receive one byte from UART(for now, it's USART2)
+// receive one byte from UART
 // parameters:
 //  [out]byte, ptr to store the received byte
 //  [in] delay, max time tick before the operation
@@ -60,11 +106,20 @@ bool init_uart_io_api(void)
 //   true if done; otherwise failed
 bool uart_recv_byte(uint8_t *byte, const uint32_t delay)
 {
-    osStatus_t status = osMessageQueueGet(mq_id_uart_recv, byte, NULL, delay);
+    osStatus_t status;
+    for(;;) {
+        status = osMessageQueueGet(mq_id_uart_recv, byte, NULL, delay);
+        if (status != osErrorResource) {
+            break;
+        }
+
+        // Temporarily unable to read the data, then wait and try again
+        osDelay(1);
+    }
     return status == osOK;
 }
 
-// send data into UART(for now, it's USART2)
+// send data into UART
 // parameters:
 //  [in]buf, ptr to store the data
 //  [in]size, size of the 'buf'
@@ -74,9 +129,6 @@ bool uart_recv_byte(uint8_t *byte, const uint32_t delay)
 bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
 {
     (void)delay;
-
-    // TODO: multipile invoking process
-
 
     if (buf == NULL) {
         return false;
@@ -89,10 +141,16 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
         return false;
     }
 
+    bool ret = false;
     uint32_t begin_tick = osKernelGetTickCount();
+
+    if (osMutexAcquire(mutex_uart_sending_id, delay) != osOK) {
+        return false;
+    }
 
     for(;;) {
         if (osMessageQueueGetSpace(mq_id_uart_send) >= size) {
+            ret = true;
             break;
         }
 
@@ -105,7 +163,8 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
             uint32_t now = osKernelGetTickCount();
             if (now >= begin_tick + delay) {
                 // already time out
-                return false;
+                ret = false;
+                break;
             } else {
                 // a smaller delay time
                 delay_from_now = delay + begin_tick - now;
@@ -113,47 +172,43 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
         }
         uint32_t evt_flags_wait_ret = osEventFlagsWait(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG, osFlagsWaitAny, delay_from_now);
         if (evt_flags_wait_ret == (uint32_t)osErrorTimeout) {
-            return false;
-        }
-    }
-
-    bool ret = true;
-    for (size_t i = 0; i < size; i++) {
-        osStatus_t status = osMessageQueuePut(mq_id_uart_send, buf + i, 0, 0);
-        if (status != osOK) {
-            // I think it's never be reached if only one thread access sending
             ret = false;
             break;
         }
     }
 
-    // FIXME: USART2 is too ugly
-    usart_interrupt_enable(USART2, USART_INT_TBE);
+    if (ret) {
+        for (size_t i = 0; i < size; i++) {
+            osStatus_t status = osMessageQueuePut(mq_id_uart_send, buf + i, 0, 0);
+            if (status != osOK) {
+                // I think it's never be reached
+                ret = false;
+                break;
+            }
+        }
+        usart_interrupt_enable(USART, USART_INT_TBE);
+    }
+
+    osMutexRelease(mutex_uart_sending_id);
     return ret;
 }
 
 
-#define UART2_CLK                    RCU_USART2
-#define UART2_TX_PIN                 GPIO_PIN_10
-#define UART2_RX_PIN                 GPIO_PIN_11
-#define UART2_GPIO_PORT              GPIOB
-#define UART2_GPIO_CLK               RCU_GPIOB
-
 
 // pin define for UART
-static void init_uart_pins_uart2(void)
+static void init_uart_pins_uart(void)
 {
     /* enable GPIO clock */
-    rcu_periph_clock_enable(UART2_GPIO_CLK);
+    rcu_periph_clock_enable(UART_GPIO_CLK);
 
     /* enable USART clock */
-    rcu_periph_clock_enable(UART2_CLK);
+    rcu_periph_clock_enable(UART_CLK);
 
     /* connect port to USARTx_Tx */
-    gpio_init(UART2_GPIO_PORT, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, UART2_TX_PIN);
+    gpio_init(UART_GPIO_PORT, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, UART_TX_PIN);
 
     /* connect port to USARTx_Rx */
-    gpio_init(UART2_GPIO_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, UART2_RX_PIN);
+    gpio_init(UART_GPIO_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, UART_RX_PIN);
 
 }
 
@@ -207,4 +262,9 @@ static inline void uart_irq(uint32_t uart_no)
 void USART2_IRQHandler(void)
 {
     uart_irq(USART2);
+}
+
+void USART0_IRQHandler(void)
+{
+    uart_irq(USART0);
 }

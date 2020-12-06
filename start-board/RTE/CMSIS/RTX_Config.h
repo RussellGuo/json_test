@@ -100,7 +100,7 @@
 //     <i> Defines maximum number of user threads that can be active at the same time.
 //     <i> Applies to user threads with system provided memory for control blocks.
 #ifndef OS_THREAD_NUM
-#define OS_THREAD_NUM               2
+#define OS_THREAD_NUM               3
 #endif
  
 //     <o>Number of user Threads with default Stack size <0-1000>
@@ -247,7 +247,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_MUTEX_OBJ_MEM
-#define OS_MUTEX_OBJ_MEM            0
+#define OS_MUTEX_OBJ_MEM            1
 #endif
  
 //     <o>Number of Mutex objects <1-1000>
@@ -330,7 +330,7 @@
 //     <i> Applies to objects with system provided memory for data storage.
 //     <i> Default: 0
 #ifndef OS_MSGQUEUE_DATA_SIZE
-#define OS_MSGQUEUE_DATA_SIZE       10240
+#define OS_MSGQUEUE_DATA_SIZE       4096
 #endif
  
 //   </e>

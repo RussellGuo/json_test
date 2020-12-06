@@ -3,8 +3,9 @@
 
 #include "uart_io_api.h"
 
+#include "task_serial_datagram_recv.h"
+
 #include "task_led_blink.h"
-#include "task_uart_demo.h"
 
 __NO_RETURN int main(void)
 {
@@ -13,7 +14,9 @@ __NO_RETURN int main(void)
 
     init_uart_io_api();
 
+    init_thread_of_serial_datagram_recv();
+
     init_thread_of_led_blink();
-    init_thread_of_uart_demo();
     osKernelStart();                                 // start RTX kernel
+    while(1);
 }
