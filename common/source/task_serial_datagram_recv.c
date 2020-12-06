@@ -1,17 +1,15 @@
 #include "task_serial_datagram_recv.h"
 #include "cmsis_os2.h"
-
-#include "uart_io_api.h"
+#include "gd32e10x.h"
 
 #include "serial_datagram.h"
 
-static uint64_t stack_of_serial_datagram_recv_thread[3072/8];
-
+__ALIGNED(8) static uint8_t stack_of_thread[1024];
 static const osThreadAttr_t thread_attr_serial_datagram_recv = {
     .name = "serial_datagram_recv_thread",
     .priority = osPriorityRealtime4,
-    .stack_mem  = stack_of_serial_datagram_recv_thread,
-    .stack_size = sizeof(stack_of_serial_datagram_recv_thread),
+    .stack_mem  = stack_of_thread,
+    .stack_size = sizeof(stack_of_thread),
 };
 
 static osThreadId_t tid_serial_datagram_recv;

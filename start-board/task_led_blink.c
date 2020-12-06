@@ -30,9 +30,11 @@ __NO_RETURN static void led_blink_thread(void *argument)
         led_blink_until_key_pressed(  64);
     }
 }
-
+__ALIGNED(8) static uint8_t stack_of_thread[1024];
 static const osThreadAttr_t ThreadAttr_LED = {
    .name = "LED_Thread",
+    .stack_mem  = stack_of_thread,
+    .stack_size = sizeof(stack_of_thread),
 };
 
 

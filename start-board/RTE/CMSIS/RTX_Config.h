@@ -44,7 +44,7 @@
 //   <i> Defines the combined global dynamic memory size.
 //   <i> Default: 32768
 #ifndef OS_DYNAMIC_MEM_SIZE
-#define OS_DYNAMIC_MEM_SIZE         1000
+#define OS_DYNAMIC_MEM_SIZE         512
 #endif
  
 //   <o>Kernel Tick Frequency [Hz] <1-1000000>
@@ -93,21 +93,21 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_THREAD_OBJ_MEM
-#define OS_THREAD_OBJ_MEM           1
+#define OS_THREAD_OBJ_MEM           0
 #endif
  
 //     <o>Number of user Threads <1-1000>
 //     <i> Defines maximum number of user threads that can be active at the same time.
 //     <i> Applies to user threads with system provided memory for control blocks.
 #ifndef OS_THREAD_NUM
-#define OS_THREAD_NUM               3
+#define OS_THREAD_NUM               1
 #endif
  
 //     <o>Number of user Threads with default Stack size <0-1000>
 //     <i> Defines maximum number of user threads with default stack size.
 //     <i> Applies to user threads with zero stack size specified.
 #ifndef OS_THREAD_DEF_STACK_NUM
-#define OS_THREAD_DEF_STACK_NUM     2
+#define OS_THREAD_DEF_STACK_NUM     0
 #endif
  
 //     <o>Total Stack size [bytes] for user Threads with user-provided Stack size <0-1073741824:8>
@@ -124,14 +124,14 @@
 //   <i> Defines stack size for threads with zero stack size specified.
 //   <i> Default: 3072
 #ifndef OS_STACK_SIZE
-#define OS_STACK_SIZE               1024
+#define OS_STACK_SIZE               96
 #endif
  
 //   <o>Idle Thread Stack size [bytes] <72-1073741824:8>
 //   <i> Defines stack size for Idle thread.
 //   <i> Default: 512
 #ifndef OS_IDLE_THREAD_STACK_SIZE
-#define OS_IDLE_THREAD_STACK_SIZE   512
+#define OS_IDLE_THREAD_STACK_SIZE   72
 #endif
  
 //   <o>Idle Thread TrustZone Module Identifier
@@ -200,7 +200,7 @@
 //   <i> May be set to 0 when timers are not used.
 //   <i> Default: 512
 #ifndef OS_TIMER_THREAD_STACK_SIZE
-#define OS_TIMER_THREAD_STACK_SIZE  512
+#define OS_TIMER_THREAD_STACK_SIZE  160
 #endif
  
 //   <o>Timer Thread TrustZone Module Identifier
@@ -247,7 +247,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_MUTEX_OBJ_MEM
-#define OS_MUTEX_OBJ_MEM            1
+#define OS_MUTEX_OBJ_MEM            0
 #endif
  
 //     <o>Number of Mutex objects <1-1000>
@@ -315,7 +315,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_MSGQUEUE_OBJ_MEM
-#define OS_MSGQUEUE_OBJ_MEM         1
+#define OS_MSGQUEUE_OBJ_MEM         0
 #endif
  
 //     <o>Number of Message Queue objects <1-1000>
@@ -498,67 +498,67 @@
 //     <q>Memory Management
 //     <i> Enables Memory Management event generation.
 #ifndef OS_EVR_MEMORY
-#define OS_EVR_MEMORY               1
+#define OS_EVR_MEMORY               0
 #endif
  
 //     <q>Kernel
 //     <i> Enables Kernel event generation.
 #ifndef OS_EVR_KERNEL
-#define OS_EVR_KERNEL               1
+#define OS_EVR_KERNEL               0
 #endif
  
 //     <q>Thread
 //     <i> Enables Thread event generation.
 #ifndef OS_EVR_THREAD
-#define OS_EVR_THREAD               1
+#define OS_EVR_THREAD               0
 #endif
  
 //     <q>Generic Wait
 //     <i> Enables Generic Wait event generation.
 #ifndef OS_EVR_WAIT
-#define OS_EVR_WAIT                 1
+#define OS_EVR_WAIT                 0
 #endif
  
 //     <q>Thread Flags
 //     <i> Enables Thread Flags event generation.
 #ifndef OS_EVR_THFLAGS
-#define OS_EVR_THFLAGS              1
+#define OS_EVR_THFLAGS              0
 #endif
  
 //     <q>Event Flags
 //     <i> Enables Event Flags event generation.
 #ifndef OS_EVR_EVFLAGS
-#define OS_EVR_EVFLAGS              1
+#define OS_EVR_EVFLAGS              0
 #endif
  
 //     <q>Timer
 //     <i> Enables Timer event generation.
 #ifndef OS_EVR_TIMER
-#define OS_EVR_TIMER                1
+#define OS_EVR_TIMER                0
 #endif
  
 //     <q>Mutex
 //     <i> Enables Mutex event generation.
 #ifndef OS_EVR_MUTEX
-#define OS_EVR_MUTEX                1
+#define OS_EVR_MUTEX                0
 #endif
  
 //     <q>Semaphore
 //     <i> Enables Semaphore event generation.
 #ifndef OS_EVR_SEMAPHORE
-#define OS_EVR_SEMAPHORE            1
+#define OS_EVR_SEMAPHORE            0
 #endif
  
 //     <q>Memory Pool
 //     <i> Enables Memory Pool event generation.
 #ifndef OS_EVR_MEMPOOL
-#define OS_EVR_MEMPOOL              1
+#define OS_EVR_MEMPOOL              0
 #endif
  
 //     <q>Message Queue
 //     <i> Enables Message Queue event generation.
 #ifndef OS_EVR_MSGQUEUE
-#define OS_EVR_MSGQUEUE             1
+#define OS_EVR_MSGQUEUE             0
 #endif
  
 //   </h>

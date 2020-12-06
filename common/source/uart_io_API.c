@@ -45,12 +45,25 @@
 
 // TODO: Support multiple UARTs
 
+#define MAX_BYTE_RECV 128
+#define MAX_BYTE_SEND 128
+
+// A transmitted byte occupies the size of MQ.
+// I try it and found it's 16.
+#define MQ_DATAITEM_SIZE 16
+
+__ALIGNED(8) static uint8_t mem_of_mq_recv[MAX_BYTE_RECV * MQ_DATAITEM_SIZE];
 const static osMessageQueueAttr_t mq_attr_uart_recv = {
     .name = "mq_uart_recv",
+    .mq_mem = mem_of_mq_recv,
+    .mq_size = sizeof mem_of_mq_recv,
 };
 
+__ALIGNED(8) static uint8_t mem_of_mq_send[MAX_BYTE_SEND * MQ_DATAITEM_SIZE];
 const static osMessageQueueAttr_t mq_attr_uart_send = {
     .name = "mq_uart_send",
+    .mq_mem = mem_of_mq_send,
+    .mq_size = sizeof mem_of_mq_send,
 };
 
 // a message quque for uart receiving buffer, ISR will save data into it, and recv function will get data from it
@@ -84,8 +97,8 @@ static void init_uart_controller(uint32_t uart_no, uint8_t uart_irq);
 //   true if done; otherwise failed
 bool init_uart_io_api(void)
 {
-    mq_id_uart_recv = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_recv);
-    mq_id_uart_send = osMessageQueueNew(128, sizeof(uint8_t), &mq_attr_uart_send);
+    mq_id_uart_recv = osMessageQueueNew(MAX_BYTE_RECV, sizeof(uint8_t), &mq_attr_uart_recv);
+    mq_id_uart_send = osMessageQueueNew(MAX_BYTE_SEND, sizeof(uint8_t), &mq_attr_uart_send);
     evt_flags_id_of_sending_queue_delivery = osEventFlagsNew(&evt_flags_attr_of_sending_queue_delivery);
     mutex_uart_sending_id = osMutexNew (&mutex_uart_sending_attr);
 
