@@ -4,7 +4,8 @@
 
 #include "serial_datagram.h"
 
-__ALIGNED(8) static uint8_t stack_of_thread[1024];
+#define STACK_SIZE_OF_RECV_THREAD 1024
+__ALIGNED(8) static uint8_t stack_of_thread[STACK_SIZE_OF_RECV_THREAD];
 static const osThreadAttr_t thread_attr_serial_datagram_recv = {
     .name = "serial_datagram_recv_thread",
     .priority = osPriorityRealtime4,

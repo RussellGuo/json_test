@@ -5,7 +5,7 @@
 
 #include "task_serial_datagram_recv.h"
 
-#include "task_led_blink.h"
+#include "service_led.h"
 
 __NO_RETURN int main(void)
 {
@@ -16,7 +16,7 @@ __NO_RETURN int main(void)
 
     init_thread_of_serial_datagram_recv();
 
-    init_thread_of_led_blink();
+    init_thread_of_service_led();
     osKernelStart();                                 // start RTX kernel
     while(1);
 }

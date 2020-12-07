@@ -27,12 +27,18 @@ typedef enum {
     NO_ERROR        =  0,
     ERR_CRC         =  1,   // crc check error
     ERR_MSG_ID      =  2,   // the request code not found
-    ERR_ITEM_COUNT  =  3,   // wrong number of parameters or return list 
+    ERR_ITEM_COUNT  =  3,   // wrong number of parameters or return list
     ERR_NO_IMPL     =  4,   // The message format is correct, but the implementation is not ready
-    ERR_MODE        =  5,   // mode error at the server execution
-    ERR_PARAM       =  6,   // parameter error at the server execution
+    ERR_NOT_READY   =  5,   // the module not ready. i.e. thread create failed
+    ERR_MODE        =  6,   // mode error at the server execution
+    ERR_PARAM       =  7,   // parameter error at the server execution
     ERR_UNKNOWN     = 15,   // unknown error at the server execution
 } res_error_code_t;
+
+#define MCU_MODULE_OFF 0
+#define LED_MODE_FACTORY_TEST 8
+#define LED_MODE_USER1        1
+#define LED_MODE_USER2        2
 
 // the msg id, request id mostly
 typedef enum {

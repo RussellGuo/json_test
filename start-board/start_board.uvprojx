@@ -389,36 +389,6 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
-            <File>
-              <FileName>task_led_blink.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\task_led_blink.h</FilePath>
-            </File>
-            <File>
-              <FileName>task_led_blink.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\task_led_blink.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_key_isr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\user_key_isr.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_key_isr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\user_key_isr.h</FilePath>
-            </File>
-            <File>
-              <FileName>task_uart_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\task_uart_demo.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_uart_demo.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\task_uart_demo.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -472,7 +442,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>mcu-side</GroupName>
+          <GroupName>mcu-task</GroupName>
           <Files>
             <File>
               <FileName>task_serial_datagram_recv.c</FileName>
@@ -483,6 +453,31 @@
               <FileName>task_serial_datagram_recv.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\common\include\task_serial_datagram_recv.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mcu-services</GroupName>
+          <Files>
+            <File>
+              <FileName>service_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_led.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\service_led.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mcu-services-hw</GroupName>
+          <Files>
+            <File>
+              <FileName>service_led_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\service_led_hw.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,5 +1,5 @@
 /*
- * semantic_layer.h
+ * semantic_layer.c
  *
  * Implementation of Semantic Layer of Host-MCU Communication Protocol
  *
@@ -254,7 +254,7 @@ static res_error_code_t set_laser_config_msg_proc(
 {
     (void)output_item_list;
     res_error_code_t error_code = ERR_UNKNOWN;
-    ReplyToSetLedConfig(input_item_list[0], input_item_list[1], &error_code, seq);
+    ReplyToSetLaserConfig(input_item_list[0], input_item_list[1], &error_code, seq);
     return error_code;
 }
 
@@ -266,7 +266,7 @@ static res_error_code_t set_flash_light_config_msg_proc(
 {
     (void)output_item_list;
     res_error_code_t error_code = ERR_UNKNOWN;
-    ReplyToSetLedConfig(input_item_list[0], input_item_list[1], &error_code, seq);
+    ReplyToSetFlashLightConfig(input_item_list[0], input_item_list[1], &error_code, seq);
     return error_code;
 }
 

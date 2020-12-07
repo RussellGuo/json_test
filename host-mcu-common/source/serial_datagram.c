@@ -1,5 +1,5 @@
 /*
- * serial_datagram_common.h
+ * serial_datagram.c
 
  * Implementation of Datagram Layer of Host-MCU Communication Protocol
 
