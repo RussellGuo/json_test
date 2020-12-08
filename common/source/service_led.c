@@ -80,7 +80,7 @@ void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mod
 
     switch(mode) {
 
-        case MCU_MODULE_OFF:
+    case MCU_MODULE_OFF:
         if (mode_param != 0) {
             *error_code = ERR_PARAM;
             return;
@@ -100,8 +100,10 @@ void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mod
         return;
     }
 
-    // checking passed, notify the execution service
-    led_mode = mode;
-    led_mode_param = mode_param;
-    osThreadFlagsSet(tid_led, MODE_CHANGED_FLAG);
+    if (*error_code == NO_ERROR) {
+        // checking passed, notify the execution service
+        led_mode = mode;
+        led_mode_param = mode_param;
+        osThreadFlagsSet(tid_led, MODE_CHANGED_FLAG);
+    }
 }

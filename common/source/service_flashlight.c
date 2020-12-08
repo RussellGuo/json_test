@@ -80,7 +80,7 @@ void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_ite
 
     switch(mode) {
 
-        case MCU_MODULE_OFF:
+    case MCU_MODULE_OFF:
         if (mode_param != 0) {
             *error_code = ERR_PARAM;
             return;
@@ -100,8 +100,10 @@ void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_ite
         return;
     }
 
-    // checking passed, notify the execution service
-    flashlight_mode = mode;
-    flashlight_mode_param = mode_param;
-    osThreadFlagsSet(tid_flashlight, MODE_CHANGED_FLAG);
+    if (*error_code == NO_ERROR) {
+        // checking passed, notify the execution service
+        flashlight_mode = mode;
+        flashlight_mode_param = mode_param;
+        osThreadFlagsSet(tid_flashlight, MODE_CHANGED_FLAG);
+    }
 }

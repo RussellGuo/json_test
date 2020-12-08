@@ -37,7 +37,7 @@ void flashlight_hw_init(void);
 // parameters:
 // [in] flashlight_mode, flashlight_mode_param as the protocol
 // [in] new_request_flag: when the underlying protocol modifies the flash light mode and/or mode parameter,
-//    the flag of this thread will be set. This is an notice to change mode.
+//    the flag of this thread will be set. This is a notice to change mode.
 void flashlight_running_until_new_request_arrived(uint32_t flashlight_mode, uint32_t flashlight_mode_param, uint32_t new_request_flag);
 
 #endif
