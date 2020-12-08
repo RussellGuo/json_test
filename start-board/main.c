@@ -6,6 +6,8 @@
 #include "task_serial_datagram_recv.h"
 
 #include "service_led.h"
+#include "service_laser.h"
+#include "service_flashlight.h"
 
 __NO_RETURN int main(void)
 {
@@ -17,6 +19,9 @@ __NO_RETURN int main(void)
     init_thread_of_serial_datagram_recv();
 
     init_thread_of_service_led();
+    init_thread_of_service_laser();
+    init_thread_of_service_flashlight();
+
     osKernelStart();                                 // start RTX kernel
     while(1);
 }

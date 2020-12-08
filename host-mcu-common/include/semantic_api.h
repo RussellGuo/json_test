@@ -35,10 +35,23 @@ typedef enum {
     ERR_UNKNOWN     = 15,   // unknown error at the server execution
 } res_error_code_t;
 
+
+// mode for the LED, Laser and the Flash light
 #define MCU_MODULE_OFF 0
-#define LED_MODE_FACTORY_TEST 8
-#define LED_MODE_USER1        1
-#define LED_MODE_USER2        2
+
+#define LED_MODE_USER1                  0x01
+#define LED_MODE_USER2                  0x02
+#define LED_MODE_FACTORY_TEST           0x08
+
+#define LASER_MODE_USER1                0x11
+#define LASER_MODE_USER2                0x12
+#define LASER_MODE_FACTORY_TEST         0x18
+
+#define FLASHLIGHT_MODE_USER1           0x21
+#define FLASHLIGHT_MODE_USER2           0x22
+#define FLASHLIGHT_MODE_FACTORY_TEST    0x28
+
+
 
 // the msg id, request id mostly
 typedef enum {
@@ -46,7 +59,7 @@ typedef enum {
     REQ_RUN_INFO           =  9,
     SET_LED_CONFIG         = 10,
     SET_LASER_CONFIG       = 11,
-    SET_FLASH_LIGHT_CONFIG = 12,
+    SET_FLASHLIGHT_CONFIG  = 12,
     START_FACTORY_TEST     = 13,
 } msg_id_t;
 
@@ -86,7 +99,7 @@ bool ReqHwFwVersion(serial_datagram_item_t seq);
 bool ReqRunInfo(serial_datagram_item_t seq);
 bool SetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
-bool SetFlashLightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
+bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool StartFactoryTest(serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
@@ -95,7 +108,7 @@ void DispatchReplyOfReqHwFwVersion(const res_error_code_t error_code, const uint
 void DispatchReplyOfRunInfo(const res_error_code_t error_code, const uint32_t *run_info_list, serial_datagram_item_t seq);
 void DispatchReplyOfSetLedConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetLaserConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
-void DispatchReplyOfSetFlashLightConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
+void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfStartFactoryTest(const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
 
 #else
@@ -110,7 +123,7 @@ void ReplyToReqHwFwVersion(res_error_code_t *error_code, uint32_t *HwVersion, ui
 void ReplyToRunInfo(res_error_code_t *error_code, uint32_t *run_info_list, serial_datagram_item_t seq);
 void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToSetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
-void ReplyToSetFlashLightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToStartFactoryTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq);
 
 #endif

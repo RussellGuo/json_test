@@ -469,6 +469,26 @@
               <FileType>5</FileType>
               <FilePath>..\common\include\service_led.h</FilePath>
             </File>
+            <File>
+              <FileName>service_laser.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\service_laser.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_laser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_laser.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_flashlight.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\service_flashlight.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_flashlight.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_flashlight.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -478,6 +498,16 @@
               <FileName>service_led_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\service_led_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_laser_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\service_laser_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_flashlight_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\service_flashlight_hw.c</FilePath>
             </File>
           </Files>
         </Group>

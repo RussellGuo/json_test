@@ -39,7 +39,7 @@ static MSG_PROC_RET_TYPE      req_hw_fw_version_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE           req_run_info_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE         set_led_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE       set_laser_config_msg_proc(MSG_PROC_PROTOTYPE);
-static MSG_PROC_RET_TYPE set_flash_light_config_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE  set_flashlight_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE     start_factory_test_msg_proc(MSG_PROC_PROTOTYPE);
 
 
@@ -61,7 +61,7 @@ static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { REQ_RUN_INFO          , true , 0,  4, req_run_info_msg_proc           },
     { SET_LED_CONFIG        , true , 2,  1, set_led_config_msg_proc         },
     { SET_LASER_CONFIG      , true , 2,  1, set_laser_config_msg_proc       },
-    { SET_FLASH_LIGHT_CONFIG, true , 2,  1, set_flash_light_config_msg_proc },
+    { SET_FLASHLIGHT_CONFIG , true , 2,  1, set_flashlight_config_msg_proc  },
     { START_FACTORY_TEST    , true,  0, 10, start_factory_test_msg_proc     },
 };
 
@@ -188,8 +188,8 @@ __attribute__((weak)) void ReplyToSetLaserConfig(
     (void) mode; (void) mode_param; (void)seq;
 }
 
-// a stub of function 'ReplyToSetFlashLightConfig'
-__attribute__((weak)) void ReplyToSetFlashLightConfig(
+// a stub of function 'ReplyToSetFlashlightConfig'
+__attribute__((weak)) void ReplyToSetFlashlightConfig(
     serial_datagram_item_t mode,
     serial_datagram_item_t mode_param,
     res_error_code_t *error_code, serial_datagram_item_t seq)
@@ -258,15 +258,15 @@ static res_error_code_t set_laser_config_msg_proc(
     return error_code;
 }
 
-// generic processing function to specific function for message SET_FLASH_LIGHT_CONFIG
-static res_error_code_t set_flash_light_config_msg_proc(
+// generic processing function to specific function for message SET_FLASHLIGHT_CONFIG
+static res_error_code_t set_flashlight_config_msg_proc(
     const serial_datagram_item_t input_item_list[],
     serial_datagram_item_t output_item_list[],
     const serial_datagram_item_t seq)
 {
     (void)output_item_list;
     res_error_code_t error_code = ERR_UNKNOWN;
-    ReplyToSetFlashLightConfig(input_item_list[0], input_item_list[1], &error_code, seq);
+    ReplyToSetFlashlightConfig(input_item_list[0], input_item_list[1], &error_code, seq);
     return error_code;
 }
 
@@ -316,10 +316,10 @@ bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_par
     return ret;
 }
 
-bool SetFlashLightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq)
+bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq)
 {
     const serial_datagram_item_t param_list[] = { mode, mode_param };
-    bool ret = serial_datagram_send(seq, SET_FLASH_LIGHT_CONFIG, param_list, sizeof param_list / sizeof(param_list[0]));
+    bool ret = serial_datagram_send(seq, SET_FLASHLIGHT_CONFIG, param_list, sizeof param_list / sizeof(param_list[0]));
     return ret;
 }
 
@@ -359,12 +359,12 @@ static void set_laser_config_msg_proc(
     DispatchReplyOfSetLaserConfig(error_code, seq);
 }
 
-// generic processing function to specific function for message SET_FLASH_LIGHT_CONFIG
-static void set_flash_light_config_msg_proc(
+// generic processing function to specific function for message SET_FLASHLIGHT_CONFIG
+static void set_flashlight_config_msg_proc(
     const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq) 
 {
     (void)input_item_list;
-    DispatchReplyOfSetFlashLightConfig(error_code, seq);
+    DispatchReplyOfSetFlashlightConfig(error_code, seq);
 }
 
 // generic processing function to specific function for message START_FACTORY_TEST
@@ -408,8 +408,8 @@ __attribute__((weak)) void DispatchReplyOfSetLaserConfig(const res_error_code_t 
     fprintf(stderr, "received MCU set laser config error_code %u, seq %u\n", error_code, seq);
 }
 
-// a stub of function 'DispatchReplyOfSetFlashLightConfig'
-__attribute__((weak)) void DispatchReplyOfSetFlashLightConfig(const res_error_code_t error_code, serial_datagram_item_t seq)
+// a stub of function 'DispatchReplyOfSetFlashlightConfig'
+__attribute__((weak)) void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq)
 {
     fprintf(stderr, "received MCU set flash light config error_code %u, seq %u\n", error_code, seq);
 }
