@@ -750,6 +750,9 @@ static void system_clock_120m_hxtal(void)
 #elif defined (HXTAL_VALUE_25M)
     /* CK_PREDIV0 = (CK_HXTAL)/5 *8/10 = 4 MHz */ 
     RCU_CFG1 |= (RCU_PLLPRESRC_HXTAL | RCU_PREDV0SRC_CKPLL1 | RCU_PLL1_MUL8 | RCU_PREDV1_DIV5 | RCU_PREDV0_DIV10);    
+#elif HXTAL_VALUE == 12000000
+    /* CK_PREDIV0 = (CK_HXTAL)/5 *8/10 = 4 MHz */ 
+    RCU_CFG1 |= (RCU_PLLPRESRC_HXTAL | RCU_PREDV0SRC_CKPLL1 | RCU_PLL1_MUL10 | RCU_PREDV1_DIV3 | RCU_PREDV0_DIV10);    
 #endif
     
     /* enable PLL1 */
