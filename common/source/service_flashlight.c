@@ -15,6 +15,7 @@
 #include "gd32e10x.h"
 
 #include "semantic_api.h"
+#include "misc.h"
 
 // flag for thread
 #define MODE_CHANGED_FLAG 1
@@ -69,7 +70,7 @@ void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_ite
        res_error_code_t *error_code, serial_datagram_item_t seq)
 {
     (void)seq;
-
+    rpc_log(LOG_INFO, "Flashlight mode: %x mode parameter: %x", mode, mode_param);
     // checking the validity of the mode and mode parameter
     if (tid_flashlight == NULL) {
         *error_code = ERR_NOT_READY;

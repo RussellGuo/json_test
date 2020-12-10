@@ -18,6 +18,9 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
+
+#include "misc.h"
 
 // datagram delimiter description
 #define SERIAL_DATAGRAM_START_CHR '\r'
@@ -39,7 +42,7 @@ typedef uint32_t serial_datagram_item_t;
 // Finally, the message is dispatched by calling the interface of the semantic layer.
 // Note: Messages with incorrect format will not return an error flag, but will look
 // for the next message and record the number of characters skipped. The only possibility
-// for error return is that the serial port can no longer be read. At this time, the 
+// for error return is that the serial port can no longer be read. At this time, the
 // entire receiving task will be aborted and returned
 void serial_datagram_receive_loop(void *arg);
 
@@ -61,6 +64,22 @@ bool serial_datagram_send(const serial_datagram_item_t seq, const serial_datagra
 // should be implemented by monitor progress, for diagnosis
 void report_mismatch_raw_datagram(const void *raw_datagram, size_t raw_datagram_len);
 void report_skipped_bytes_before_get_raw_datagram(size_t count);
+
+// Both host and MCU have log support. The function prototype of log is highly similar to Android.
+// Because the communication protocol codes of host and MCU are the same, so the invoking of log
+//  is also the same, both are functions named rpc_log. The implementation of them is not the same.
+// The MCU log is all redirected to the host, and the host outputs the log sent from the MCU
+//   to its log system. This log is derived from MCU statements and sent to the host through
+//   the protocol. After the host protocol recognizes the log, it will be processed.
+// The processing function is rpc_logv
+// The rpc_log on the host side is processed directly and not transmitted. The processing function
+//  is still rpc_logv.
+// The usage of rpc_logv is very similar to __android_log_vprint of Android NDK.
+// A 'WEAK' version of rpc_logv has been provided, which directly outputs to stderr.
+// Developers can define their own rpc_logv. For example, under the Android NDK, call __android_log_vprint directly.
+#if !defined(IS_MCU_SIDE)
+void rpc_logv(log_level_t log_level, const char *tag, const char *format, va_list args);
+#endif
 
 #ifdef __cplusplus
 }

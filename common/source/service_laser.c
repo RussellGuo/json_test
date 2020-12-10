@@ -68,6 +68,8 @@ bool init_thread_of_service_laser(void)
 void ReplyToSetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param,
        res_error_code_t *error_code, serial_datagram_item_t seq)
 {
+    rpc_log(LOG_INFO, "Laser mode: %x mode parameter: %x", mode, mode_param);
+
     (void)seq;
 
     // checking the validity of the mode and mode parameter
