@@ -39,9 +39,6 @@ typedef enum {
 // mode for the LED, Laser and the Flash light
 #define MCU_MODULE_OFF 0
 
-#define LED_MODE_USER1                  0x01
-#define LED_MODE_USER2                  0x02
-#define LED_MODE_FACTORY_TEST           0x08
 
 #define LASER_MODE_USER1                0x11
 #define LASER_MODE_USER2                0x12

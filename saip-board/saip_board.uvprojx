@@ -50,10 +50,10 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>start_board</OutputName>
+          <OutputName>saip_board</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -190,7 +190,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -439,6 +439,16 @@
               <FileType>5</FileType>
               <FilePath>..\host-mcu-common\include\uart_io_api.h</FilePath>
             </File>
+            <File>
+              <FileName>misc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\misc.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu-led-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -489,25 +499,50 @@
               <FileType>1</FileType>
               <FilePath>..\common\source\service_flashlight.c</FilePath>
             </File>
+            <File>
+              <FileName>mcu-common.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\mcu-common.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu-led-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>mcu-services-hw</GroupName>
           <Files>
             <File>
-              <FileName>service_led_hw.c</FileName>
+              <FileName>service_flashlight_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\service_led_hw.c</FilePath>
+              <FilePath>..\saip-board-services\service_flashlight_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_laser_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\service_laser_hw.c</FilePath>
+              <FilePath>..\saip-board-services\service_laser_hw.c</FilePath>
             </File>
             <File>
-              <FileName>service_flashlight_hw.c</FileName>
+              <FileName>service_led_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\service_flashlight_hw.c</FilePath>
+              <FilePath>..\saip-board-services\service_led_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_pseudo_flashlight_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\start-board-services\service_pseudo_flashlight_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_pseudo_laser_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\start-board-services\service_pseudo_laser_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_pseudo_led_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\start-board-services\service_pseudo_led_hw.c</FilePath>
             </File>
           </Files>
         </Group>

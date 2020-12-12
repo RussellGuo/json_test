@@ -9,10 +9,14 @@
 #include "service_laser.h"
 #include "service_flashlight.h"
 
+#include "misc.h"
+
 __NO_RETURN int main(void)
 {
     osKernelInitialize();
     NVIC_SetPriorityGrouping (3);                    // setup priority grouping
+
+    set_rpc_log_level(LOG_VERBOSE);
 
     init_uart_io_api();
 

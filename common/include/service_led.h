@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "mcu-led-mode.h"
+
 // API part
 
 // start the LED service, should be invoked at the beginning.
