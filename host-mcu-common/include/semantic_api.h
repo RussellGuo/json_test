@@ -48,7 +48,7 @@ typedef enum {
 #define FLASHLIGHT_MODE_USER2           0x22
 #define FLASHLIGHT_MODE_FACTORY_TEST    0x28
 
-
+#define FACTORY_TEST_RESULT_COUNT 10
 
 // the msg id, request id mostly
 typedef enum {

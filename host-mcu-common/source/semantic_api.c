@@ -57,12 +57,12 @@ static const sematic_layer_info_t *get_sematic_layer_info(serial_datagram_item_t
 
 // Here is the table
 static const sematic_layer_info_t sematic_layer_info_tab[] = {
-    { REQ_HW_FW_VERSION     , true , 0,  2, req_hw_fw_version_msg_proc      },
-    { REQ_RUN_INFO          , true , 0,  4, req_run_info_msg_proc           },
-    { SET_LED_CONFIG        , true , 2,  1, set_led_config_msg_proc         },
-    { SET_LASER_CONFIG      , true , 2,  1, set_laser_config_msg_proc       },
-    { SET_FLASHLIGHT_CONFIG , true , 2,  1, set_flashlight_config_msg_proc  },
-    { START_FACTORY_TEST    , true,  0, 10, start_factory_test_msg_proc     },
+    { REQ_HW_FW_VERSION     , true , 0,  2                       , req_hw_fw_version_msg_proc      },
+    { REQ_RUN_INFO          , true , 0,  4                       , req_run_info_msg_proc           },
+    { SET_LED_CONFIG        , true , 2,  0                       , set_led_config_msg_proc         },
+    { SET_LASER_CONFIG      , true , 2,  0                       , set_laser_config_msg_proc       },
+    { SET_FLASHLIGHT_CONFIG , true , 2,  0                       , set_flashlight_config_msg_proc  },
+    { START_FACTORY_TEST    , true,  0, FACTORY_TEST_RESULT_COUNT, start_factory_test_msg_proc     },
 };
 
 // find the info by msg_id
@@ -129,17 +129,21 @@ void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_data
     const sematic_layer_info_t *const sematic_layer_info = get_sematic_layer_info(msg_id);
     if (sematic_layer_info == 0) {
         // log an ERR_MSG_ID
+        rpc_log(LOG_ERROR, "seq '%u', msg ID '%X' unrecognized", seq, msg_id);
         return;
     }
 
-    // // check return value length
+
+    res_error_code_t res_error_code = (res_error_code_t)data_list[0];
+    // check return value length
     if (sematic_layer_info->res_len + 1 != len) {
         // log an item count error
-        return;
+        rpc_log(LOG_ERROR, "seq '%u', msg len '%zd', expect '%zd'", seq, len - 1, sematic_layer_info->res_len);
+        res_error_code = ERR_ITEM_COUNT;
     }
 
     // invoke the generic processing function
-    sematic_layer_info->msg_proc(data_list + 1, (res_error_code_t)data_list[0], seq);
+    sematic_layer_info->msg_proc(data_list + 1, res_error_code, seq);
 }
 
 #endif
@@ -204,7 +208,7 @@ __attribute__((weak)) void ReplyToStartFactoryTest(
     uint32_t *test_item_list,
     serial_datagram_item_t seq)
 {
-    memset(test_item_list, 0xBB, 10 * sizeof(test_item_list[0]));
+    memset(test_item_list, 0xBB, FACTORY_TEST_RESULT_COUNT * sizeof(test_item_list[0]));
     *error_code = ERR_NO_IMPL;
     (void)seq;
 }
@@ -419,7 +423,7 @@ __attribute__((weak)) void DispatchReplyOfStartFactoryTest(
     const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq)
 {
     fprintf(stderr, "received MCU factory test result error_code %u, seq %u,", error_code, seq);
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < FACTORY_TEST_RESULT_COUNT; i++) {
         fprintf(stderr, " %X", test_item_list[i]);
     }
     fprintf(stderr, "\n");

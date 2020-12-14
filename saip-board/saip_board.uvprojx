@@ -470,6 +470,11 @@
           <GroupName>mcu-services</GroupName>
           <Files>
             <File>
+              <FileName>mcu-led-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
+            </File>
+            <File>
               <FileName>service_led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\service_led.c</FilePath>
@@ -505,9 +510,9 @@
               <FilePath>..\common\include\mcu-common.h</FilePath>
             </File>
             <File>
-              <FileName>mcu-led-mode.h</FileName>
+              <FileName>mcu-factory-test-result.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
+              <FilePath>..\host-mcu-common\include\mcu-factory-test-result.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -530,6 +535,11 @@
               <FilePath>..\saip-board-services\service_led_hw.c</FilePath>
             </File>
             <File>
+              <FileName>service_factory_test_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\saip-board-services\service_factory_test_hw.c</FilePath>
+            </File>
+            <File>
               <FileName>service_pseudo_flashlight_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\start-board-services\service_pseudo_flashlight_hw.c</FilePath>
@@ -543,6 +553,11 @@
               <FileName>service_pseudo_led_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\start-board-services\service_pseudo_led_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_pseudo_factory_test_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\start-board-services\service_pseudo_factory_test_hw.c</FilePath>
             </File>
           </Files>
         </Group>
