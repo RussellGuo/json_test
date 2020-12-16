@@ -236,6 +236,13 @@ void set_rpc_log_level(log_level_t log_level)
     }
 }
 
+// return the lowest log output level.
+log_level_t get_rpc_log_level(void)
+{
+    return min_log_level;
+}
+
+
 #if defined(IS_MCU_SIDE)
 
 // send the log via protocol at the MCU side
@@ -339,7 +346,7 @@ __attribute__((weak)) void rpc_logv(log_level_t log_level, const char *tag, cons
     }
 
     // ignore low-level log
-    if (_log_level < min_log_level) {
+    if (_log_level < get_rpc_log_level()) {
         return;
     }
     // found the log name

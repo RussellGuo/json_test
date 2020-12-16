@@ -43,6 +43,9 @@ bool rpc_log(log_level_t log_level, const char *format, ...);
 // parameters: [in] log_level as its name
 void set_rpc_log_level(log_level_t log_level);
 
+// return the lowest log output level.
+log_level_t get_rpc_log_level(void);
+
 #ifdef __cplusplus
 }
 #endif
