@@ -492,8 +492,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\host-mcu-common\include\mcu-factory-test-result.h</PathWithFileName>
-      <FilenameWithoutPath>mcu-factory-test-result.h</FilenameWithoutPath>
+      <PathWithFileName>..\host-mcu-common\include\mcu-connectivity-test-result.h</PathWithFileName>
+      <FilenameWithoutPath>mcu-connectivity-test-result.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -548,8 +548,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\saip-board-services\service_factory_test_hw.c</PathWithFileName>
-      <FilenameWithoutPath>service_factory_test_hw.c</FilenameWithoutPath>
+      <PathWithFileName>..\saip-board-services\service_connectivity_test_hw.c</PathWithFileName>
+      <FilenameWithoutPath>service_connectivity_test_hw.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -596,8 +596,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\start-board-services\service_pseudo_factory_test_hw.c</PathWithFileName>
-      <FilenameWithoutPath>service_pseudo_factory_test_hw.c</FilenameWithoutPath>
+      <PathWithFileName>..\start-board-services\service_pseudo_connectivity_test_hw.c</PathWithFileName>
+      <FilenameWithoutPath>service_pseudo_connectivity_test_hw.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

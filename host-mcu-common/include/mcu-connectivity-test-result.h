@@ -1,7 +1,7 @@
 /*
- * mcu-led-test-result.h
+ * mcu-connectivity-test-result.h
  *
- * definition of factory mode and mode parameter. those value will be used in the
+ * definition of connectivity test mode and mode parameter. those value will be used in the
  * protocol between the host and the MCU
  *
  *  Created on: Dec 14, 2020
@@ -10,8 +10,8 @@
  */
 
 
-#ifndef __MCU_FACTORY_TEST_RESULT_H_
-#define __MCU_FACTORY_TEST_RESULT_H_
+#ifndef __MCU_CONNECTIVITY_TEST_RESULT_H_
+#define __MCU_CONNECTIVITY_TEST_RESULT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,4 +23,4 @@ extern "C" {
 }
 #endif
 
-#endif //__MCU_FACTORY_TEST_RESULT_H_
+#endif //__MCU_CONNECTIVITY_TEST_RESULT_H_

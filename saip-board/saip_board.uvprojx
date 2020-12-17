@@ -510,9 +510,9 @@
               <FilePath>..\common\include\mcu-common.h</FilePath>
             </File>
             <File>
-              <FileName>mcu-factory-test-result.h</FileName>
+              <FileName>mcu-connectivity-test-result.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\mcu-factory-test-result.h</FilePath>
+              <FilePath>..\host-mcu-common\include\mcu-connectivity-test-result.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -535,9 +535,9 @@
               <FilePath>..\saip-board-services\service_led_hw.c</FilePath>
             </File>
             <File>
-              <FileName>service_factory_test_hw.c</FileName>
+              <FileName>service_connectivity_test_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_factory_test_hw.c</FilePath>
+              <FilePath>..\saip-board-services\service_connectivity_test_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_pseudo_flashlight_hw.c</FileName>
@@ -555,9 +555,9 @@
               <FilePath>..\start-board-services\service_pseudo_led_hw.c</FilePath>
             </File>
             <File>
-              <FileName>service_pseudo_factory_test_hw.c</FileName>
+              <FileName>service_pseudo_connectivity_test_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\start-board-services\service_pseudo_factory_test_hw.c</FilePath>
+              <FilePath>..\start-board-services\service_pseudo_connectivity_test_hw.c</FilePath>
             </File>
           </Files>
         </Group>

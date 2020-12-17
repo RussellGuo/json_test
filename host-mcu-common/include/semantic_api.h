@@ -48,7 +48,7 @@ typedef enum {
 #define FLASHLIGHT_MODE_USER2           0x22
 #define FLASHLIGHT_MODE_FACTORY_TEST    0x28
 
-#define FACTORY_TEST_RESULT_COUNT 10
+#define CONNECTIVITY_TEST_RESULT_COUNT 10
 
 // the msg id, request id mostly
 typedef enum {
@@ -57,7 +57,7 @@ typedef enum {
     SET_LED_CONFIG         = 10,
     SET_LASER_CONFIG       = 11,
     SET_FLASHLIGHT_CONFIG  = 12,
-    START_FACTORY_TEST     = 13,
+    CONNECTIVITY_TEST      = 13,
 } msg_id_t;
 
 // MCU is the SERVER
@@ -97,7 +97,7 @@ bool ReqRunInfo(serial_datagram_item_t seq);
 bool SetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
-bool StartFactoryTest(serial_datagram_item_t seq);
+bool ConnectivityTest(serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
@@ -106,7 +106,7 @@ void DispatchReplyOfRunInfo(const res_error_code_t error_code, const uint32_t *r
 void DispatchReplyOfSetLedConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetLaserConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
-void DispatchReplyOfStartFactoryTest(const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
+void DispatchReplyOfConnectivityTest(const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
 
 #else
 
@@ -121,7 +121,7 @@ void ReplyToRunInfo(res_error_code_t *error_code, uint32_t *run_info_list, seria
 void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToSetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
-void ReplyToStartFactoryTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq);
+void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq);
 
 #endif
 

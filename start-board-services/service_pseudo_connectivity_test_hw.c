@@ -1,7 +1,7 @@
 /*
- * service_factory_test_hw.c
+ * service_pseudo_connectivity_test_hw.c
  *
- * hardware-depended part of factory-test service for the start-board,
+ * hardware-depended part of connectivity-test service for the start-board,
  *  only used in the development process.
  *
  *  Created on: Dec 14, 2020
@@ -23,7 +23,7 @@
 #define USER_KEY_GPIO_CLK                RCU_GPIOA
 
 // user key value fetch
-static bool start_board_factory_test(void)
+static bool start_board_connectivity_test(void)
 {
     /* enable the key clock */
     rcu_periph_clock_enable(USER_KEY_GPIO_CLK);
@@ -35,13 +35,13 @@ static bool start_board_factory_test(void)
     return ret;
 }
 
-void ReplyToStartFactoryTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq)
+void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq)
 {
     (void)seq;
    *error_code = NO_ERROR;
-    bool value = start_board_factory_test();
+    bool value = start_board_connectivity_test();
 
-    for (int i = 0; i < FACTORY_TEST_RESULT_COUNT; i++) {
+    for (int i = 0; i < CONNECTIVITY_TEST_RESULT_COUNT; i++) {
         test_item_list[i] = value;
     }
 }
