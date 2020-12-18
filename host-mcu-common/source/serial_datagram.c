@@ -257,7 +257,7 @@ bool rpc_log(log_level_t log_level, const char *format, ...)
     }
 
     char buf[MAX_DATAGRAM_STR_LEN + 1];
-    va_list args;
+    memset(buf, 0, sizeof buf);
 
     // clamp log level
     log_level_t _log_level;
@@ -270,13 +270,28 @@ bool rpc_log(log_level_t log_level, const char *format, ...)
     }
 
     // encoding the protocol datagram
+    // start char
     size_t out_len = sprintf(buf, "%cL%c", SERIAL_DATAGRAM_START_CHR, '0' + _log_level);
 
+    // msg
+    va_list args;
     va_start(args, format);
-    out_len += vsnprintf(buf + out_len, (sizeof buf) - 5, format, args); // 5 chars: <SOT> L 0 <EOT> \0
+    int printed_max = (sizeof buf) - 4;  // 4 chars: <SOT> L 0 <EOT>
+    int printed = vsnprintf(buf + out_len, printed_max, format, args); // pls hanle this very careful
     va_end(args);
+    if (printed < 0) {
+        return false;
+    }
+    if (printed > printed_max) {
+        // vsnprintf() do not write more than printed_max bytes, a bigger value means
+        // that the output was truncated. recalculate the actual size of printed.
+        printed = printed_max;
+    }
+    out_len += printed;
 
+    // stop char
     out_len += sprintf(buf + out_len, "%c", SERIAL_DATAGRAM_STOP_CHR);
+
 
     // send datagram
     bool ret = uart_send_data((const uint8_t *)buf, out_len, (uint32_t)(-1));

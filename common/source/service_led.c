@@ -36,7 +36,7 @@ __NO_RETURN static void led_thread(void *argument)
 
 // stack for the thread
 #if !defined(STACK_SIZE_OF_SERVICE_LED_THREAD)
-#define STACK_SIZE_OF_SERVICE_LED_THREAD 512
+#define STACK_SIZE_OF_SERVICE_LED_THREAD 1024
 #endif
 
 __ALIGNED(8) static uint8_t stack_of_thread[STACK_SIZE_OF_SERVICE_LED_THREAD];

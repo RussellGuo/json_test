@@ -45,8 +45,8 @@
 
 // TODO: Support multiple UARTs
 
-#define MAX_BYTE_RECV 128
-#define MAX_BYTE_SEND 128
+#define MAX_BYTE_RECV 136
+#define MAX_BYTE_SEND 136
 
 // A transmitted byte occupies the size of MQ.
 // I try it and found it's 16.
