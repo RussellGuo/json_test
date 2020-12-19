@@ -50,6 +50,9 @@ typedef enum {
 
 #define CONNECTIVITY_TEST_RESULT_COUNT 10
 
+#define PSN_WORD_COUNT 8
+#define PSN_BYTE_COUNT (PSN_WORD_COUNT * sizeof (serial_datagram_item_t))
+
 // the msg id, request id mostly
 typedef enum {
     REQ_HW_FW_VERSION      =  8,
@@ -58,6 +61,9 @@ typedef enum {
     SET_LASER_CONFIG       = 11,
     SET_FLASHLIGHT_CONFIG  = 12,
     CONNECTIVITY_TEST      = 13,
+    SET_MCU_LOG_LEVEL      = 14, // as its name
+    SAVE_PSN_INTO_EEPROM   = 15, // SMT phase, write 32 bytes PSN
+ // SET_RUN_STATUS         = 16, // SMT? MMI? NORMAL? W.I.P.
 } msg_id_t;
 
 // MCU is the SERVER
@@ -98,6 +104,8 @@ bool SetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param
 bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool ConnectivityTest(serial_datagram_item_t seq);
+bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq);
+bool SavePsnIntoEeprom(const uint8_t *data_array, serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
@@ -107,6 +115,8 @@ void DispatchReplyOfSetLedConfig(const res_error_code_t error_code, serial_datag
 void DispatchReplyOfSetLaserConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfConnectivityTest(const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
+void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq);
+void DispatchReplyOfSavePsnIntoEeprom(const res_error_code_t error_code, serial_datagram_item_t seq);
 
 #else
 
@@ -122,6 +132,8 @@ void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mod
 void ReplyToSetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq);
+void ReplyToSetMcuLogLevel(res_error_code_t *error_code, serial_datagram_item_t log_level, serial_datagram_item_t seq);
+void ReplyToSavePsnIntoEeprom(res_error_code_t *error_code, const uint8_t *data_array, serial_datagram_item_t seq);
 
 #endif
 

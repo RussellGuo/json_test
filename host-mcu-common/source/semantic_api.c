@@ -41,6 +41,8 @@ static MSG_PROC_RET_TYPE         set_led_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE       set_laser_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE  set_flashlight_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE      connectivity_test_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE      set_mcu_log_level_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE   save_psn_into_eeprom_msg_proc(MSG_PROC_PROTOTYPE);
 
 
 typedef MSG_PROC_RET_TYPE (*semantic_msg_process_t)(MSG_PROC_PROTOTYPE);
@@ -57,12 +59,14 @@ static const sematic_layer_info_t *get_sematic_layer_info(serial_datagram_item_t
 
 // Here is the table
 static const sematic_layer_info_t sematic_layer_info_tab[] = {
-    { REQ_HW_FW_VERSION     , true , 0,  2                             , req_hw_fw_version_msg_proc      },
-    { REQ_RUN_INFO          , true , 0,  4                             , req_run_info_msg_proc           },
-    { SET_LED_CONFIG        , true , 2,  0                             , set_led_config_msg_proc         },
-    { SET_LASER_CONFIG      , true , 2,  0                             , set_laser_config_msg_proc       },
-    { SET_FLASHLIGHT_CONFIG , true , 2,  0                             , set_flashlight_config_msg_proc  },
-    { CONNECTIVITY_TEST     , true,  0,  CONNECTIVITY_TEST_RESULT_COUNT, connectivity_test_msg_proc      },
+    { REQ_HW_FW_VERSION     ,  true,               0,                               2,     req_hw_fw_version_msg_proc },
+    { REQ_RUN_INFO          ,  true,               0,                               4,          req_run_info_msg_proc },
+    { SET_LED_CONFIG        ,  true,               2,                               0,        set_led_config_msg_proc },
+    { SET_LASER_CONFIG      ,  true,               2,                               0,      set_laser_config_msg_proc },
+    { SET_FLASHLIGHT_CONFIG ,  true,               2,                               0, set_flashlight_config_msg_proc },
+    { CONNECTIVITY_TEST     ,  true,               0,  CONNECTIVITY_TEST_RESULT_COUNT,     connectivity_test_msg_proc },
+    { SET_MCU_LOG_LEVEL     ,  true,               1,  0                             ,     set_mcu_log_level_msg_proc },
+    { SAVE_PSN_INTO_EEPROM  ,  true,  PSN_WORD_COUNT,  0                             ,  save_psn_into_eeprom_msg_proc },
 };
 
 // find the info by msg_id
@@ -213,6 +217,28 @@ __attribute__((weak)) void ReplyToConnectivityTest(
     (void)seq;
 }
 
+// a stub of function 'ReplyToSetMcuLogLevel'
+__attribute__((weak)) void ReplyToSetMcuLogLevel(
+    res_error_code_t *error_code,
+    serial_datagram_item_t log_level,
+    serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void)log_level;
+    (void)seq;
+}
+
+// a stub of function 'ReplyToSavePsnIntoEeprom'
+__attribute__((weak)) void ReplyToSavePsnIntoEeprom(
+    res_error_code_t *error_code,
+    const uint8_t *data_array,
+    serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void)seq;
+    (void)data_array;
+}
+
 
 // generic processing function to specific function for message REQ_HW_FW_VERSION
 static res_error_code_t req_hw_fw_version_msg_proc(
@@ -286,6 +312,41 @@ static res_error_code_t connectivity_test_msg_proc(
     return error_code;
 }
 
+// generic processing function to specific function for message SET_LOG_LEVEL
+static res_error_code_t set_mcu_log_level_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)output_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+    ReplyToSetMcuLogLevel(&error_code, input_item_list[0], seq);
+    return error_code;
+}
+
+// generic processing function to specific function for message SAVE_PSN_INTO_EEPROM
+static res_error_code_t save_psn_into_eeprom_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)output_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+
+    // unpack the input data
+    uint8_t data_bytes[PSN_BYTE_COUNT];
+    for (int i = 0; i < PSN_WORD_COUNT; i++) {
+        serial_datagram_item_t word = input_item_list[i];
+        for (int j = 0; j < sizeof(serial_datagram_item_t); j++) {
+            data_bytes[i * sizeof(serial_datagram_item_t) + j] = word & 0xFF;
+            word >>= 8; // assume 8 bits/byte
+        }
+    }
+
+    ReplyToSavePsnIntoEeprom(&error_code, data_bytes, seq);
+    return error_code;
+}
+
 #endif
 
 
@@ -333,6 +394,31 @@ bool ConnectivityTest(serial_datagram_item_t seq)
     return ret;
 }
 
+bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq)
+{
+    const serial_datagram_item_t param_list[] = { (serial_datagram_item_t)log_level, };
+    bool ret = serial_datagram_send(seq, SET_MCU_LOG_LEVEL, param_list, sizeof param_list / sizeof(param_list[0]));
+    return ret;
+}
+
+bool SavePsnIntoEeprom(const uint8_t *data_array, serial_datagram_item_t seq)
+{
+    // pack the input data
+    serial_datagram_item_t data_bytes[PSN_WORD_COUNT];
+    for (int i = 0; i < PSN_WORD_COUNT; i++) {
+        serial_datagram_item_t word = 0;
+        for (int j = sizeof(serial_datagram_item_t) - 1; j >= 0; j--) {
+            word <<= 8; // assume 8 bits/byte
+            word |= data_array[i * sizeof(serial_datagram_item_t) + j];
+        }
+        data_bytes[i] = word;
+    }
+
+    bool ret = serial_datagram_send(seq, SAVE_PSN_INTO_EEPROM, data_bytes, PSN_WORD_COUNT);
+    return ret;
+}
+
+
 // generic processing function to specific function for message REQ_HW_FW_VERSION
 static void req_hw_fw_version_msg_proc(
     const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
@@ -378,6 +464,23 @@ static void connectivity_test_msg_proc(
     DispatchReplyOfConnectivityTest(error_code, input_item_list, seq);
 }
 
+// generic processing function to specific function for message SET_MCU_LOG_LEVEL
+static void set_mcu_log_level_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    DispatchReplyOfSetMcuLogLevel(error_code, seq);
+}
+
+// generic processing function to specific function for message SAVE_PSN_INTO_EEPROM
+static void save_psn_into_eeprom_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    DispatchReplyOfSavePsnIntoEeprom(error_code, seq);
+}
+
+
 // a stub of function 'DispatchReplyOfReqHwFwVersion'
 __attribute__((weak)) void DispatchReplyOfReqHwFwVersion(
     const res_error_code_t error_code, const uint32_t HwVersion, const uint32_t FwVersion, serial_datagram_item_t seq)
@@ -415,7 +518,7 @@ __attribute__((weak)) void DispatchReplyOfSetLaserConfig(const res_error_code_t 
 // a stub of function 'DispatchReplyOfSetFlashlightConfig'
 __attribute__((weak)) void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq)
 {
-    fprintf(stderr, "received MCU set flash light config error_code %u, seq %u\n", error_code, seq);
+    fprintf(stderr, "received MCU set flashlight config error_code %u, seq %u\n", error_code, seq);
 }
 
 // a stub of function 'DispatchReplyOfConnectivityTest'
@@ -429,5 +532,14 @@ __attribute__((weak)) void DispatchReplyOfConnectivityTest(
     fprintf(stderr, "\n");
 }
 
+void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU set MCU log level error_code %u, seq %u\n", error_code, seq);
+}
+
+void DispatchReplyOfSavePsnIntoEeprom(const res_error_code_t error_code, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU save PSN into EEPROM error_code %u, seq %u\n", error_code, seq);
+}
 
 #endif

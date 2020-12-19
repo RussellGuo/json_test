@@ -514,6 +514,11 @@
               <FileType>5</FileType>
               <FilePath>..\host-mcu-common\include\mcu-connectivity-test-result.h</FilePath>
             </File>
+            <File>
+              <FileName>service_set_mcu_log_level.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_set_mcu_log_level.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -538,6 +543,11 @@
               <FileName>service_connectivity_test_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\saip-board-services\service_connectivity_test_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_save_psn_into_eeprom_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\saip-board-services\service_save_psn_into_eeprom_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_pseudo_flashlight_hw.c</FileName>
