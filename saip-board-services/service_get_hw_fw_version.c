@@ -1,21 +1,24 @@
 /*
- * service_set_mcu_log_level.c
+ * service_get_hw_fw_version.c
  *
- * Implementation of set MCU log level from host
+ * Implementation of 'get MCU's hardware version and firmware version'
  * This service does not need a separate thread, because the response operation is very fast
  * and will not block the receiving thread of the protocol.
  * Refer to the documentation "SaIP communication protocol between the host and the MCU"
  * for the configuration method.
  *
- *  Created on: Dec 19, 2020
+ *  Created on: Dec 21, 2020
  *      Author: Guo Qiang
  */
 
-#include "service_led.h"
-#include "cmsis_os2.h"
-#include "gd32e10x.h"
-
 #include "semantic_api.h"
+
+// version information is palced in the starup code, pls see "startup_gd32e10x.s" for the reason.
+// the vesion number are 2 uint32_t values
+#define __SAIP_HW_VERSION_IDX 0
+#define __SAIP_FW_VERSION_IDX 1
+extern const uint32_t __SAIP_MCU_VERSION[2];
+
 
 // ReplyToSetMcuLogLevel, the function is in the API layer of the host-MCU communication
 // protocol and runs in the protocol receiving thread. It will be called by protocol receiving thread
@@ -23,16 +26,14 @@
 // and then the receiving thread will send them to the host as a respose.  See the documentation for details.
 // parameters:
 //   [out] error_code, the ptr to an error code, which the value will be sent to the host
-//   [in]  log_level, as its name. value domain is log_level_t
+//   [out] HwVersion, FwVersion, the ptr to the return values
 //   [in]  seq, the request seq
-void ReplyToSetMcuLogLevel(res_error_code_t *error_code, serial_datagram_item_t log_level, serial_datagram_item_t seq)
+void ReplyToReqHwFwVersion(res_error_code_t *error_code, uint32_t *HwVersion, uint32_t *FwVersion, serial_datagram_item_t seq)
 {
-    // clamp log level
-    if (log_level > LOG_FATAL || log_level < LOG_VERBOSE) {
-        *error_code = ERR_PARAM;
-    } else {
-        *error_code = NO_ERROR;
-        set_rpc_log_level((log_level_t) log_level);
-    }
+    *error_code = NO_ERROR;
     (void)seq;
+
+    *HwVersion = __SAIP_MCU_VERSION[__SAIP_HW_VERSION_IDX];
+    *FwVersion = __SAIP_MCU_VERSION[__SAIP_FW_VERSION_IDX];
 }
+

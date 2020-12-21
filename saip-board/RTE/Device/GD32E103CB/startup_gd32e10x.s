@@ -156,6 +156,25 @@ __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors
 
+; Because SAIP needs to update the firmware on SACP, SACP needs to refer to the
+; current firmware version and the firmware version that has been burned to decide
+; whether to burn, so we need a simple way to let the SACP end know the firmware
+; version number of the two, even if it is in When the firmware is not running yet.
+; SACP can read the data of FLASH (that is, the location where the firmware is stored)
+; through the ISP process, so our solution is to put the firmware version in
+; the fixed position of the firmware to be burned, and
+; the fixed position of the firmware that has been burned.
+; It is feasible to put this position here in the startup. After calculation, this position
+; is at 0x166 (There are 6 words in the front, which have been set to zero,
+; leaving room for increase in the vector table), SACP side will use this value.
+
+                DCD     0, 0, 0, 0, 0, 0
+__SAIP_MCU_VERSION
+                DCD     HW_VERSION          ; comes from Options for target -> ASM conditional Assembly Control Symbols -> define
+                DCD     FW_VERSION          ; same as above
+                EXPORT  __SAIP_MCU_VERSION  ; will be used in C.
+
+
                 AREA    |.text|, CODE, READONLY
 
 ;/* reset Handler */

@@ -356,7 +356,7 @@
             <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>HW_VERSION=0x0062,FW_VERSION=0x0063</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -518,6 +518,11 @@
               <FileName>service_set_mcu_log_level.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\service_set_mcu_log_level.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_get_hw_fw_version.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\saip-board-services\service_get_hw_fw_version.c</FilePath>
             </File>
           </Files>
         </Group>
