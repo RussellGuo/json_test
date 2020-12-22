@@ -114,10 +114,11 @@ void DispatchReplyOfRunInfo(const res_error_code_t error_code, const uint32_t *r
 void DispatchReplyOfSetLedConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetLaserConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetFlashlightConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
-void DispatchReplyOfConnectivityTest(const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
+void DispatchReplyOfConnectivityTest(
+    const res_error_code_t error_code, const uint32_t *test_item_list, serial_datagram_item_t seq);
 void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq);
-void DispatchReplyOfSavePsnIntoEeprom(const res_error_code_t error_code, serial_datagram_item_t seq);
-
+void DispatchReplyOfSavePsnIntoEeprom(
+    const res_error_code_t error_code, const bool return_value, serial_datagram_item_t seq);
 #else
 
 // The interface to the "execution part of the MCU". The ReplyToReqHwFwVersion series of functions are the
@@ -128,12 +129,16 @@ void DispatchReplyOfSavePsnIntoEeprom(const res_error_code_t error_code, serial_
 //  and [out]values will be returned to 'DispatchReplyOfXXX'
 void ReplyToReqHwFwVersion(res_error_code_t *error_code, uint32_t *HwVersion, uint32_t *FwVersion, serial_datagram_item_t seq);
 void ReplyToRunInfo(res_error_code_t *error_code, uint32_t *run_info_list, serial_datagram_item_t seq);
-void ReplyToSetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
-void ReplyToSetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
-void ReplyToSetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToSetLedConfig(
+    serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToSetLaserConfig(
+    serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToSetFlashlightConfig(
+    serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_list, serial_datagram_item_t seq);
 void ReplyToSetMcuLogLevel(res_error_code_t *error_code, serial_datagram_item_t log_level, serial_datagram_item_t seq);
-void ReplyToSavePsnIntoEeprom(res_error_code_t *error_code, const uint8_t *data_array, serial_datagram_item_t seq);
+void ReplyToSavePsnIntoEeprom(
+    res_error_code_t *error_code, const uint8_t *psn_byte_array, bool *return_value, serial_datagram_item_t seq);
 
 #endif
 

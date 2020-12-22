@@ -65,8 +65,8 @@ static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { SET_LASER_CONFIG      ,  true,               2,                               0,      set_laser_config_msg_proc },
     { SET_FLASHLIGHT_CONFIG ,  true,               2,                               0, set_flashlight_config_msg_proc },
     { CONNECTIVITY_TEST     ,  true,               0,  CONNECTIVITY_TEST_RESULT_COUNT,     connectivity_test_msg_proc },
-    { SET_MCU_LOG_LEVEL     ,  true,               1,  0                             ,     set_mcu_log_level_msg_proc },
-    { SAVE_PSN_INTO_EEPROM  ,  true,  PSN_WORD_COUNT,  0                             ,  save_psn_into_eeprom_msg_proc },
+    { SET_MCU_LOG_LEVEL     ,  true,               1,                               0,     set_mcu_log_level_msg_proc },
+    { SAVE_PSN_INTO_EEPROM  ,  true,  PSN_WORD_COUNT,                               1,  save_psn_into_eeprom_msg_proc },
 };
 
 // find the info by msg_id
@@ -231,12 +231,13 @@ __attribute__((weak)) void ReplyToSetMcuLogLevel(
 // a stub of function 'ReplyToSavePsnIntoEeprom'
 __attribute__((weak)) void ReplyToSavePsnIntoEeprom(
     res_error_code_t *error_code,
-    const uint8_t *data_array,
+    const uint8_t *psn_byte_array,
+    bool * return_value,
     serial_datagram_item_t seq)
 {
     *error_code = ERR_NO_IMPL;
     (void)seq;
-    (void)data_array;
+    (void)psn_byte_array;
 }
 
 
@@ -343,7 +344,9 @@ static res_error_code_t save_psn_into_eeprom_msg_proc(
         }
     }
 
-    ReplyToSavePsnIntoEeprom(&error_code, data_bytes, seq);
+    bool return_value = false;
+    ReplyToSavePsnIntoEeprom(&error_code, data_bytes, &return_value, seq);
+    output_item_list[0] = return_value;
     return error_code;
 }
 
@@ -477,7 +480,7 @@ static void save_psn_into_eeprom_msg_proc(
     const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
 {
     (void)input_item_list;
-    DispatchReplyOfSavePsnIntoEeprom(error_code, seq);
+    DispatchReplyOfSavePsnIntoEeprom(error_code, (bool)input_item_list[0], seq);
 }
 
 
@@ -532,14 +535,18 @@ __attribute__((weak)) void DispatchReplyOfConnectivityTest(
     fprintf(stderr, "\n");
 }
 
-void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq)
+// a stub of function 'DispatchReplyOfSetMcuLogLevel'
+__attribute__((weak)) void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq)
 {
     fprintf(stderr, "received MCU set MCU log level error_code %u, seq %u\n", error_code, seq);
 }
 
-void DispatchReplyOfSavePsnIntoEeprom(const res_error_code_t error_code, serial_datagram_item_t seq)
+// a stub of function 'DispatchReplyOfSavePsnIntoEeprom'
+__attribute__((weak)) void DispatchReplyOfSavePsnIntoEeprom(
+    const res_error_code_t error_code,
+    bool return_value, serial_datagram_item_t seq)
 {
-    fprintf(stderr, "received MCU save PSN into EEPROM error_code %u, seq %u\n", error_code, seq);
+    fprintf(stderr, "received MCU save PSN into EEPROM error_code %u, return value %d seq %u\n", error_code, return_value, seq);
 }
 
 #endif

@@ -106,7 +106,6 @@ void laser_hw_init(void)
 //  [in]on, enable/disable the laser
 // return value:
 //  true means success, otherwise failure
-// TODO: implement it
 static bool turn_laser(bool on)
 {
     rpc_log(LOG_VERBOSE, "turn_laser '%s'", on ? "on" : "off");
