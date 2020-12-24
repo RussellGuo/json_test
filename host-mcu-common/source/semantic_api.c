@@ -60,7 +60,7 @@ static const sematic_layer_info_t *get_sematic_layer_info(serial_datagram_item_t
 // Here is the table
 static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { REQ_HW_FW_VERSION     ,  true,               0,                               2,     req_hw_fw_version_msg_proc },
-    { REQ_RUN_INFO          ,  true,               0,                               4,          req_run_info_msg_proc },
+    { REQ_RUN_INFO          ,  true,               0,           RUN_INFO_RESULT_COUNT,          req_run_info_msg_proc },
     { SET_LED_CONFIG        ,  true,               2,                               0,        set_led_config_msg_proc },
     { SET_LASER_CONFIG      ,  true,               2,                               0,      set_laser_config_msg_proc },
     { SET_FLASHLIGHT_CONFIG ,  true,               2,                               0, set_flashlight_config_msg_proc },
@@ -495,15 +495,11 @@ __attribute__((weak)) void DispatchReplyOfReqHwFwVersion(
 __attribute__((weak)) void DispatchReplyOfRunInfo(
     const res_error_code_t error_code, const uint32_t *run_info_list, serial_datagram_item_t seq)
 {
-    uint32_t total_datagram          = run_info_list[0];
-    uint32_t bad_format_datagram     = run_info_list[1];
-    uint32_t total_skipped_uart_recv = run_info_list[2];
-    uint32_t total_inner_error       = run_info_list[3];
-    fprintf(stderr,
-        "received MCU run info total_datagram, bad_format_datagram, total_skipped_uart_recv, total_inner_error,"
-        " %X %X %X %X, error_code %u, seq %u\n",
-        total_datagram, bad_format_datagram, total_skipped_uart_recv, total_inner_error,
-        error_code, seq);
+    fprintf(stderr, "received MCU run info error_code %u, seq %u:", error_code, seq);
+    for (int i = 0; i < RUN_INFO_RESULT_COUNT; i++) {
+        fprintf(stderr, " %u", run_info_list[i]);
+    }
+    fprintf(stderr, "\n");
 }
 
 // a stub of function 'DispatchReplyOfSetLedConfig'
@@ -550,3 +546,5 @@ __attribute__((weak)) void DispatchReplyOfSavePsnIntoEeprom(
 }
 
 #endif
+
+serial_datagram_item_t inner_run_info_tab[RUN_INFO_RESULT_COUNT];

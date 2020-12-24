@@ -48,6 +48,7 @@ typedef enum {
 #define FLASHLIGHT_MODE_USER2           0x22
 #define FLASHLIGHT_MODE_FACTORY_TEST    0x28
 
+#define RUN_INFO_RESULT_COUNT          10
 #define CONNECTIVITY_TEST_RESULT_COUNT 10
 
 #define PSN_WORD_COUNT 8

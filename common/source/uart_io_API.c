@@ -4,6 +4,7 @@
 #include "gd32e10x.h"
 
 #include <string.h>
+#include "run_info_result_desc.h"
 
 #define UART2_TX_PIN                 GPIO_PIN_10
 #define UART2_RX_PIN                 GPIO_PIN_11
@@ -17,6 +18,8 @@
 
 #if defined(GD32E103R_START)
 
+#define USE_UART2
+
 #define USART                       USART2
 #define USART_IRQn                  USART2_IRQn
 
@@ -27,6 +30,8 @@
 #define UART_GPIO_CLK               UART2_GPIO_CLK
 
 #elif defined(SAIP_BOARD)
+
+#define USE_UART0
 
 #define USART                       USART0
 #define USART_IRQn                  USART0_IRQn
@@ -42,8 +47,6 @@
 #error "for now, we support START board and SAIP_BOARD only"
 
 #endif
-
-// TODO: Support multiple UARTs
 
 #define MAX_BYTE_RECV 136 // same as max datagram size
 #define MAX_BYTE_SEND 136 // same as max datagram size
@@ -239,22 +242,24 @@ static void init_uart_controller(uint32_t uart_no, uint8_t uart_irq)
     usart_interrupt_enable(uart_no, USART_INT_RBNE);
 }
 
-static size_t uart_rx_dropped_count, uart_inner_error_count;
 
 static inline void uart_irq(uint32_t uart_no)
 {
-    // TODO: Frame Error/Noise Error/overrun Error should be catched here
+    // TODO: record_uart_recv_error(1) if Frame Error/Noise Error/overrun be catched
+
     if(RESET != usart_interrupt_flag_get(uart_no, USART_INT_FLAG_RBNE)){
         /* receive data */
         uint8_t byte = (uint8_t)usart_data_receive(uart_no);
         if (osMessageQueueGetSpace(mq_id_uart_recv) < 1) {
                 uint8_t dropped_byte;
                 osMessageQueueGet(mq_id_uart_recv, &dropped_byte, 0, 0);
-                uart_rx_dropped_count++;
+                record_uart_recv_dropped(1);
         }
         osStatus_t status = osMessageQueuePut(mq_id_uart_recv, &byte, 0, 0);
         if (status != osOK) {
-            uart_inner_error_count++;
+            record_uart_inner_error(1);
+        } else {
+            record_uart_recv(1);
         }
 
     }
@@ -272,12 +277,16 @@ static inline void uart_irq(uint32_t uart_no)
     }
 }
 
+#if defined(USE_UART2)
 void USART2_IRQHandler(void)
 {
     uart_irq(USART2);
 }
+#endif
 
+#if defined(USE_UART0)
 void USART0_IRQHandler(void)
 {
     uart_irq(USART0);
 }
+#endif

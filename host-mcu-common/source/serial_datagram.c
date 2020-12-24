@@ -17,6 +17,8 @@
 #include "mcu-crc32-soft.h"
 #include "uart_io_api.h"
 
+#include "run_info_result_desc.h"
+
 #include <ctype.h>
 
 // Read a datagram from the UART.
@@ -36,7 +38,7 @@ static bool get_raw_datagram_from_serial(
 {
     *skipped_byte_count_ptr = 0;
 Top:
-    // found the SOT
+    // find the SOT
     for (;;) {
         uint8_t byte = 0;
         if (!uart_recv_byte(&byte, (uint32_t)(-1))) {
@@ -50,7 +52,11 @@ Top:
         (*skipped_byte_count_ptr)++;
     }
 
+
     size_t curr_idx;
+
+SoT_found:
+
     for(curr_idx = 0;; curr_idx++) {
         // store every byte recved until a EOT
 
@@ -70,11 +76,20 @@ Top:
             raw_datagram[curr_idx] = 0;
             break;
         }
+
+        if (raw_datagram[curr_idx] == SERIAL_DATAGRAM_START_CHR) {
+            (*skipped_byte_count_ptr) += curr_idx;
+            raw_datagram[curr_idx] = 0;
+            rpc_log(LOG_ERROR, "met a SoT in lookup EoT at '%s'", raw_datagram);
+            goto SoT_found;
+        }
     }
+
     *actual_size_ptr = curr_idx;
-    // TODO: global_run_info.total_recv_datagram++;
+    record_datagram(1);
     return true;
 }
+
 
 #if !defined(IS_MCU_SIDE)
 static void dispatch_mcu_log(const char *msg_str);
@@ -83,7 +98,7 @@ static void dispatch_mcu_log(const char *msg_str);
 // This function will read the UART, get the datagram string one after another,
 // and convert the string into the datagram binary format
 // (that is, a 32-bit unsigned integer array, and separate the sequence number,
-//message ID, parameter/return Value sequence and CRC), check CRC.
+// message ID, parameter/return Value sequence and CRC), check CRC.
 // Finally, the message is dispatched by calling the interface of the semantic layer.
 // Note: Messages with incorrect format will not return an error flag, but will look
 // for the next message and record the number of characters skipped. The only possibility
@@ -92,7 +107,7 @@ static void dispatch_mcu_log(const char *msg_str);
 void serial_datagram_receive_loop(void *arg)
 {
     (void)arg;
-    for(;;) { // for echo datagram
+    for(;;) { // for each datagram
         // get raw-data
         char datagram_str[MAX_DATAGRAM_STR_LEN + 1];
         size_t datagram_str_size;
@@ -108,78 +123,77 @@ void serial_datagram_receive_loop(void *arg)
         rpc_log(LOG_VERBOSE, "got a datagram '%s'", datagram_str);
         if (skipped_count) {
             rpc_log(LOG_WARN, "skipped %d char(s) before datagram '%s'", skipped_count, datagram_str);
+            record_uart_recv_dropped(skipped_count);
         }
 
         if (datagram_str[0] == 'L') {
             // LOG datagram
             #if !defined(IS_MCU_SIDE)
             dispatch_mcu_log(datagram_str + 1);
-            #  endif
-        } else {
-            // command/response datagram
-            // to store items of datagram
-            serial_datagram_item_t items[MAX_DATAGRAM_ITEM_COUNT];
-            size_t item_count = 0;
+            #else
+            rpc_log(LOG_ERROR, "host should not send log: '%s'", datagram_str);
+            // to record mismatch datagram.
+            record_mismatched_datagram(1);
+            #endif
+            continue;
+        }
+        // command/response datagram
+        // to store items of datagram
+        serial_datagram_item_t items[MAX_DATAGRAM_ITEM_COUNT];
+        size_t item_count = 0;
 
-            bool isOK = true;
+        bool isOK = true;
 
-            // check char set
-            for (size_t i = 0; i < datagram_str_size; i++) {
-                if (isxdigit(datagram_str[i]) || datagram_str[i] == ' ') {
-                    continue;
-                } else {
-                    rpc_log(LOG_ERROR, "bad char at '%s'", datagram_str);
+        // check char set
+        for (size_t i = 0; i < datagram_str_size; i++) {
+            if (isxdigit(datagram_str[i]) || datagram_str[i] == ' ') {
+                continue;
+            } else {
+                rpc_log(LOG_ERROR, "bad char at '%s'", datagram_str);
+                isOK = false;
+                break;
+            }
+        }
+
+        // separate values
+        if (isOK) {
+            for(char *p = datagram_str; p != NULL; p = strchr(p, ' ')) {
+                if (item_count >= sizeof(items) / sizeof(items[0])) {
+                    rpc_log(LOG_ERROR, "too many chars at '%s'", datagram_str);
                     isOK = false;
                     break;
                 }
-            }
 
-            // separate values
-            if (isOK) {
-                for(char *p = datagram_str; p != NULL; p = strchr(p, ' ')) {
-                    if (item_count >= sizeof(items) / sizeof(items[0])) {
-                        rpc_log(LOG_ERROR, "too many chars at '%s'", datagram_str);
-                        isOK = false;
-                        break;
-                    }
-
-                    if (p[0] == ' ') {
-                        p++;
-                    }
-                    isOK = sscanf(p, "%X", items + item_count) == 1;
-                    item_count++;
-
-                    if (!isOK) {
-                        // Don't think it will be happened
-                        rpc_log(LOG_ERROR, "non-hexdecimal char at '%s'", datagram_str);
-                        break;
-                    }
+                if (p[0] == ' ') {
+                    p++;
                 }
-            }
+                isOK = sscanf(p, "%X", items + item_count) == 1;
+                item_count++;
 
-            // check CRC and item count
-            if (isOK) {
-                // seq msg_id crc, at least 3 items.
-                // crc checked
-                isOK = item_count >= 3 && mcu_crc32_soft(items, item_count) == 0;
                 if (!isOK) {
-                    rpc_log(LOG_ERROR, "item too less or CRC mismatch at '%s'", datagram_str);
+                    // Don't think it will be happened
+                    rpc_log(LOG_ERROR, "non-hexdecimal char at '%s'", datagram_str);
+                    break;
                 }
             }
-            if (isOK) {
-                // dispatch the message
-                serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3);
-            } else {
-                // to record mismatch datagram.
-                //report_mismatch_raw_datagram(buf, buf_size);
-            }
-        } // end of command/response datagram
-
-        // skipped byte recording
-        if (skipped_count) {
-            //report_skipped_bytes_before_get_raw_datagram(skipped_count);
         }
-    } // // end of echo datagram
+
+        // check CRC and item count
+        if (isOK) {
+            // seq msg_id crc, at least 3 items.
+            // crc checked
+            isOK = item_count >= 3 && mcu_crc32_soft(items, item_count) == 0;
+            if (!isOK) {
+                rpc_log(LOG_ERROR, "item too less or CRC mismatch at '%s'", datagram_str);
+            }
+        }
+        if (isOK) {
+            // dispatch the message
+            serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3);
+        } else {
+            record_mismatched_datagram(1);
+        }
+    } // for each datagram
 
 }
 
@@ -377,3 +391,4 @@ __attribute__((weak)) void rpc_logv(log_level_t log_level, const char *tag, cons
 }
 
 #endif
+

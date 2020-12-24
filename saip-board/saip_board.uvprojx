@@ -449,6 +449,16 @@
               <FileType>5</FileType>
               <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
             </File>
+            <File>
+              <FileName>mcu-connectivity-test-result.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-connectivity-test-result.h</FilePath>
+            </File>
+            <File>
+              <FileName>run_info_result_desc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\run_info_result_desc.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -510,11 +520,6 @@
               <FilePath>..\common\include\mcu-common.h</FilePath>
             </File>
             <File>
-              <FileName>mcu-connectivity-test-result.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\mcu-connectivity-test-result.h</FilePath>
-            </File>
-            <File>
               <FileName>service_set_mcu_log_level.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\service_set_mcu_log_level.c</FilePath>
@@ -523,6 +528,11 @@
               <FileName>service_get_hw_fw_version.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\saip-board-services\service_get_hw_fw_version.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_get_run_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_get_run_info.c</FilePath>
             </File>
           </Files>
         </Group>
