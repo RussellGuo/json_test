@@ -17,7 +17,16 @@
 extern "C" {
 #endif
 
-// TODO: everything
+// The index of the connectivity test result array. Currently 6 are defined and 4 are reserved
+typedef enum {
+    CONTIVITY_TEST_RESULT_IDX_1             = 0,
+    CONTIVITY_TEST_RESULT_IDX_2             = 1,
+    CONTIVITY_TEST_RESULT_IDX_3             = 2,
+    CONTIVITY_TEST_RESULT_IDX_I2C           = 3,
+    CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR = 4,
+    CONTIVITY_TEST_RESULT_IDX_T_SENSOR      = 5,
+    CONTIVITY_TEST_RESULT_IDX_MAX           = 9,
+} connectivity_test_result_idx_t;
 
 #ifdef __cplusplus
 }

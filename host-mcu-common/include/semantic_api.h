@@ -106,7 +106,7 @@ bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_par
 bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool ConnectivityTest(serial_datagram_item_t seq);
 bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq);
-bool SavePsnIntoEeprom(const uint8_t *data_array, serial_datagram_item_t seq);
+bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'

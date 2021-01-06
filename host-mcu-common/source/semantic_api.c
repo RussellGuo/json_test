@@ -404,20 +404,24 @@ bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq)
     return ret;
 }
 
-bool SavePsnIntoEeprom(const uint8_t *data_array, serial_datagram_item_t seq)
+bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq)
 {
+    // convert psn string into a size-fixed byte array
+    uint8_t psn_byte_array[PSN_BYTE_COUNT];
+    strncpy((char *)psn_byte_array, psn, sizeof psn_byte_array);
+
     // pack the input data
-    serial_datagram_item_t data_bytes[PSN_WORD_COUNT];
+    serial_datagram_item_t psn_word_array[PSN_WORD_COUNT];
     for (int i = 0; i < PSN_WORD_COUNT; i++) {
         serial_datagram_item_t word = 0;
         for (int j = sizeof(serial_datagram_item_t) - 1; j >= 0; j--) {
             word <<= 8; // assume 8 bits/byte
-            word |= data_array[i * sizeof(serial_datagram_item_t) + j];
+            word |= psn_byte_array[i * sizeof(serial_datagram_item_t) + j];
         }
-        data_bytes[i] = word;
+        psn_word_array[i] = word;
     }
 
-    bool ret = serial_datagram_send(seq, SAVE_PSN_INTO_EEPROM, data_bytes, PSN_WORD_COUNT);
+    bool ret = serial_datagram_send(seq, SAVE_PSN_INTO_EEPROM, psn_word_array, PSN_WORD_COUNT);
     return ret;
 }
 
