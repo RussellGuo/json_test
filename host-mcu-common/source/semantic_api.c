@@ -35,7 +35,7 @@
 #endif
 
 // generic processing functions
-static MSG_PROC_RET_TYPE      req_hw_fw_version_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE         req_fw_version_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE           req_run_info_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE         set_led_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE       set_laser_config_msg_proc(MSG_PROC_PROTOTYPE);
@@ -59,7 +59,7 @@ static const sematic_layer_info_t *get_sematic_layer_info(serial_datagram_item_t
 
 // Here is the table
 static const sematic_layer_info_t sematic_layer_info_tab[] = {
-    { REQ_HW_FW_VERSION     ,  true,               0,                               2,     req_hw_fw_version_msg_proc },
+    { REQ_FW_VERSION        ,  true,               0,                               2,        req_fw_version_msg_proc },
     { REQ_RUN_INFO          ,  true,               0,           RUN_INFO_RESULT_COUNT,          req_run_info_msg_proc },
     { SET_LED_CONFIG        ,  true,               2,                               0,        set_led_config_msg_proc },
     { SET_LASER_CONFIG      ,  true,               2,                               0,      set_laser_config_msg_proc },
@@ -155,13 +155,13 @@ void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_data
 #if PROTOCOL_SERVER_SIDE
 
 
-// a stub of function 'ReplyToReqHwFwVersion'
-__attribute__((weak)) void ReplyToReqHwFwVersion(
+// a stub of function 'ReplyToReqFwVersion'
+__attribute__((weak)) void ReplyToReqFwVersion(
     res_error_code_t *error_code,
-    uint32_t *HwVersion, uint32_t *FwVersion,
+    uint32_t *VersionDate, uint32_t *FwVersion,
     serial_datagram_item_t seq)
 {
-    *HwVersion = 0x55AA; *FwVersion = 0xAA55; // test value
+    *VersionDate = 0x55AA; *FwVersion = 0xAA55; // test value
     *error_code = ERR_NO_IMPL;
     (void)seq;
 }
@@ -241,15 +241,15 @@ __attribute__((weak)) void ReplyToSavePsnIntoEeprom(
 }
 
 
-// generic processing function to specific function for message REQ_HW_FW_VERSION
-static res_error_code_t req_hw_fw_version_msg_proc(
+// generic processing function to specific function for message REQ_FW_VERSION
+static res_error_code_t req_fw_version_msg_proc(
     const serial_datagram_item_t input_item_list[],
     serial_datagram_item_t output_item_list[],
     const serial_datagram_item_t seq)
 {
     (void)input_item_list;
     res_error_code_t error_code = ERR_UNKNOWN;
-    ReplyToReqHwFwVersion(&error_code, output_item_list + 0, output_item_list + 1, seq);
+    ReplyToReqFwVersion(&error_code, output_item_list + 0, output_item_list + 1, seq);
     return error_code;
 }
 
@@ -358,9 +358,9 @@ static res_error_code_t save_psn_into_eeprom_msg_proc(
 
 // host side, send request to the MCU
 // These functions are specific functions, converted into general data transmission
-bool ReqHwFwVersion(serial_datagram_item_t seq)
+bool ReqFwVersion(serial_datagram_item_t seq)
 {
-    bool ret = serial_datagram_send(seq, REQ_HW_FW_VERSION, NULL, 0);
+    bool ret = serial_datagram_send(seq, REQ_FW_VERSION, NULL, 0);
     return ret;
 }
 
@@ -426,11 +426,11 @@ bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq)
 }
 
 
-// generic processing function to specific function for message REQ_HW_FW_VERSION
-static void req_hw_fw_version_msg_proc(
+// generic processing function to specific function for message REQ_FW_VERSION
+static void req_fw_version_msg_proc(
     const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
 {
-    DispatchReplyOfReqHwFwVersion(error_code, input_item_list[0], input_item_list[1], seq);
+    DispatchReplyOfReqFwVersion(error_code, input_item_list[0], input_item_list[1], seq);
 }
 
 // generic processing function to specific function for message REQ_RUN_INFO
@@ -488,11 +488,11 @@ static void save_psn_into_eeprom_msg_proc(
 }
 
 
-// a stub of function 'DispatchReplyOfReqHwFwVersion'
-__attribute__((weak)) void DispatchReplyOfReqHwFwVersion(
-    const res_error_code_t error_code, const uint32_t HwVersion, const uint32_t FwVersion, serial_datagram_item_t seq)
+// a stub of function 'DispatchReplyOfReqFwVersion'
+__attribute__((weak)) void DispatchReplyOfReqFwVersion(
+    const res_error_code_t error_code, const uint32_t VersionDate, const uint32_t FwVersion, serial_datagram_item_t seq)
 {
-    fprintf(stderr, "received MCU hw/fw version %04X %04X, error_code %u, seq %u\n", HwVersion, FwVersion, error_code, seq);
+    fprintf(stderr, "received MCU hw/fw version %04X %04X, error_code %u, seq %u\n", VersionDate, FwVersion, error_code, seq);
 }
 
 // a stub of function 'DispatchReplyOfRunInfo'

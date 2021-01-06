@@ -170,7 +170,7 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 
                 DCD     0, 0, 0, 0, 0, 0
 __SAIP_MCU_VERSION
-                DCD     HW_VERSION          ; comes from Options for target -> ASM conditional Assembly Control Symbols -> define
+                DCD     VERSION_DATE        ; comes from Options for target -> ASM conditional Assembly Control Symbols -> define
                 DCD     FW_VERSION          ; same as above
                 EXPORT  __SAIP_MCU_VERSION  ; will be used in C.
 

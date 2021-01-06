@@ -528,8 +528,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\saip-board-services\service_get_hw_fw_version.c</PathWithFileName>
-      <FilenameWithoutPath>service_get_hw_fw_version.c</FilenameWithoutPath>
+      <PathWithFileName>..\saip-board-services\service_get_fw_version.c</PathWithFileName>
+      <FilenameWithoutPath>service_get_fw_version.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

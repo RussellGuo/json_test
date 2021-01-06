@@ -56,7 +56,7 @@ typedef enum {
 
 // the msg id, request id mostly
 typedef enum {
-    REQ_HW_FW_VERSION      =  8,
+    REQ_FW_VERSION         =  8,
     REQ_RUN_INFO           =  9,
     SET_LED_CONFIG         = 10,
     SET_LASER_CONFIG       = 11,
@@ -80,16 +80,16 @@ typedef enum {
 // This description deliberately hides the interactive process of the datagram
 // layer, presenting a simple and necessary interface to the user.
 
-// This series of functions, 'ReqHwFwVersion', is the interface to "started from the host side".
-// The 'ReplyToReqHwFwVersion' series of functions are the interface to the "execution part of the MCU".
-// After "return to host side", the 'DispatchReplyOfReqHwFwVersion' series functions on the host will be invoked.
+// This series of functions, 'ReqFwVersion', is the interface to "started from the host side".
+// The 'ReplyToReqFwVersion' series of functions are the interface to the "execution part of the MCU".
+// After "return to host side", the 'DispatchReplyOfReqFwVersion' series functions on the host will be invoked.
 
-// The 'ReqHwFwVersion' series of functions are implemented in this semantic layer, and users only need to invoke them.
-// the 'ReplyToReqHwFwVersion' series of functions need to be finalized in various related modules on the MCU side.
+// The 'ReqFwVersion' series of functions are implemented in this semantic layer, and users only need to invoke them.
+// the 'ReplyToReqFwVersion' series of functions need to be finalized in various related modules on the MCU side.
 // This semantic layer provides an implementation of the 'WEAK' version, which is to test the protocol implementation
 // before the final implementation. After the final version is completed, the "WEAK" version does not need to be deleted,
 // and the linker will automatically select the version other than "WEAK".
-// the 'DispatchReplyOfReqHwFwVersion' series of functions that need to be finalized in various related modules on the Host side.
+// the 'DispatchReplyOfReqFwVersion' series of functions that need to be finalized in various related modules on the Host side.
 // This semantic layer provides an implementation of the 'WEAK' version. The situation of the 'WEAK' version is the same as
 // the situation in the previous paragraph.
 
@@ -99,7 +99,7 @@ typedef enum {
 // The seq is an ID, and the same seq will be returned in the DispatchReplyOfXXX of the same action.
 // Their parameters are consistent with the documentation. Please refer to the documentation
 // "SaIP communication protocol between the host and the MCU"
-bool ReqHwFwVersion(serial_datagram_item_t seq);
+bool ReqFwVersion(serial_datagram_item_t seq);
 bool ReqRunInfo(serial_datagram_item_t seq);
 bool SetLedConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
 bool SetLaserConfig(serial_datagram_item_t mode, serial_datagram_item_t mode_param, serial_datagram_item_t seq);
@@ -110,7 +110,7 @@ bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
-void DispatchReplyOfReqHwFwVersion(const res_error_code_t error_code, const uint32_t HwVersion, const uint32_t FwVersion, serial_datagram_item_t seq);
+void DispatchReplyOfReqFwVersion(const res_error_code_t error_code, const uint32_t VersionDate, const uint32_t FwVersion, serial_datagram_item_t seq);
 void DispatchReplyOfRunInfo(const res_error_code_t error_code, const uint32_t *run_info_list, serial_datagram_item_t seq);
 void DispatchReplyOfSetLedConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetLaserConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
@@ -122,13 +122,13 @@ void DispatchReplyOfSavePsnIntoEeprom(
     const res_error_code_t error_code, const bool return_value, serial_datagram_item_t seq);
 #else
 
-// The interface to the "execution part of the MCU". The ReplyToReqHwFwVersion series of functions are the
+// The interface to the "execution part of the MCU". The ReplyToReqFwVersion series of functions are the
 // actual MCU execution functions: parameters are passed in, and the return value and error code are obtained.
 // [out]error_code: the pointer of the error code.
 // [out]every pointer without const qualifier is [out]
-// most parameters are passed from the 'ReqHwFwVersion' likes function,
+// most parameters are passed from the 'ReqFwVersion' likes function,
 //  and [out]values will be returned to 'DispatchReplyOfXXX'
-void ReplyToReqHwFwVersion(res_error_code_t *error_code, uint32_t *HwVersion, uint32_t *FwVersion, serial_datagram_item_t seq);
+void ReplyToReqFwVersion(res_error_code_t *error_code, uint32_t *VersionDate, uint32_t *FwVersion, serial_datagram_item_t seq);
 void ReplyToRunInfo(res_error_code_t *error_code, uint32_t *run_info_list, serial_datagram_item_t seq);
 void ReplyToSetLedConfig(
     serial_datagram_item_t mode, serial_datagram_item_t mode_param, res_error_code_t *error_code, serial_datagram_item_t seq);
