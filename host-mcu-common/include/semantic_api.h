@@ -39,15 +39,6 @@ typedef enum {
 // mode for the LED, Laser and the Flash light
 #define MCU_MODULE_OFF 0
 
-
-#define LASER_MODE_USER1                0x11
-#define LASER_MODE_USER2                0x12
-#define LASER_MODE_FACTORY_TEST         0x18
-
-#define FLASHLIGHT_MODE_USER1           0x21
-#define FLASHLIGHT_MODE_USER2           0x22
-#define FLASHLIGHT_MODE_FACTORY_TEST    0x28
-
 #define RUN_INFO_RESULT_COUNT          10
 #define CONNECTIVITY_TEST_RESULT_COUNT 10
 
@@ -64,7 +55,8 @@ typedef enum {
     CONNECTIVITY_TEST      = 13,
     SET_MCU_LOG_LEVEL      = 14, // as its name
     SAVE_PSN_INTO_EEPROM   = 15, // SMT phase, write 32 bytes PSN
- // SET_RUN_STATUS         = 16, // SMT? MMI? NORMAL? W.I.P.
+    SET_CAMERA_CONFIG      = 16,
+ // SET_RUN_STATUS         = 31, // SMT? MMI? NORMAL? W.I.P.
 } msg_id_t;
 
 // MCU is the SERVER
@@ -107,6 +99,7 @@ bool SetFlashlightConfig(serial_datagram_item_t mode, serial_datagram_item_t mod
 bool ConnectivityTest(serial_datagram_item_t seq);
 bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq);
 bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq);
+bool SetCameraConfig(serial_datagram_item_t mode, serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
@@ -120,6 +113,8 @@ void DispatchReplyOfConnectivityTest(
 void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSavePsnIntoEeprom(
     const res_error_code_t error_code, const bool return_value, serial_datagram_item_t seq);
+void DispatchReplyOfSetCameraConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
+
 #else
 
 // The interface to the "execution part of the MCU". The ReplyToReqFwVersion series of functions are the
@@ -140,6 +135,7 @@ void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_l
 void ReplyToSetMcuLogLevel(res_error_code_t *error_code, serial_datagram_item_t log_level, serial_datagram_item_t seq);
 void ReplyToSavePsnIntoEeprom(
     res_error_code_t *error_code, const uint8_t *psn_byte_array, bool *return_value, serial_datagram_item_t seq);
+void ReplyToSetCameraConfig(serial_datagram_item_t mode, res_error_code_t *error_code, serial_datagram_item_t seq);
 
 #endif
 

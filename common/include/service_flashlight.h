@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "mcu-flashlight-mode.h"
+
 // API part
 
 // start the flashlight service, should be invoked at the beginning.

@@ -43,6 +43,7 @@ static MSG_PROC_RET_TYPE  set_flashlight_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE      connectivity_test_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE      set_mcu_log_level_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE   save_psn_into_eeprom_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE      set_camera_config_msg_proc(MSG_PROC_PROTOTYPE);
 
 
 typedef MSG_PROC_RET_TYPE (*semantic_msg_process_t)(MSG_PROC_PROTOTYPE);
@@ -67,6 +68,7 @@ static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { CONNECTIVITY_TEST     ,  true,               0,  CONNECTIVITY_TEST_RESULT_COUNT,     connectivity_test_msg_proc },
     { SET_MCU_LOG_LEVEL     ,  true,               1,                               0,     set_mcu_log_level_msg_proc },
     { SAVE_PSN_INTO_EEPROM  ,  true,  PSN_WORD_COUNT,                               1,  save_psn_into_eeprom_msg_proc },
+    { SET_CAMERA_CONFIG     ,  true,               1,                               0,     set_camera_config_msg_proc },
 };
 
 // find the info by msg_id
@@ -240,6 +242,13 @@ __attribute__((weak)) void ReplyToSavePsnIntoEeprom(
     (void)psn_byte_array;
 }
 
+// a stub of function 'ReplyToSetCameraConfig'
+__attribute__((weak)) void ReplyToSetCameraConfig(serial_datagram_item_t mode, res_error_code_t *error_code,  serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void) mode; (void)seq;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static res_error_code_t req_fw_version_msg_proc(
@@ -350,6 +359,18 @@ static res_error_code_t save_psn_into_eeprom_msg_proc(
     return error_code;
 }
 
+// generic processing function to specific function for message SET_CAMERA_CONFIG
+static res_error_code_t set_camera_config_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)output_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+    ReplyToSetCameraConfig(input_item_list[0], &error_code, seq);
+    return error_code;
+}
+
 #endif
 
 
@@ -425,6 +446,12 @@ bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq)
     return ret;
 }
 
+bool SetCameraConfig(serial_datagram_item_t mode, serial_datagram_item_t seq)
+{
+    bool ret = serial_datagram_send(seq, SET_CAMERA_CONFIG, &mode, 1);
+    return ret;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static void req_fw_version_msg_proc(
@@ -487,12 +514,20 @@ static void save_psn_into_eeprom_msg_proc(
     DispatchReplyOfSavePsnIntoEeprom(error_code, (bool)input_item_list[0], seq);
 }
 
+// generic processing function to specific function for message SET_CAMERA_CONFIG
+static void set_camera_config_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    DispatchReplyOfSetCameraConfig(error_code, seq);
+}
+
 
 // a stub of function 'DispatchReplyOfReqFwVersion'
 __attribute__((weak)) void DispatchReplyOfReqFwVersion(
     const res_error_code_t error_code, const uint32_t VersionDate, const uint32_t FwVersion, serial_datagram_item_t seq)
 {
-    fprintf(stderr, "received MCU hw/fw version %04X %04X, error_code %u, seq %u\n", VersionDate, FwVersion, error_code, seq);
+    fprintf(stderr, "received MCU fw version %04X %04X, error_code %u, seq %u\n", VersionDate, FwVersion, error_code, seq);
 }
 
 // a stub of function 'DispatchReplyOfRunInfo'
@@ -547,6 +582,12 @@ __attribute__((weak)) void DispatchReplyOfSavePsnIntoEeprom(
     bool return_value, serial_datagram_item_t seq)
 {
     fprintf(stderr, "received MCU save PSN into EEPROM error_code %u, return value %d seq %u\n", error_code, return_value, seq);
+}
+
+// a stub of function 'DispatchReplyOfSetCameraConfig'
+__attribute__((weak)) void DispatchReplyOfSetCameraConfig(const res_error_code_t error_code, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU set camera config error_code %u, seq %u\n", error_code, seq);
 }
 
 #endif

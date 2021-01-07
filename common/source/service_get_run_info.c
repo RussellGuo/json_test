@@ -14,6 +14,8 @@
 #include "semantic_api.h"
 #include "run_info_result_desc.h"
 
+#include "cmsis_os2.h"
+
 #include <string.h>
 
 // ReplyToRunInfo, the function is in the API layer of the host-MCU communication
@@ -31,6 +33,7 @@ void ReplyToRunInfo(res_error_code_t *error_code, uint32_t *run_info_list, seria
     const serial_datagram_item_t *tab = get_local_run_info_tab();
     // copy them to the host
     memcpy(run_info_list, tab, sizeof(run_info_list[0]) * RUN_INFO_RESULT_COUNT);
+    run_info_list[RUN_INFO_IDX_TICK_COUNT] = osKernelGetTickCount();
     *error_code = NO_ERROR;
     (void)seq;
 }

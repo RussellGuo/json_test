@@ -450,6 +450,21 @@
               <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
             </File>
             <File>
+              <FileName>mcu-laser-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-laser-mode.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu-flashlight-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-flashlight-mode.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu-camera-mode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\host-mcu-common\include\mcu-camera-mode.h</FilePath>
+            </File>
+            <File>
               <FileName>mcu-connectivity-test-result.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\host-mcu-common\include\mcu-connectivity-test-result.h</FilePath>
@@ -485,14 +500,14 @@
               <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
             </File>
             <File>
-              <FileName>service_led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\common\source\service_led.c</FilePath>
-            </File>
-            <File>
               <FileName>service_led.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\common\include\service_led.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\service_led.c</FilePath>
             </File>
             <File>
               <FileName>service_laser.h</FileName>
@@ -563,6 +578,11 @@
               <FileName>service_save_psn_into_eeprom_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\saip-board-services\service_save_psn_into_eeprom_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_camera_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\saip-board-services\service_camera_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_pseudo_flashlight_hw.c</FileName>

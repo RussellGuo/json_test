@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "mcu-laser-mode.h"
+
 // API part
 
 // start the laser service, should be invoked at the beginning.
