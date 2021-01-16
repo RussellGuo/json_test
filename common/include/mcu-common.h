@@ -7,6 +7,14 @@
  *      Author: Guo Qiang
  */
 
+#ifndef __MCU_COMMON_H__
+#define __MCU_COMMON_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include "cmsis_os2.h"
 #include "stdbool.h"
 
@@ -32,3 +40,10 @@ inline static bool wait_flag(uint32_t flag)
     bool ret = wait_flag_sleep(flag, osWaitForever);
     return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif // __MCU_COMMON_H__

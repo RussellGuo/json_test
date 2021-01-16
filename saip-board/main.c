@@ -2,6 +2,7 @@
 #include "cmsis_os2.h"
 
 #include "uart_io_api.h"
+#include "i2c-base.h"
 
 #include "task_serial_datagram_recv.h"
 
@@ -19,6 +20,7 @@ __NO_RETURN int main(void)
     set_rpc_log_level(LOG_FATAL);
 
     init_uart_io_api();
+    init_i2c_buses();
 
     init_thread_of_serial_datagram_recv();
 
@@ -26,6 +28,6 @@ __NO_RETURN int main(void)
     init_thread_of_service_laser();
     init_thread_of_service_flashlight();
 
-    osKernelStart();                                 // start RTX kernel
+    osKernelStart();                                 // start OS
     while(1);
 }

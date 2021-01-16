@@ -395,9 +395,49 @@
           <GroupName>driver</GroupName>
           <Files>
             <File>
+              <FileName>mcu-hw-common.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\mcu-hw-common.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu-hw-common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\mcu-hw-common.c</FilePath>
+            </File>
+            <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\common\source\uart_io_API.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c-base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\i2c-base.h</FilePath>
+            </File>
+            <File>
+              <FileName>i2c-base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\i2c-base.c</FilePath>
+            </File>
+            <File>
+              <FileName>t-sensor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\t-sensor.h</FilePath>
+            </File>
+            <File>
+              <FileName>t-sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\t-sensor.c</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\common\include\eeprom.h</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\common\source\eeprom.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,3 +1,6 @@
+// By Guo Qiang, XBD, Huaqin, 2020-11-19
+// a interrupt dirven UART low-level driver
+
 #include "uart_io_api.h"
 
 #include "cmsis_os2.h"
