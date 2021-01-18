@@ -19,20 +19,6 @@
 #define UART0_GPIO_PORT              GPIOA
 #define UART0_GPIO_CLK               RCU_GPIOA
 
-#if defined(GD32E103R_START)
-
-#define USE_UART2
-
-#define USART                       USART2
-#define USART_IRQn                  USART2_IRQn
-
-#define UART_CLK                    RCU_USART2
-#define UART_TX_PIN                 UART2_TX_PIN
-#define UART_RX_PIN                 UART2_RX_PIN
-#define UART_GPIO_PORT              UART2_GPIO_PORT
-#define UART_GPIO_CLK               UART2_GPIO_CLK
-
-#elif defined(SAIP_BOARD)
 
 #define USE_UART0
 
@@ -45,11 +31,6 @@
 #define UART_GPIO_PORT              UART0_GPIO_PORT
 #define UART_GPIO_CLK               UART0_GPIO_CLK
 
-#else
-
-#error "for now, we support START board and SAIP_BOARD only"
-
-#endif
 
 #define MAX_BYTE_RECV 136 // same as max datagram size
 #define MAX_BYTE_SEND 136 // same as max datagram size

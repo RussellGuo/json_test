@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>HXTAL_VALUE=12000000,SAIP_BOARD,IS_MCU_SIDE=1</Define>
+              <Define>HXTAL_VALUE=12000000,IS_MCU_SIDE=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\common\include;..\host-mcu-common\include</IncludePath>
+              <IncludePath>..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -389,55 +389,65 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
+            <File>
+              <FileName>task_serial_datagram_recv.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\task_serial_datagram_recv.h</FilePath>
+            </File>
+            <File>
+              <FileName>task_serial_datagram_recv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\task_serial_datagram_recv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>driver</GroupName>
+          <GroupName>mcu-driver</GroupName>
           <Files>
             <File>
               <FileName>mcu-hw-common.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\mcu-hw-common.h</FilePath>
+              <FilePath>..\mcu-driver\include\mcu-hw-common.h</FilePath>
             </File>
             <File>
               <FileName>mcu-hw-common.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\mcu-hw-common.c</FilePath>
+              <FilePath>..\mcu-driver\source\mcu-hw-common.c</FilePath>
             </File>
             <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\uart_io_API.c</FilePath>
+              <FilePath>..\mcu-driver\source\uart_io_API.c</FilePath>
             </File>
             <File>
               <FileName>i2c-base.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\i2c-base.h</FilePath>
+              <FilePath>..\mcu-driver\include\i2c-base.h</FilePath>
             </File>
             <File>
               <FileName>i2c-base.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\i2c-base.c</FilePath>
+              <FilePath>..\mcu-driver\source\i2c-base.c</FilePath>
             </File>
             <File>
               <FileName>t-sensor.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\t-sensor.h</FilePath>
+              <FilePath>..\mcu-driver\include\t-sensor.h</FilePath>
             </File>
             <File>
               <FileName>t-sensor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\t-sensor.c</FilePath>
+              <FilePath>..\mcu-driver\source\t-sensor.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\eeprom.h</FilePath>
+              <FilePath>..\mcu-driver\include\eeprom.h</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\eeprom.c</FilePath>
+              <FilePath>..\mcu-driver\source\eeprom.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -517,77 +527,57 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>mcu-task</GroupName>
-          <Files>
-            <File>
-              <FileName>task_serial_datagram_recv.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\common\source\task_serial_datagram_recv.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_serial_datagram_recv.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\common\include\task_serial_datagram_recv.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>mcu-services</GroupName>
           <Files>
             <File>
-              <FileName>mcu-led-mode.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\mcu-led-mode.h</FilePath>
-            </File>
-            <File>
               <FileName>service_led.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\service_led.h</FilePath>
+              <FilePath>..\mcu-services\include\service_led.h</FilePath>
             </File>
             <File>
               <FileName>service_led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\service_led.c</FilePath>
+              <FilePath>..\mcu-services\source\service_led.c</FilePath>
             </File>
             <File>
               <FileName>service_laser.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\service_laser.h</FilePath>
+              <FilePath>..\mcu-services\include\service_laser.h</FilePath>
             </File>
             <File>
               <FileName>service_laser.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\service_laser.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_flashlight.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\common\include\service_flashlight.h</FilePath>
-            </File>
-            <File>
-              <FileName>service_flashlight.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\common\source\service_flashlight.c</FilePath>
+              <FilePath>..\mcu-services\source\service_laser.c</FilePath>
             </File>
             <File>
               <FileName>mcu-common.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\common\include\mcu-common.h</FilePath>
+              <FilePath>..\mcu-services\include\mcu-common.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_flashlight.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\mcu-services\include\service_flashlight.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_flashlight.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu-services\source\service_flashlight.c</FilePath>
             </File>
             <File>
               <FileName>service_set_mcu_log_level.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\service_set_mcu_log_level.c</FilePath>
+              <FilePath>..\mcu-services\source\service_set_mcu_log_level.c</FilePath>
             </File>
             <File>
               <FileName>service_get_fw_version.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_get_fw_version.c</FilePath>
+              <FilePath>..\mcu-services\source\service_get_fw_version.c</FilePath>
             </File>
             <File>
               <FileName>service_get_run_info.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\source\service_get_run_info.c</FilePath>
+              <FilePath>..\mcu-services\source\service_get_run_info.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -597,52 +587,32 @@
             <File>
               <FileName>service_flashlight_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_flashlight_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_flashlight_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_laser_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_laser_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_laser_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_led_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_led_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_led_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_connectivity_test_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_connectivity_test_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_connectivity_test_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_save_psn_into_eeprom_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_save_psn_into_eeprom_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_save_psn_into_eeprom_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_camera_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\saip-board-services\service_camera_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_pseudo_flashlight_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\start-board-services\service_pseudo_flashlight_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_pseudo_laser_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\start-board-services\service_pseudo_laser_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_pseudo_led_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\start-board-services\service_pseudo_led_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_pseudo_connectivity_test_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\start-board-services\service_pseudo_connectivity_test_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_camera_hw.c</FilePath>
             </File>
           </Files>
         </Group>

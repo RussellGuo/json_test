@@ -7,8 +7,6 @@
  *      Author: Guo Qiang
  */
  
-#if defined(SAIP_BOARD) // same name file for different board
-
 #include "service_flashlight.h"
 
 #include "cmsis_os2.h"
@@ -42,5 +40,3 @@ void flashlight_running_until_new_request_arrived(uint32_t flashlight_mode, uint
 {
     wait_flag(new_request_flag);
 }
-
-#endif

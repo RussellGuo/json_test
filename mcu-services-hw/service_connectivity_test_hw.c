@@ -7,8 +7,6 @@
  *      Author: Guo Qiang
  */
 
-#if defined(SAIP_BOARD)
-
 #include "semantic_api.h"
 #include "mcu-connectivity-test-result.h"
 
@@ -44,5 +42,3 @@ void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_l
     bool isOK = get_temperature(&temp);
     test_item_list[CONTIVITY_TEST_RESULT_IDX_T_SENSOR] = isOK ? (uint32_t) temp : (uint32_t) -1;
 }
-
-#endif

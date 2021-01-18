@@ -7,8 +7,6 @@
  *      Author: Guo Qiang
  */
 
-#if defined(SAIP_BOARD) // same name file for different board
-
 #include "cmsis_os2.h"
 #include "gd32e10x.h"
 
@@ -118,5 +116,3 @@ void led_running_until_new_request_arrived(uint32_t led_mode, uint32_t led_mode_
     // waitting next request
     wait_flag(new_request_flag);
 }
-
-#endif

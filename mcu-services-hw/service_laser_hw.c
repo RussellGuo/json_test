@@ -8,8 +8,6 @@
  *      Author: Guo Qiang
  */
 
-#if defined(SAIP_BOARD) // same name file for different board
-
 #include "service_laser.h"
 
 #include "cmsis_os2.h"
@@ -139,5 +137,3 @@ void laser_running_until_new_request_arrived(uint32_t laser_mode, uint32_t laser
 
     wait_flag(new_request_flag);
 }
-
-#endif

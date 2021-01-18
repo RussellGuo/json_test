@@ -11,8 +11,6 @@
  *      Author: Guo Qiang
  */
 
-#if defined(SAIP_BOARD)
-
 #include "semantic_api.h"
 
 #include "cmsis_os2.h"
@@ -49,5 +47,3 @@ void ReplyToSetCameraConfig(serial_datagram_item_t mode, res_error_code_t *error
 
     }
 }
-
-#endif
