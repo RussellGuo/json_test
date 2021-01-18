@@ -9,6 +9,8 @@
 #include <string.h>
 #include "run_info_result_desc.h"
 
+#include "mcu-hw-common.h"
+
 #define UART2_TX_PIN                 GPIO_PIN_10
 #define UART2_RX_PIN                 GPIO_PIN_11
 #define UART2_GPIO_PORT              GPIOB
@@ -194,22 +196,24 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
 }
 
 
+static rcu_periph_enum rpu_tab[] = {
+    UART_GPIO_CLK,   // GPIO clock
+    UART_CLK,        // USART clock
+};
+
+static const struct mcu_pin_t uart_pin_tab[] = {
+    {UART_GPIO_PORT, UART_TX_PIN, GPIO_MODE_AF_PP      }, // USARTx_Tx
+    {UART_GPIO_PORT, UART_RX_PIN, GPIO_MODE_IN_FLOATING}, // USARTx_Rx
+};
 
 // pin define for UART
 static void init_uart_pins_uart(void)
 {
-    /* enable GPIO clock */
-    rcu_periph_clock_enable(UART_GPIO_CLK);
-
-    /* enable USART clock */
-    rcu_periph_clock_enable(UART_CLK);
+    // power on the clock
+    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
 
     /* connect port to USARTx_Tx */
-    gpio_init(UART_GPIO_PORT, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, UART_TX_PIN);
-
-    /* connect port to USARTx_Rx */
-    gpio_init(UART_GPIO_PORT, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, UART_RX_PIN);
-
+    setup_pins(uart_pin_tab, sizeof(uart_pin_tab) / sizeof(uart_pin_tab[0]));
 }
 
 // controller configuration for UART

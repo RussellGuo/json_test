@@ -15,8 +15,10 @@
 #include "mcu-led-mode.h"
 #include "mcu-common.h"
 
+#include "mcu-hw-common.h"
+
 // LED GPIO power control
-static rcu_periph_enum rpu_tab[] = {
+static const rcu_periph_enum rpu_tab[] = {
     RCU_GPIOA,
     RCU_GPIOB,
 };
@@ -24,16 +26,13 @@ static rcu_periph_enum rpu_tab[] = {
 #define LED_COUNT 6
 
 // LED GPIO PIN definition
-static const struct {
-    uint32_t pin_port;
-    uint32_t pin_no;
-} led_pin_tab[LED_COUNT] = {
-    { GPIOB, GPIO_PIN_0 },  // LED0, red
-    { GPIOA, GPIO_PIN_7 },  // LED0, green
-    { GPIOA, GPIO_PIN_6 },  // LED0, blue
-    { GPIOA, GPIO_PIN_5 },  // LED1, red
-    { GPIOA, GPIO_PIN_4 },  // LED1, green
-    { GPIOA, GPIO_PIN_3 },  // LED1, blue
+static const struct mcu_pin_t led_pin_tab[LED_COUNT] = {
+    { GPIOB, GPIO_PIN_0 , GPIO_MODE_OUT_PP},  // LED0, red
+    { GPIOA, GPIO_PIN_7 , GPIO_MODE_OUT_PP},  // LED0, green
+    { GPIOA, GPIO_PIN_6 , GPIO_MODE_OUT_PP},  // LED0, blue
+    { GPIOA, GPIO_PIN_5 , GPIO_MODE_OUT_PP},  // LED1, red
+    { GPIOA, GPIO_PIN_4 , GPIO_MODE_OUT_PP},  // LED1, green
+    { GPIOA, GPIO_PIN_3 , GPIO_MODE_OUT_PP},  // LED1, blue
 };
 
 
@@ -41,14 +40,10 @@ static const struct {
 void led_hw_init(void)
 {
     /* configure RCU of LED GPIO port ON*/
-    for (int i = 0; i < sizeof(rpu_tab) / sizeof(rpu_tab[0]); i++) {
-        rcu_periph_clock_enable(rpu_tab[i]);
-    }
+    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
 
     /* configure LEDs GPIO port as output*/
-    for (int i = 0; i < LED_COUNT; i++) {
-        gpio_init(led_pin_tab[i].pin_port, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, led_pin_tab[i].pin_no);
-    }
+    setup_pins(led_pin_tab, LED_COUNT);
 }
 
 // turn on/off of the LED

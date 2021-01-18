@@ -16,6 +16,8 @@
 #include "semantic_api.h"
 #include "mcu-common.h"
 
+#include "mcu-hw-common.h"
+
 // The laser needs 10kHz PWM with a 1:1 duty cycle
 //TIMER1CLK = SystemCoreClock / 120 = 1MHz, the PWM frequency is 10kHz.
 //TIMER1 channel1 duty cycle = (50 / 100)* 100  = 50%
@@ -67,7 +69,7 @@ static void pwm_config(void)
 
 
 // LED GPIO power control
-static rcu_periph_enum rpu_tab[] = {
+static const rcu_periph_enum rpu_tab[] = {
     RCU_GPIOA,   // laser enable pin, output
     RCU_GPIOB,   // laser status pin, input
     RCU_AF,      // alternate function
@@ -76,25 +78,21 @@ static rcu_periph_enum rpu_tab[] = {
 
 
 // LASER GPIO PIN definition
-static const struct {
-    uint32_t pin_port;
-    uint32_t pin_no;
-} laser_enable_pin = {GPIOB, GPIO_PIN_14}, // PIN B14
-  laser_status_pin = {GPIOA, GPIO_PIN_0 }, // PIN  A0
-  laser_pwm_pin    = {GPIOA, GPIO_PIN_1} ; // PIN  A1
+static const struct mcu_pin_t
+     laser_enable_pin = {GPIOB, GPIO_PIN_14, GPIO_MODE_OUT_PP      }, // PIN B14
+     laser_status_pin = {GPIOA, GPIO_PIN_0 , GPIO_MODE_IN_FLOATING }, // PIN  A0
+     laser_pwm_pin    = {GPIOA, GPIO_PIN_1 , GPIO_MODE_AF_PP       } ; // PIN  A1
 
 // The hardware initialization function required for the operation of the laser module.
 void laser_hw_init(void)
 {
     /* configure RCU of laser GPIO port */
-    for (int i = 0; i < sizeof(rpu_tab) / sizeof(rpu_tab[0]); i++) {
-        rcu_periph_clock_enable(rpu_tab[i]);
-    }
+    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
 
     /* configure Laser GPIO port */
-    gpio_init(laser_enable_pin.pin_port, GPIO_MODE_OUT_PP     , GPIO_OSPEED_50MHZ, laser_enable_pin.pin_no);
-    gpio_init(laser_status_pin.pin_port, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, laser_status_pin.pin_no);
-    gpio_init(laser_pwm_pin   .pin_port, GPIO_MODE_AF_PP      , GPIO_OSPEED_50MHZ, laser_pwm_pin.pin_no   );
+    setup_pins(&laser_enable_pin, 1);
+    setup_pins(&laser_status_pin, 1);
+    setup_pins(&laser_pwm_pin   , 1);
 
     pwm_config();
 }
