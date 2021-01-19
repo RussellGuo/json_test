@@ -29,6 +29,25 @@ static const osMutexAttr_t mutex_i2c_bus_attr[I2C_BUS_COUNT] = {
     },
 };
 
+
+// return the mutex of the I2C
+// parameter:
+//   [in] i2c_no, should be I2C0 or I2C1
+// return value: the mutex id if OK, NULL otherwise
+static inline osMutexId_t mutex_for_i2c(uint32_t i2c_no)
+{
+    switch(i2c_no) {
+    case I2C0:
+        return mutex_i2c_bus_id[0];
+
+    case I2C1:
+        return mutex_i2c_bus_id[1];
+
+    default:
+        return NULL;
+    }
+}
+
 // make initial preparations for I2C bus access
 // it should be invoked at an earlier time, for example in main()
 // parameter: none
@@ -78,25 +97,29 @@ static const struct mcu_pin_t i2c1_pin_tab[] = {
 // needs to be invoked at the end.
 // parameter:
 //   [in] i2c_no, should be I2C0 or I2C1
-// return value: true means success, otherwise failure
+// return value: true means success, otherwise failure (mostly, another thread is also using this I2C)
 bool i2c_hw_init(uint32_t i2c_no)
 {
+    // occupy the bus (software domain)
+    osMutexId_t mutex_i2c_id = NULL;             // bus mutex
+    mutex_i2c_id = mutex_for_i2c(i2c_no);
+    if (osMutexAcquire(mutex_i2c_id, 0) != osOK) {
+        return false;
+    }
+
     const struct mcu_pin_t *i2c_pin_tab = NULL;  // PINs
     size_t i2c_pin_tab_len = 0;
     const rcu_periph_enum *i2c_rpu_tab = NULL;   // RPUs
     size_t i2c_rpu_tab_len = 0;
 
-    osMutexId_t mutex_i2c_id = NULL;             // bus mutex
 
-    // find PINs/RPUs and mutex of corresponding I2C bus
+    // find PINs/RPUs of corresponding I2C bus
     switch(i2c_no) {
     case I2C0:
         i2c_pin_tab = i2c0_pin_tab;
         i2c_pin_tab_len = sizeof(i2c0_pin_tab) / sizeof(i2c0_pin_tab[0]);
         i2c_rpu_tab = i2c0_rpu_tab;
         i2c_rpu_tab_len = sizeof(i2c0_rpu_tab) / sizeof(i2c0_rpu_tab[0]);
-
-        mutex_i2c_id = mutex_i2c_bus_id[0];
 
         break;
 
@@ -106,16 +129,9 @@ bool i2c_hw_init(uint32_t i2c_no)
         i2c_rpu_tab = i2c1_rpu_tab;
         i2c_rpu_tab_len = sizeof(i2c1_rpu_tab) / sizeof(i2c1_rpu_tab[0]);
 
-        mutex_i2c_id = mutex_i2c_bus_id[1];
-
         break;
 
     default:
-        return false;
-    }
-
-    // occupy the bus (software domain)
-    if (osMutexAcquire(mutex_i2c_id, 0) != osOK) {
         return false;
     }
 
@@ -144,24 +160,9 @@ bool i2c_hw_deinit(uint32_t i2c_no)
     i2c_stop_on_bus(i2c_no);                     // stop the bus
     i2c_deinit(i2c_no);                          // reset the I2C controller
 
-    osMutexId_t mutex_i2c_id = NULL; // bus mutex
-    // find mutex of corresponding I2C bus
-    switch(i2c_no) {
-    case I2C0:
-        mutex_i2c_id = mutex_i2c_bus_id[0];
-
-        break;
-
-    case I2C1:
-        mutex_i2c_id = mutex_i2c_bus_id[1];
-
-        break;
-
-    default:
-        return false;
-    }
-
    // release bus (software domain)
+    osMutexId_t mutex_i2c_id = NULL;             // bus mutex
+    mutex_i2c_id = mutex_for_i2c(i2c_no);
     return osMutexRelease(mutex_i2c_id) == osOK;
 }
 

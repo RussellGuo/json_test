@@ -14,7 +14,7 @@
 #include "gd32e10x.h"
 #include "cmsis_os2.h"
 
-// TI TMP75
+// values from TMP75 and circuit
 #define TSENSOR_ADDRESS 0x9e
 #define I2C_FOR_TSENSOR I2C0
 
@@ -24,11 +24,13 @@
 // return value: true means success, otherwise failure
 bool get_temperature(temperature_t *temperature)
 {
-    bool ret = true;
+    bool ret;
+    ret = i2c_hw_init(I2C_FOR_TSENSOR); // init the bus
+    if (!ret) {
+        return ret; // the I2C is in use
+    }
+
     uint8_t temp_buff[2];  // to store temp bytes
-
-
-    if(ret) ret = i2c_hw_init(I2C_FOR_TSENSOR);                                       // init the bus
 
     if(ret) ret = i2c_flag_get(I2C_FOR_TSENSOR, I2C_FLAG_I2CBSY) == RESET;            // test if the bus is idle
     if(ret) i2c_start_on_bus(I2C_FOR_TSENSOR);                                        // start bit send

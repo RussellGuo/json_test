@@ -31,7 +31,7 @@ bool init_i2c_buses(void);
 // needs to be invoked at the end.
 // parameter:
 //   [in] i2c_no, should be I2C0 or I2C1
-// return value: true means success, otherwise failure
+// return value: true means success, otherwise failure (mostly, another thread is also using this I2C)
 bool i2c_hw_init(uint32_t i2c_no);
 
 // deinit an I2C bus and release it. i2c_hw_init() needs to be invoked
