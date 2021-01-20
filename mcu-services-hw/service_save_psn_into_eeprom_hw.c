@@ -1,6 +1,8 @@
 /*
  * service_save_psn_into_eeprom_hw.c
  *
+ * Need to save PSN to EEPROM on production line.
+ *
  * hardware-depended part of 'save PSN' service for the SAIP
  *
  *  Created on: Dec 14, 2020
@@ -24,7 +26,7 @@
 // and then the receiving thread will send them to the host as a respose. Because the saving psn is executed
 // under specific circumstances, it does not need to be placed in a separate thread, but directly
 // in the receiving thread. In this case, it is not a problem that the receiving thread is
-// blocked for tens of hundreds of milliseconds. See the documentation for details.
+// blocked for hundreds of milliseconds. See the documentation for details.
 // parameters:
 //   [out] error_code, the ptr to an error code, which the value will be sent to the host
 //   [in]  psn_byte_array, the byte array of PSN with length PSN_BYTE_COUNT

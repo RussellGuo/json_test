@@ -8,6 +8,10 @@
  *      Author: Guo Qiang
  */
 
+// the EEPROM was originally visited on SACP, but there is no SACP in the PCBA stage of the production line.
+// For this reason, the production line will connect the I2C of the MCU and the I2C of the EEPROM (and T-Sensor)
+// through a fixture, so the EEPROM can also be accessed.
+
 #ifndef __EEPROM_H__
 #define __EEPROM_H__
 

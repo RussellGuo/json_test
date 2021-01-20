@@ -8,6 +8,10 @@
  *      Author: Guo Qiang
  */
 
+// the EEPROM was originally visited on SACP, but there is no SACP in the PCBA stage of the production line.
+// For this reason, the production line will connect the I2C of the MCU and the I2C of the EEPROM (and T-Sensor)
+// through a fixture, so the EEPROM can also be accessed.
+
 #include "cmsis_os2.h"
 #include "gd32e10x.h"
 #include "i2c-base.h"
@@ -59,7 +63,6 @@ bool eeprom_byte_read(uint8_t* byte, uint8_t read_address)
     if (ret) ret = wait_for_i2c_flag(I2C_FOR_EEPROM, I2C_FLAG_RBNE);                 // wait for byte ready
     if (ret) *byte = i2c_data_receive(I2C_FOR_EEPROM);                               // got it
 
-    // i2c_ack_config(I2C_FOR_EEPROM, I2C_ACK_ENABLE);                                  // restore ack
     i2c_hw_deinit(I2C_FOR_EEPROM);                                                   // release I2C whether OK/failed
 
     return ret;
@@ -96,7 +99,6 @@ bool eeprom_byte_write(uint8_t byte, uint8_t write_address)
     if (ret) i2c_data_transmit(I2C_FOR_EEPROM, byte);                                // send value
     if (ret) ret = wait_for_i2c_flag(I2C_FOR_EEPROM, I2C_FLAG_BTC);                  // sent
 
-    /* send a stop condition to I2C bus */
     i2c_stop_on_bus(I2C_FOR_EEPROM);                                                 // send stop condition to release bus
     osDelay(1);                                                                      // sent
     i2c_hw_deinit(I2C_FOR_EEPROM);                                                   // release I2C whether OK/failed
