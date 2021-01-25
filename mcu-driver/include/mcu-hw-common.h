@@ -18,6 +18,8 @@ extern "C" {
 #include <stdint.h>
 #include "gd32e10x.h"
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 // PIN description
 struct mcu_pin_t {
@@ -37,6 +39,17 @@ void setup_pins(const struct mcu_pin_t *pin_tab, size_t tab_len);
 // [in] tab_len, array size
 // return value: none
 void enable_rcus(const rcu_periph_enum *rcu_tab, size_t tab_len);
+
+static inline void write_pin(const struct mcu_pin_t *pin, bool value)
+{
+    gpio_bit_write(pin->pin_port, pin->pin_no, value ? SET : RESET);
+}
+
+static inline bool read_pin(const struct mcu_pin_t *pin)
+{
+    FlagStatus ret = gpio_input_bit_get(pin->pin_port, pin->pin_no);
+    return ret == SET;
+}
 
 
 #ifdef __cplusplus

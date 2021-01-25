@@ -59,7 +59,7 @@ static bool led_set_with_no(int light_no, bool light_on)
         return false;
     }
     // locate the pin, set its value
-    gpio_bit_write(led_pin_tab[light_no].pin_port, led_pin_tab[light_no].pin_no, light_on ? SET : RESET);
+    write_pin(led_pin_tab + light_no, light_on);
     return true;
 }
 

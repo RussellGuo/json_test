@@ -11,6 +11,7 @@
 #include "service_flashlight.h"
 
 #include "misc.h"
+#include "db9_init_for_factory.h"
 
 __NO_RETURN int main(void)
 {
@@ -23,6 +24,8 @@ __NO_RETURN int main(void)
     // drivers initialization
     init_uart_io_api();
     init_i2c_buses();
+
+    db9_init_for_factory();
 
     // protocol base initialization
     init_thread_of_serial_datagram_recv();

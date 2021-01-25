@@ -5,7 +5,6 @@
  * This service does not need a separate thread, because the response operation is very fast
  * and will not block the receiving thread of the protocol.
  * Refer to the documentation "SaIP communication protocol between the host and the MCU"
- * for the configuration method.
  *
  *  Created on: Dec 21, 2020
  *      Author: Guo Qiang

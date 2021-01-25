@@ -109,7 +109,7 @@ static bool turn_laser(bool on)
     // enable/disable the timer according parameter 'on'
     (on ? timer_enable : timer_disable)(LASER_PWM);
     // set the enable pin
-    gpio_bit_write(laser_enable_pin.pin_port, laser_enable_pin.pin_no, on ? SET : RESET);
+    write_pin(&laser_enable_pin, on);
 
     return true;
 }

@@ -15,6 +15,8 @@
 
 #include "eeprom.h"
 
+#include "db9_init_for_factory.h"
+
 #include <string.h>
 
 // PSN will save here according the EEPROM layout design from people of product line
@@ -67,4 +69,7 @@ void ReplyToSavePsnIntoEeprom(
     // compare read and written, they should be equal
     ret = ret && memcmp(read_back, psn_byte_array, PSN_BYTE_COUNT) == 0;
     *return_value = ret;
+
+    db9_init_for_factory();
+
 }

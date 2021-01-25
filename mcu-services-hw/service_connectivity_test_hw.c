@@ -18,6 +18,8 @@
 // for T-sensor test
 #include "t-sensor.h"
 
+#include "db9_init_for_factory.h"
+
 // connectivity power control
 static const rcu_periph_enum rpu_tab[] = {
     RCU_GPIOA,
@@ -55,11 +57,41 @@ static const struct mcu_pin_t connectvity_in_pin_tab[DB9_CONNECTIVITY_PAIR_COUNT
     [CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR] = { GPIOB, GPIO_PIN_9 , GPIO_MODE_IN_FLOATING },
 };
 
+static const struct mcu_pin_t opto_isolator_in_factory =
+    { GPIOB, GPIO_PIN_9 , GPIO_MODE_IPD };
+
 // only #5 are reverted
 static inline bool is_connectvity_revert(uint8_t idx)
 {
     return idx == CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR; // OPTO_ISOLATOR pair is revert, others are not
 }
+
+
+// On the production line, the DB9 test board may be plugged and unplugged under power,
+// so try to keep its pins low to reduce the defect rate.
+// But outside the production line, it is better to keep these pins open-drain input.
+// a macro __FACTORY_RELEASE__ should be defined for factory release,
+// otherwise the function do nothing
+// parameter and value: none
+void db9_init_for_factory(void)
+{
+#ifdef __FACTORY_RELEASE__
+    // power on the pins
+    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    // pin should be remapped because it used by connectivity test
+    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
+
+    // pins' mode setup
+    setup_pins(connectvity_out_pin_tab, DB9_CONNECTIVITY_PAIR_COUNT);
+    setup_pins(connectvity_in_pin_tab , DB9_CONNECTIVITY_PAIR_COUNT);
+
+    setup_pins(&opto_isolator_in_factory, 1);
+
+    write_pin(connectvity_out_pin_tab + CONTIVITY_TEST_RESULT_IDX_1, false);
+    write_pin(&opto_isolator_in_factory, true);
+#endif
+}
+
 
 // test BD9 connectivity
 // parameter:
@@ -85,8 +117,8 @@ static void test_db9_connectivity(uint32_t *db9_test_result)
         for (int v = 0; v < 2; v++) {
 
             // boolean of level writting
-            const bool out_value = (bool)v;
-            gpio_bit_write(connectvity_out_pin_tab[i].pin_port, connectvity_out_pin_tab[i].pin_no, out_value ? SET : RESET);
+            const bool out_value = !(bool)v;
+            write_pin(connectvity_out_pin_tab + i, out_value);
             // wait circuit's voltage be stable
             osDelay(10);
 
@@ -95,7 +127,7 @@ static void test_db9_connectivity(uint32_t *db9_test_result)
             // the input pin should read this
             const bool expect_in_value = out_value ^ revert_flag;
             // read it
-            const bool in_value = gpio_input_bit_get(connectvity_in_pin_tab[i].pin_port, connectvity_in_pin_tab[i].pin_no) == SET;
+            const bool in_value = read_pin(connectvity_in_pin_tab + i);
 
             // twice should be both OK
             result &= in_value == expect_in_value;
@@ -134,4 +166,6 @@ void ReplyToConnectivityTest(res_error_code_t *error_code, uint32_t *test_item_l
     rpc_log(LOG_INFO, "temperature: %s%03d.%04d", temp >= 0 ? "+" : "-", abs(temp) >> 8, (abs(temp) & 0xF0) * 10000 / 256);
     // save the value
     test_item_list[CONTIVITY_TEST_RESULT_IDX_T_SENSOR] = isOK;
+
+    db9_init_for_factory();
 }

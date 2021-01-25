@@ -140,6 +140,7 @@ bool i2c_hw_init(uint32_t i2c_no)
     enable_rcus(i2c_rpu_tab, i2c_rpu_tab_len);
 
     // init bus registers
+    i2c_deinit(i2c_no);
     i2c_clock_config(i2c_no, I2C0_SPEED, I2C_DTCY_2); // configure I2C clock
     i2c_enable(i2c_no);                               // enable I2C
     i2c_ack_config(i2c_no, I2C_ACK_ENABLE);           // enable acknowledge
