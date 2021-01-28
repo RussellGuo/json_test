@@ -29,9 +29,9 @@ typedef enum {
     ERR_MSG_ID      =  2,   // the request code not found
     ERR_ITEM_COUNT  =  3,   // wrong number of parameters or return list
     ERR_NO_IMPL     =  4,   // The message format is correct, but the implementation is not ready
-    ERR_NOT_READY   =  5,   // the module not ready. i.e. thread create failed
-    ERR_MODE        =  6,   // mode error at the server execution
-    ERR_PARAM       =  7,   // parameter error at the server execution
+    ERR_NOT_READY   =  5,   // the service not ready. i.e. thread create failed
+    ERR_MODE        =  6,   // mode error at the service execution
+    ERR_PARAM       =  7,   // parameter error at the service execution
     ERR_UNKNOWN     = 15,   // unknown error at the server execution
 } res_error_code_t;
 
@@ -56,7 +56,9 @@ typedef enum {
     SET_MCU_LOG_LEVEL      = 14, // as its name
     SAVE_PSN_INTO_EEPROM   = 15, // SMT phase, write 32 bytes PSN
     SET_CAMERA_CONFIG      = 16,
- // SET_RUN_STATUS         = 31, // SMT? MMI? NORMAL? W.I.P.
+    CONFIG_DB9_PIN         = 17,
+    SET_DB9_PIN            = 18,
+    GET_DB9_PIN            = 19,
 } msg_id_t;
 
 // MCU is the SERVER
@@ -100,6 +102,9 @@ bool ConnectivityTest(serial_datagram_item_t seq);
 bool SetMcuLogLevel(log_level_t log_level, serial_datagram_item_t seq);
 bool SavePsnIntoEeprom(const char *psn, serial_datagram_item_t seq);
 bool SetCameraConfig(serial_datagram_item_t mode, serial_datagram_item_t seq);
+bool ConfigDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t pin_config, serial_datagram_item_t seq);
+bool SetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, serial_datagram_item_t seq);
+bool GetDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
@@ -114,6 +119,9 @@ void DispatchReplyOfSetMcuLogLevel(const res_error_code_t error_code, serial_dat
 void DispatchReplyOfSavePsnIntoEeprom(
     const res_error_code_t error_code, const bool return_value, serial_datagram_item_t seq);
 void DispatchReplyOfSetCameraConfig(const res_error_code_t error_code, serial_datagram_item_t seq);
+void DispatchReplyOfConfigDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq);
+void DispatchReplyOfSetDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq);
+void DispatchReplyOfGetDb9Pin(const res_error_code_t error_code, const bool pin_value, serial_datagram_item_t seq);
 
 #else
 
@@ -136,6 +144,10 @@ void ReplyToSetMcuLogLevel(res_error_code_t *error_code, serial_datagram_item_t 
 void ReplyToSavePsnIntoEeprom(
     res_error_code_t *error_code, const uint8_t *psn_byte_array, bool *return_value, serial_datagram_item_t seq);
 void ReplyToSetCameraConfig(serial_datagram_item_t mode, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToConfigDb9Pin(
+    serial_datagram_item_t pin_no, serial_datagram_item_t pin_config, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToSetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, res_error_code_t *error_code, serial_datagram_item_t seq);
+void ReplyToGetDb9Pin(serial_datagram_item_t pin_no, bool *pin_value, res_error_code_t *error_code, serial_datagram_item_t seq);
 
 #endif
 

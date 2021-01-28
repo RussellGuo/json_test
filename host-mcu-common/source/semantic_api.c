@@ -44,6 +44,9 @@ static MSG_PROC_RET_TYPE      connectivity_test_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE      set_mcu_log_level_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE   save_psn_into_eeprom_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE      set_camera_config_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE         config_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE            set_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE            get_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
 
 
 typedef MSG_PROC_RET_TYPE (*semantic_msg_process_t)(MSG_PROC_PROTOTYPE);
@@ -69,6 +72,9 @@ static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { SET_MCU_LOG_LEVEL     ,  true,               1,                               0,     set_mcu_log_level_msg_proc },
     { SAVE_PSN_INTO_EEPROM  ,  true,  PSN_WORD_COUNT,                               1,  save_psn_into_eeprom_msg_proc },
     { SET_CAMERA_CONFIG     ,  true,               1,                               0,     set_camera_config_msg_proc },
+    { CONFIG_DB9_PIN        ,  true,               2,                               0,        config_db9_pin_msg_proc },
+    { SET_DB9_PIN           ,  true,               2,                               0,           set_db9_pin_msg_proc },
+    { GET_DB9_PIN           ,  true,               1,                               1,           get_db9_pin_msg_proc },
 };
 
 // find the info by msg_id
@@ -249,6 +255,36 @@ __attribute__((weak)) void ReplyToSetCameraConfig(serial_datagram_item_t mode, r
     (void) mode; (void)seq;
 }
 
+// a stub of function 'ReplyToConfigDb9Pin'
+__attribute__((weak)) void ReplyToConfigDb9Pin(
+    serial_datagram_item_t pin_no,
+    serial_datagram_item_t pin_config,
+    res_error_code_t *error_code,  serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void) pin_no; (void) pin_config; (void)seq;
+}
+
+// a stub of function 'ReplyToSetDb9Pin'
+__attribute__((weak)) void ReplyToSetDb9Pin(
+    serial_datagram_item_t pin_no,
+    bool pin_value,
+    res_error_code_t *error_code,  serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void) pin_no; (void) pin_value; (void)seq;
+}
+
+// a stub of function 'ReplyToGetDb9Pin'
+__attribute__((weak)) void ReplyToGetDb9Pin(
+    serial_datagram_item_t pin_no,
+    bool *pin_value,
+    res_error_code_t *error_code,  serial_datagram_item_t seq)
+{
+    *error_code = ERR_NO_IMPL;
+    (void) pin_no; (void) pin_value; (void)seq;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static res_error_code_t req_fw_version_msg_proc(
@@ -371,6 +407,43 @@ static res_error_code_t set_camera_config_msg_proc(
     return error_code;
 }
 
+// generic processing function to specific function for message CONFIG_DB9_PIN
+static res_error_code_t config_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)output_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+    ReplyToConfigDb9Pin(input_item_list[0], input_item_list[1], &error_code, seq);
+    return error_code;
+}
+
+// generic processing function to specific function for message SET_DB9_PIN
+static res_error_code_t set_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)output_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+    ReplyToSetDb9Pin(input_item_list[0], input_item_list[1], &error_code, seq);
+    return error_code;
+}
+
+// generic processing function to specific function for message GET_DB9_PIN
+static res_error_code_t get_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    res_error_code_t error_code = ERR_UNKNOWN;
+    bool pin_value = false;
+    ReplyToGetDb9Pin(input_item_list[0], &pin_value, &error_code, seq);
+    output_item_list[0] = pin_value;
+    return error_code;
+}
+
 #endif
 
 
@@ -452,6 +525,26 @@ bool SetCameraConfig(serial_datagram_item_t mode, serial_datagram_item_t seq)
     return ret;
 }
 
+bool ConfigDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t pin_config, serial_datagram_item_t seq)
+{
+    const serial_datagram_item_t param_list[] = { pin_no, pin_config };
+    bool ret = serial_datagram_send(seq, CONFIG_DB9_PIN, param_list, sizeof param_list / sizeof(param_list[0]));
+    return ret;
+}
+
+bool SetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, serial_datagram_item_t seq)
+{
+    const serial_datagram_item_t param_list[] = { pin_no, pin_value };
+    bool ret = serial_datagram_send(seq, SET_DB9_PIN, param_list, sizeof param_list / sizeof(param_list[0]));
+    return ret;
+}
+
+bool GetDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t seq)
+{
+    bool ret = serial_datagram_send(seq, GET_DB9_PIN, &pin_no, 1);
+    return ret;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static void req_fw_version_msg_proc(
@@ -522,6 +615,29 @@ static void set_camera_config_msg_proc(
     DispatchReplyOfSetCameraConfig(error_code, seq);
 }
 
+// generic processing function to specific function for message CONFIG_DB9_PIN
+static void config_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    DispatchReplyOfConfigDb9Pin(error_code, seq);
+}
+
+// generic processing function to specific function for message SET_DB9_PIN
+static void set_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    DispatchReplyOfSetDb9Pin(error_code, seq);
+}
+
+// generic processing function to specific function for message SET_DB9_PIN
+static void get_db9_pin_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    DispatchReplyOfGetDb9Pin(error_code, (bool)input_item_list[0], seq);
+}
+
 
 // a stub of function 'DispatchReplyOfReqFwVersion'
 __attribute__((weak)) void DispatchReplyOfReqFwVersion(
@@ -589,6 +705,25 @@ __attribute__((weak)) void DispatchReplyOfSetCameraConfig(const res_error_code_t
 {
     fprintf(stderr, "received MCU set camera config error_code %u, seq %u\n", error_code, seq);
 }
+
+// a stub of function 'DispatchReplyOfConfigDb9Pin'
+__attribute__((weak)) void DispatchReplyOfConfigDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU config db9 pin error_code %u, seq %u\n", error_code, seq);
+}
+
+// a stub of function 'DispatchReplyOfSetDb9Pin'
+__attribute__((weak)) void DispatchReplyOfSetDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU set db9 pin error_code %u, seq %u\n", error_code, seq);
+}
+
+// a stub of function 'DispatchReplyOfGetDb9Pin'
+__attribute__((weak)) void DispatchReplyOfGetDb9Pin(const res_error_code_t error_code, bool pin_value, serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU get db9 pin error_code %u, pin_value %u, seq %u\n", error_code, pin_value, seq);
+}
+
 
 #endif
 

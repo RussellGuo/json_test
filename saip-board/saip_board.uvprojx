@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>HXTAL_VALUE=12000000,IS_MCU_SIDE=1,__FACTORY_RELEASE__</Define>
+              <Define>HXTAL_VALUE=12000000,IS_MCU_SIDE=1</Define>
               <Undefine></Undefine>
               <IncludePath>..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include</IncludePath>
             </VariousControls>
@@ -356,7 +356,7 @@
             <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>VERSION_DATE=0x20210126,FW_VERSION=0x0101</Define>
+              <Define>VERSION_DATE=0x20210202,FW_VERSION=0x0103</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -618,6 +618,11 @@
               <FileName>service_camera_hw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu-services-hw\service_camera_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_db9_pin_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu-services-hw\service_db9_pin_hw.c</FilePath>
             </File>
           </Files>
         </Group>
