@@ -579,6 +579,11 @@
               <FileType>1</FileType>
               <FilePath>..\mcu-services\source\service_get_run_info.c</FilePath>
             </File>
+            <File>
+              <FileName>service_camera.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\mcu-services\include\service_camera.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

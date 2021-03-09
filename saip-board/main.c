@@ -13,11 +13,13 @@
 #include "misc.h"
 #include "db9_init_for_factory.h"
 
+#include "service_camera.h"
+
 __NO_RETURN int main(void)
 {
     // OS initialization
     osKernelInitialize();
-    NVIC_SetPriorityGrouping (3);  // setup priority grouping
+    NVIC_SetPriorityGrouping(3);  // setup priority grouping
 
     set_rpc_log_level(LOG_FATAL);
 
@@ -25,6 +27,7 @@ __NO_RETURN int main(void)
     init_uart_io_api();
     init_i2c_buses();
 
+    camera_hw_init();
     db9_init_for_factory();
 
     // protocol base initialization
