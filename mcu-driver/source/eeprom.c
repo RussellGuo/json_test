@@ -17,7 +17,7 @@
 #include "i2c-base.h"
 
 // values from GT24C64A and circuit
-#define EEPROM_ADDRESS 0xa0
+#define EEPROM_ADDRESS 0xa2
 #define I2C_FOR_EEPROM I2C0
 
 // read data from the EEPROM

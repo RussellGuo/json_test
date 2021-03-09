@@ -35,7 +35,7 @@ static const struct mcu_pin_t camera_clr_pin  = { GPIOA, GPIO_PIN_12 , GPIO_MODE
 static void set_camera_mode(uint32_t mode)
 {
     /* configure RCU of Camera mode GPIO port */
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
     /* configure Camera mode GPIO port */
     setup_pins(&camera_mode_pin, 1);
     setup_pins(&camera_clr_pin , 1);

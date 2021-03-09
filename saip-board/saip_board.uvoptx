@@ -744,8 +744,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\mcu-services-hw\service_save_psn_into_eeprom_hw.c</PathWithFileName>
-      <FilenameWithoutPath>service_save_psn_into_eeprom_hw.c</FilenameWithoutPath>
+      <PathWithFileName>..\mcu-services-hw\service_psn_inside_eeprom_hw.c</PathWithFileName>
+      <FilenameWithoutPath>service_psn_inside_eeprom_hw.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -78,7 +78,7 @@ static inline bool is_connectvity_revert(uint8_t idx)
 void db9_init_for_factory(void)
 {
     // power on the pins
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
     // pin should be remapped because it used by connectivity test
     gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
 
@@ -102,7 +102,7 @@ void db9_init_for_factory(void)
 static void test_db9_connectivity(uint32_t *db9_test_result)
 {
     // power on the pins
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
     // pin should be remapped because it used by connectivity test
     gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
 

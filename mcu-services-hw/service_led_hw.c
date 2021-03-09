@@ -40,7 +40,7 @@ static const struct mcu_pin_t led_pin_tab[LED_COUNT] = {
 void led_hw_init(void)
 {
     /* configure RCU of LED GPIO port ON*/
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
 
     /* configure LEDs GPIO port as output*/
     setup_pins(led_pin_tab, LED_COUNT);

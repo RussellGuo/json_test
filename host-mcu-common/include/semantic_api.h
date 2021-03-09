@@ -59,6 +59,7 @@ typedef enum {
     CONFIG_DB9_PIN         = 17,
     SET_DB9_PIN            = 18,
     GET_DB9_PIN            = 19,
+    GET_PSN_FROM_EEPROM    = 20, // SMT phase, read 32 bytes PSN
 } msg_id_t;
 
 // MCU is the SERVER
@@ -105,6 +106,7 @@ bool SetCameraConfig(serial_datagram_item_t mode, serial_datagram_item_t seq);
 bool ConfigDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t pin_config, serial_datagram_item_t seq);
 bool SetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, serial_datagram_item_t seq);
 bool GetDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t seq);
+bool GetPsnFromEeprom(serial_datagram_item_t seq);
 
 // A server accessing through a long call chain, and finally reaches the following functions.
 // Every parameter is [in]. the values other than seq comes from 'ReplyToXXX'
@@ -122,7 +124,7 @@ void DispatchReplyOfSetCameraConfig(const res_error_code_t error_code, serial_da
 void DispatchReplyOfConfigDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfSetDb9Pin(const res_error_code_t error_code, serial_datagram_item_t seq);
 void DispatchReplyOfGetDb9Pin(const res_error_code_t error_code, const bool pin_value, serial_datagram_item_t seq);
-
+void DispatchReplyOfGetPsnFromEeprom(const res_error_code_t error_code, uint8_t psn_byte_array[PSN_BYTE_COUNT], serial_datagram_item_t seq);
 #else
 
 // The interface to the "execution part of the MCU". The ReplyToReqFwVersion series of functions are the
@@ -148,7 +150,7 @@ void ReplyToConfigDb9Pin(
     serial_datagram_item_t pin_no, serial_datagram_item_t pin_config, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToSetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, res_error_code_t *error_code, serial_datagram_item_t seq);
 void ReplyToGetDb9Pin(serial_datagram_item_t pin_no, bool *pin_value, res_error_code_t *error_code, serial_datagram_item_t seq);
-
+void ReplyToGetPsnFromEeprom(res_error_code_t *error_code, uint8_t *psn_byte_array, serial_datagram_item_t seq);
 #endif
 
 

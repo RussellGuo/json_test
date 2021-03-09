@@ -356,7 +356,7 @@
             <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>VERSION_DATE=0x20210202,FW_VERSION=0x0103</Define>
+              <Define>VERSION_DATE=0x20210017,FW_VERSION=0x0104</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -615,9 +615,9 @@
               <FilePath>..\mcu-services-hw\service_connectivity_test_hw.c</FilePath>
             </File>
             <File>
-              <FileName>service_save_psn_into_eeprom_hw.c</FileName>
+              <FileName>service_psn_inside_eeprom_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\service_save_psn_into_eeprom_hw.c</FilePath>
+              <FilePath>..\mcu-services-hw\service_psn_inside_eeprom_hw.c</FilePath>
             </File>
             <File>
               <FileName>service_camera_hw.c</FileName>

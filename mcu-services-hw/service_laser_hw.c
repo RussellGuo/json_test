@@ -87,7 +87,7 @@ static const struct mcu_pin_t
 void laser_hw_init(void)
 {
     /* configure RCU of laser GPIO port */
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
 
     /* configure Laser GPIO port */
     setup_pins(&laser_enable_pin, 1);

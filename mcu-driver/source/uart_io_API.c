@@ -210,7 +210,7 @@ static const struct mcu_pin_t uart_pin_tab[] = {
 static void init_uart_pins_uart(void)
 {
     // power on the clock
-    enable_rcus(rpu_tab, sizeof(sizeof(rpu_tab) / sizeof(rpu_tab[0])));
+    enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
 
     /* connect port to USARTx_Tx */
     setup_pins(uart_pin_tab, sizeof(uart_pin_tab) / sizeof(uart_pin_tab[0]));

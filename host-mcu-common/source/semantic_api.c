@@ -47,6 +47,7 @@ static MSG_PROC_RET_TYPE      set_camera_config_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE         config_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE            set_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
 static MSG_PROC_RET_TYPE            get_db9_pin_msg_proc(MSG_PROC_PROTOTYPE);
+static MSG_PROC_RET_TYPE    get_psn_from_eeprom_msg_proc(MSG_PROC_PROTOTYPE);
 
 
 typedef MSG_PROC_RET_TYPE (*semantic_msg_process_t)(MSG_PROC_PROTOTYPE);
@@ -75,6 +76,7 @@ static const sematic_layer_info_t sematic_layer_info_tab[] = {
     { CONFIG_DB9_PIN        ,  true,               2,                               0,        config_db9_pin_msg_proc },
     { SET_DB9_PIN           ,  true,               2,                               0,           set_db9_pin_msg_proc },
     { GET_DB9_PIN           ,  true,               1,                               1,           get_db9_pin_msg_proc },
+    { GET_PSN_FROM_EEPROM   ,  true,               0,                  PSN_WORD_COUNT,   get_psn_from_eeprom_msg_proc },
 };
 
 // find the info by msg_id
@@ -285,6 +287,17 @@ __attribute__((weak)) void ReplyToGetDb9Pin(
     (void) pin_no; (void) pin_value; (void)seq;
 }
 
+// a stub of function 'ReplyToGetPsnFromEeprom'
+__attribute__((weak)) void ReplyToGetPsnFromEeprom(
+    res_error_code_t *error_code,
+    uint8_t *psn_byte_array,
+    serial_datagram_item_t seq)
+{
+    psn_byte_array[0] = 0xFF; psn_byte_array[1] = 0xEE; psn_byte_array[2] = 0xDD; psn_byte_array[3] = 0xCC; // test value
+    *error_code = ERR_NO_IMPL;
+    (void)seq;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static res_error_code_t req_fw_version_msg_proc(
@@ -444,6 +457,32 @@ static res_error_code_t get_db9_pin_msg_proc(
     return error_code;
 }
 
+// generic processing function to specific function for message GET_PSN_FROM_EEPROM
+static res_error_code_t get_psn_from_eeprom_msg_proc(
+    const serial_datagram_item_t input_item_list[],
+    serial_datagram_item_t output_item_list[],
+    const serial_datagram_item_t seq)
+{
+    (void)input_item_list;
+    res_error_code_t error_code = ERR_UNKNOWN;
+
+    // get PSN
+    uint8_t psn_byte_array[PSN_BYTE_COUNT] = { 0 };
+    ReplyToGetPsnFromEeprom(&error_code, psn_byte_array, seq);
+
+    // pack the PSN
+    for (int i = 0; i < PSN_WORD_COUNT; i++) {
+        serial_datagram_item_t word = 0;
+        for (int j = sizeof(serial_datagram_item_t) - 1; j >= 0; j--) {
+            word <<= 8; // assume 8 bits/byte
+            word |= psn_byte_array[i * sizeof(serial_datagram_item_t) + j];
+        }
+        output_item_list[i] = word;
+    }
+
+    return error_code;
+}
+
 #endif
 
 
@@ -545,6 +584,12 @@ bool GetDb9Pin(serial_datagram_item_t pin_no, serial_datagram_item_t seq)
     return ret;
 }
 
+bool GetPsnFromEeprom(serial_datagram_item_t seq)
+{
+    bool ret = serial_datagram_send(seq, GET_PSN_FROM_EEPROM, NULL, 0);
+    return ret;
+}
+
 
 // generic processing function to specific function for message REQ_FW_VERSION
 static void req_fw_version_msg_proc(
@@ -638,6 +683,23 @@ static void get_db9_pin_msg_proc(
     DispatchReplyOfGetDb9Pin(error_code, (bool)input_item_list[0], seq);
 }
 
+// generic processing function to specific function for message GET_PSN_FROM_EEPROM
+static void get_psn_from_eeprom_msg_proc(
+    const serial_datagram_item_t input_item_list[], res_error_code_t error_code, const serial_datagram_item_t seq)
+{
+    // unpack the input data
+    uint8_t psn_bytes[PSN_BYTE_COUNT];
+    for (int i = 0; i < PSN_WORD_COUNT; i++) {
+        serial_datagram_item_t word = input_item_list[i];
+        for (int j = 0; j < sizeof(serial_datagram_item_t); j++) {
+            psn_bytes[i * sizeof(serial_datagram_item_t) + j] = word & 0xFF;
+            word >>= 8; // assume 8 bits/byte
+        }
+    }
+
+    DispatchReplyOfGetPsnFromEeprom(error_code, psn_bytes, seq);
+}
+
 
 // a stub of function 'DispatchReplyOfReqFwVersion'
 __attribute__((weak)) void DispatchReplyOfReqFwVersion(
@@ -722,6 +784,14 @@ __attribute__((weak)) void DispatchReplyOfSetDb9Pin(const res_error_code_t error
 __attribute__((weak)) void DispatchReplyOfGetDb9Pin(const res_error_code_t error_code, bool pin_value, serial_datagram_item_t seq)
 {
     fprintf(stderr, "received MCU get db9 pin error_code %u, pin_value %u, seq %u\n", error_code, pin_value, seq);
+}
+
+// a stub of function 'DispatchReplyOfGetPsnFromEeprom'
+__attribute__((weak)) void DispatchReplyOfGetPsnFromEeprom(
+    const res_error_code_t error_code,
+    uint8_t psn_byte_array[PSN_BYTE_COUNT], serial_datagram_item_t seq)
+{
+    fprintf(stderr, "received MCU get PSN from EEPROM error_code %u, PSN '%s' seq %u\n", error_code, psn_byte_array, seq);
 }
 
 
