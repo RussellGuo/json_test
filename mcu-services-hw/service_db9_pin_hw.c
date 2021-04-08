@@ -17,18 +17,36 @@
 
 // DB9 pin table
 static const struct mcu_pin_t db9_pin_tab[] = {
-    { GPIOA, GPIO_PIN_15 }, // GPIO1      J0902--pin4
-    { GPIOB, GPIO_PIN_13 }, // GPIO2      J0902--pin5
-    { GPIOB, GPIO_PIN_8  }, // GPIO6      J0902--pin9
-    { GPIOB, GPIO_PIN_5  }, // GPIO3      J0903--pin5
-    { GPIOB, GPIO_PIN_4  }, // GPIO4      J0903--pin6
-    { GPIOB, GPIO_PIN_3  }, // GPIO5      J0903--pin7
-    { GPIOB, GPIO_PIN_7  }, // I2C0_SDA	  J0903--pin8
-    { GPIOB, GPIO_PIN_6  }, // I2C0_SCL	  J0903--pin9
-    { GPIOB, GPIO_PIN_1  }, // OTO_CTL_EN
+    { GPIOB, GPIO_PIN_4 }, // GPIO4
+    { GPIOB, GPIO_PIN_5 }, // GPIO7
+    { GPIOB, GPIO_PIN_8  }, // GPIO6
+    { GPIOC, GPIO_PIN_13  }, // GPIO13
+    { GPIOC, GPIO_PIN_14  }, // GPIO8
+    { GPIOB, GPIO_PIN_7  }, // I2C0_SDA
+    { GPIOB, GPIO_PIN_6  }, // I2C0_SCL
+    { GPIOB, GPIO_PIN_2  },
+    { GPIOB, GPIO_PIN_13  },
+    { GPIOB, GPIO_PIN_3  },
+    { GPIOA, GPIO_PIN_15  },
+    { GPIOB, GPIO_PIN_9  },
+    { GPIOA, GPIO_PIN_0  },
+};
+
+static const rcu_periph_enum rpu_mcu_tab[] = {
+    RCU_GPIOA,
+    RCU_GPIOB,
+    RCU_GPIOC,
+    RCU_AF,
 };
 
 #define DB9_PIN_COUNT (sizeof(db9_pin_tab) / sizeof(db9_pin_tab[0]))
+
+void db9_hw_init(void)
+{
+    /* configure RCU of LED GPIO port ON*/
+    enable_rcus(rpu_mcu_tab, sizeof(rpu_mcu_tab) / sizeof(rpu_mcu_tab[0]));
+    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
+}
 
 // ReplyToConfigDb9Pin, ReplyToSetDb9Pin and ReplyToGetDb9Pin, those function are in the API layer of
 // the host-MCU communication protocol and runs in the protocol receiving thread. It will be called by
@@ -48,12 +66,12 @@ void ReplyToConfigDb9Pin(
     res_error_code_t *error_code,  serial_datagram_item_t seq)
 {
     (void)seq;
-
     // check parameter pin_no
     if (pin_no >= DB9_PIN_COUNT) {
         *error_code = ERR_PARAM;
         return;
     }
+    db9_hw_init();
 
     // check parameter pin_config
     bool is_output;
@@ -99,7 +117,7 @@ void ReplyToSetDb9Pin(serial_datagram_item_t pin_no, bool pin_value, res_error_c
         return;
     }
 
-
+    db9_hw_init();
     // set it
     const struct mcu_pin_t *p = db9_pin_tab + pin_no;
     *error_code = NO_ERROR;
@@ -122,6 +140,7 @@ void ReplyToGetDb9Pin(serial_datagram_item_t pin_no, bool *pin_value, res_error_
         return;
     }
 
+    db9_hw_init();
     // get it
     *error_code = NO_ERROR;
     const struct mcu_pin_t *p = db9_pin_tab + pin_no;

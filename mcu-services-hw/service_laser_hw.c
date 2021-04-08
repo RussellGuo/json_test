@@ -91,7 +91,7 @@ void laser_hw_init(void)
 
     /* configure Laser GPIO port */
     setup_pins(&laser_enable_pin, 1);
-    setup_pins(&laser_status_pin, 1);
+  //  setup_pins(&laser_status_pin, 1);
     setup_pins(&laser_pwm_pin   , 1);
 
     pwm_config();

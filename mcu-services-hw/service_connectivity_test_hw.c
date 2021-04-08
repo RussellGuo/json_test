@@ -37,36 +37,20 @@ static const rcu_periph_enum rpu_tab[] = {
 // T-Sensor was originally visited on SACP, but there is no SACP in the PCBA stage of the production line.
 // For this reason, the production line will connect the I2C of the MCU and the I2C of the T-Sensor (and EEPROM)
 // through a fixture, so the T-Sensor can also be tested. In this case, 0-60 degrees Celsius is considered the normal range.
-#define DB9_CONNECTIVITY_PAIR_COUNT 5
+#define DB9_CONNECTIVITY_PAIR_COUNT 3
 
-// 5 output pins
+// 2 output pins
 static const struct mcu_pin_t connectvity_out_pin_tab[DB9_CONNECTIVITY_PAIR_COUNT] = {
-    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOA, GPIO_PIN_15, GPIO_MODE_OUT_PP      },
+    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_2, GPIO_MODE_OUT_PP      },
     [CONTIVITY_TEST_RESULT_IDX_2            ] = { GPIOB, GPIO_PIN_13, GPIO_MODE_OUT_PP      },
-    [CONTIVITY_TEST_RESULT_IDX_3            ] = { GPIOB, GPIO_PIN_6 , GPIO_MODE_OUT_PP      },
-    [CONTIVITY_TEST_RESULT_IDX_I2C          ] = { GPIOB, GPIO_PIN_7 , GPIO_MODE_OUT_PP      },
-    [CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR] = { GPIOB, GPIO_PIN_1 , GPIO_MODE_OUT_PP      },
 };
 
-// 5 input pins
+// 3 input pins
 static const struct mcu_pin_t connectvity_in_pin_tab[DB9_CONNECTIVITY_PAIR_COUNT] = {
-    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_4 , GPIO_MODE_IPD         },
-    [CONTIVITY_TEST_RESULT_IDX_2            ] = { GPIOB, GPIO_PIN_3 , GPIO_MODE_IPD         },
-    [CONTIVITY_TEST_RESULT_IDX_3            ] = { GPIOB, GPIO_PIN_8 , GPIO_MODE_IPD         },
-    [CONTIVITY_TEST_RESULT_IDX_I2C          ] = { GPIOB, GPIO_PIN_5 , GPIO_MODE_IPD         },
-    [CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR] = { GPIOB, GPIO_PIN_9 , GPIO_MODE_IN_FLOATING },
+    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_3 , GPIO_MODE_IPD         },
+    [CONTIVITY_TEST_RESULT_IDX_2            ] = { GPIOA, GPIO_PIN_15 , GPIO_MODE_IPD         },
+    [CONTIVITY_TEST_RESULT_IDX_3            ] = { GPIOB, GPIO_PIN_9 , GPIO_MODE_IPD         },
 };
-
-#ifdef __FACTORY_RELEASE__
-static const struct mcu_pin_t opto_isolator_in_factory =
-    { GPIOB, GPIO_PIN_9 , GPIO_MODE_IPD };
-#endif
-
-// only #5 are reverted
-static inline bool is_connectvity_revert(uint8_t idx)
-{
-    return idx == CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR; // OPTO_ISOLATOR pair is revert, others are not
-}
 
 
 // On the production line, the DB9 test board may be plugged and unplugged under power,
@@ -84,13 +68,11 @@ void db9_init_for_factory(void)
 
 #ifdef __FACTORY_RELEASE__
     // pins' mode setup
-    setup_pins(connectvity_out_pin_tab, DB9_CONNECTIVITY_PAIR_COUNT);
+    setup_pins(connectvity_out_pin_tab, DB9_CONNECTIVITY_PAIR_COUNT-1);
     setup_pins(connectvity_in_pin_tab , DB9_CONNECTIVITY_PAIR_COUNT);
 
-    setup_pins(&opto_isolator_in_factory, 1);
-
     write_pin(connectvity_out_pin_tab + CONTIVITY_TEST_RESULT_IDX_1, false);
-    write_pin(&opto_isolator_in_factory, true);
+    write_pin(connectvity_out_pin_tab + CONTIVITY_TEST_RESULT_IDX_2, false);
 #endif
 }
 
@@ -120,20 +102,16 @@ static void test_db9_connectivity(uint32_t *db9_test_result)
 
         const bool out_value = !(bool)v;
         // for each pin pair, write-out
-        for (int i = 0; i < DB9_CONNECTIVITY_PAIR_COUNT; i++) {
+        for (int i = 0; i < (DB9_CONNECTIVITY_PAIR_COUNT-1); i++) {
             // boolean of level writting
             write_pin(connectvity_out_pin_tab + i, out_value);
         }
 
-        // wait circuit's voltage be stable
-        osDelay(120);
-
+        osDelay(5);
         // for each pin pair read-back
         for (int i = 0; i < DB9_CONNECTIVITY_PAIR_COUNT; i++) {
-            // is it a revert pair?
-            const bool revert_flag = is_connectvity_revert(i);
             // the input pin should read this
-            const bool expect_in_value = out_value ^ revert_flag;
+            const bool expect_in_value = out_value;
             // read it
             const bool in_value = read_pin(connectvity_in_pin_tab + i);
 

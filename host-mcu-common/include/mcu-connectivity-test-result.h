@@ -22,9 +22,7 @@ typedef enum {
     CONTIVITY_TEST_RESULT_IDX_1             = 0,
     CONTIVITY_TEST_RESULT_IDX_2             = 1,
     CONTIVITY_TEST_RESULT_IDX_3             = 2,
-    CONTIVITY_TEST_RESULT_IDX_I2C           = 3,
-    CONTIVITY_TEST_RESULT_IDX_OPTO_ISOLATOR = 4,
-    CONTIVITY_TEST_RESULT_IDX_T_SENSOR      = 5,
+    CONTIVITY_TEST_RESULT_IDX_T_SENSOR      = 3,
     CONTIVITY_TEST_RESULT_IDX_MAX           = 9,
 } connectivity_test_result_idx_t;
 

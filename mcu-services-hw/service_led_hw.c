@@ -21,6 +21,7 @@
 static const rcu_periph_enum rpu_tab[] = {
     RCU_GPIOA,
     RCU_GPIOB,
+    RCU_GPIOC,
 };
 
 #define LED_COUNT 6
@@ -41,9 +42,16 @@ void led_hw_init(void)
 {
     /* configure RCU of LED GPIO port ON*/
     enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
+    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
 
     /* configure LEDs GPIO port as output*/
     setup_pins(led_pin_tab, LED_COUNT);
+    gpio_init(GPIOA, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_0);
+    gpio_bit_write(GPIOA, GPIO_PIN_0, SET);
+
+    gpio_init(GPIOB, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_12);
+    gpio_bit_write(GPIOB, GPIO_PIN_12, SET);
+
 }
 
 // turn on/off of the LED
