@@ -10,8 +10,8 @@
       <TargetName>saip_board</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pArmCC>5060750::V5.06 update 6 (build 750)::.\ARMCC</pArmCC>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -135,10 +135,10 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4099</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
           <bUseTDR>0</bUseTDR>
-          <Flash2>BIN\CMSIS_AGDI.dll</Flash2>
+          <Flash2>Segger\JL2CM3.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -353,7 +353,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>1</ClangAsOpt>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>VERSION_DATE=0x20210527,FW_VERSION=0x0107</Define>
@@ -583,6 +583,11 @@
               <FileName>service_camera.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\mcu-services\include\service_camera.h</FilePath>
+            </File>
+            <File>
+              <FileName>service_laser_status.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu-services\source\service_laser_status.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -841,7 +846,13 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>start_board</LayName>
+        <LayName>&lt;Project Info&gt;</LayName>
+        <LayDesc></LayDesc>
+        <LayUrl></LayUrl>
+        <LayKeys></LayKeys>
+        <LayCat></LayCat>
+        <LayLic></LayLic>
+        <LayTarg>0</LayTarg>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>

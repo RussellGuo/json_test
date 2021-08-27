@@ -15,6 +15,7 @@
 
 #include "service_camera.h"
 
+
 __NO_RETURN int main(void)
 {
     // OS initialization
@@ -37,6 +38,7 @@ __NO_RETURN int main(void)
     init_thread_of_service_led();
     init_thread_of_service_laser();
     init_thread_of_service_flashlight();
+    init_thread_of_service_laser_status();
 
     // let's go!
     osKernelStart();

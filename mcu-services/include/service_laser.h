@@ -42,4 +42,9 @@ void laser_hw_init(void);
 //    the flag of this thread will be set. This is a notice to change mode.
 void laser_running_until_new_request_arrived(uint32_t laser_mode, uint32_t laser_mode_param, uint32_t new_request_flag);
 
+bool turn_laser(bool on);
+
+bool init_thread_of_service_laser_status(void);
+
+
 #endif

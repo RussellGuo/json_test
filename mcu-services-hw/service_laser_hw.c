@@ -24,7 +24,7 @@
 #define LASER_PWM                TIMER1
 #define LASER_COUNT                   3
 #define LASER_PRESCALER             120
-#define LASER_PERIOD                100
+#define LASER_PERIOD                99
 #define LASER_REPETITIONCOUNTER       0
 #define LASER_DUTY                   50
 
@@ -81,7 +81,8 @@ static const rcu_periph_enum rpu_tab[] = {
 static const struct mcu_pin_t
      laser_enable_pin = {GPIOB, GPIO_PIN_14, GPIO_MODE_OUT_PP      }, // PIN B14
      laser_status_pin = {GPIOA, GPIO_PIN_0 , GPIO_MODE_IN_FLOATING }, // PIN  A0
-     laser_pwm_pin    = {GPIOA, GPIO_PIN_1 , GPIO_MODE_AF_PP       } ; // PIN  A1
+     laser_pwm_pin    = {GPIOA, GPIO_PIN_1 , GPIO_MODE_AF_PP       } , // PIN  A1
+     sgm2523_en_light_pin    = {GPIOB, GPIO_PIN_1 , GPIO_MODE_OUT_PP} ; // sgm2523_en_light PB1
 
 // The hardware initialization function required for the operation of the laser module.
 void laser_hw_init(void)
@@ -94,6 +95,9 @@ void laser_hw_init(void)
   //  setup_pins(&laser_status_pin, 1);
     setup_pins(&laser_pwm_pin   , 1);
 
+    setup_pins(&sgm2523_en_light_pin   , 1);
+    write_pin(&sgm2523_en_light_pin, true);
+
     pwm_config();
 }
 
@@ -102,11 +106,12 @@ void laser_hw_init(void)
 //  [in]on, enable/disable the laser
 // return value:
 //  true means success, otherwise failure
-static bool turn_laser(bool on)
+ bool turn_laser(bool on)
 {
     rpc_log(LOG_VERBOSE, "turn_laser '%s'", on ? "on" : "off");
 
     // enable/disable the timer according parameter 'on'
+    write_pin(&laser_pwm_pin   , on);
     (on ? timer_enable : timer_disable)(LASER_PWM);
     // set the enable pin
     write_pin(&laser_enable_pin, on);

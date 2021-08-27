@@ -19,16 +19,16 @@
 static const struct mcu_pin_t db9_pin_tab[] = {
     { GPIOB, GPIO_PIN_4 }, // GPIO4
     { GPIOB, GPIO_PIN_5 }, // GPIO7
-    { GPIOB, GPIO_PIN_8  }, // GPIO6
+    { GPIOA, GPIO_PIN_14  }, // GPIO6
     { GPIOC, GPIO_PIN_13  }, // GPIO13
     { GPIOC, GPIO_PIN_14  }, // GPIO8
     { GPIOB, GPIO_PIN_7  }, // I2C0_SDA
     { GPIOB, GPIO_PIN_6  }, // I2C0_SCL
-    { GPIOB, GPIO_PIN_2  },
+    { GPIOB, GPIO_PIN_12  },
     { GPIOB, GPIO_PIN_13  },
     { GPIOB, GPIO_PIN_3  },
     { GPIOA, GPIO_PIN_15  },
-    { GPIOB, GPIO_PIN_9  },
+    { GPIOA, GPIO_PIN_13  },
     { GPIOA, GPIO_PIN_0  },
 };
 
@@ -45,7 +45,7 @@ void db9_hw_init(void)
 {
     /* configure RCU of LED GPIO port ON*/
     enable_rcus(rpu_mcu_tab, sizeof(rpu_mcu_tab) / sizeof(rpu_mcu_tab[0]));
-    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
+    gpio_pin_remap_config(GPIO_SWJ_DISABLE_REMAP, ENABLE);
 }
 
 // ReplyToConfigDb9Pin, ReplyToSetDb9Pin and ReplyToGetDb9Pin, those function are in the API layer of

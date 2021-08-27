@@ -41,7 +41,7 @@ static const rcu_periph_enum rpu_tab[] = {
 
 // 2 output pins
 static const struct mcu_pin_t connectvity_out_pin_tab[DB9_CONNECTIVITY_PAIR_COUNT] = {
-    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_2, GPIO_MODE_OUT_PP      },
+    [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_12, GPIO_MODE_OUT_PP      },
     [CONTIVITY_TEST_RESULT_IDX_2            ] = { GPIOB, GPIO_PIN_13, GPIO_MODE_OUT_PP      },
 };
 
@@ -49,7 +49,7 @@ static const struct mcu_pin_t connectvity_out_pin_tab[DB9_CONNECTIVITY_PAIR_COUN
 static const struct mcu_pin_t connectvity_in_pin_tab[DB9_CONNECTIVITY_PAIR_COUNT] = {
     [CONTIVITY_TEST_RESULT_IDX_1            ] = { GPIOB, GPIO_PIN_3 , GPIO_MODE_IPD         },
     [CONTIVITY_TEST_RESULT_IDX_2            ] = { GPIOA, GPIO_PIN_15 , GPIO_MODE_IPD         },
-    [CONTIVITY_TEST_RESULT_IDX_3            ] = { GPIOB, GPIO_PIN_9 , GPIO_MODE_IPD         },
+    [CONTIVITY_TEST_RESULT_IDX_3            ] = { GPIOA, GPIO_PIN_13 , GPIO_MODE_IPD         },
 };
 
 
@@ -65,6 +65,7 @@ void db9_init_for_factory(void)
     enable_rcus(rpu_tab, sizeof(rpu_tab) / sizeof(rpu_tab[0]));
     // pin should be remapped because it used by connectivity test
     gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP, ENABLE);
+
 
 #ifdef __FACTORY_RELEASE__
     // pins' mode setup
