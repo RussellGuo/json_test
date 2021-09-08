@@ -111,8 +111,8 @@ void laser_hw_init(void)
     rpc_log(LOG_VERBOSE, "turn_laser '%s'", on ? "on" : "off");
 
     // enable/disable the timer according parameter 'on'
-    write_pin(&laser_pwm_pin   , on);
     (on ? timer_enable : timer_disable)(LASER_PWM);
+    write_pin(&laser_pwm_pin   , on);
     // set the enable pin
     write_pin(&laser_enable_pin, on);
 

@@ -356,7 +356,7 @@
             <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>VERSION_DATE=0x20210527,FW_VERSION=0x0107</Define>
+              <Define>VERSION_DATE=0x20210908,FW_VERSION=0x0108</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>

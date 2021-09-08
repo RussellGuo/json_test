@@ -30,6 +30,7 @@ uint16_t ch3_readvalue2 = 0;
 
 uint32_t ch2_count;
 uint32_t ch3_count;
+bool laser_flag = false;
 
 static void gpio_configuration(void)
 {
@@ -109,12 +110,16 @@ __NO_RETURN static void laser_status_thread(void *argument)
         if((ch2_fre == 10000) && (ch3_fre == 10000)){
             ch2_fre = 0;
             ch3_fre = 0;
+            laser_flag = false;
         }else{
-            turn_laser(false);
+            if(!laser_flag){
+                turn_laser(false);
+                laser_flag = true;
+            }
         }
    //     printf("ch2_fre %d,ch2_count %d\n",ch2_fre,ch2_count);
    //      printf("ch3_fre %d,ch3_count %d\n",ch3_fre,ch3_count);
-        osDelay(100);
+        osDelay(200);
     }
 }
 
