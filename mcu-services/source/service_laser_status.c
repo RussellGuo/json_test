@@ -107,7 +107,7 @@ __NO_RETURN static void laser_status_thread(void *argument)
     (void)argument;
      timer3_init();
     for(;;) {
-        if((ch2_fre == 10000) && (ch3_fre == 10000)){
+        if(((ch2_fre >= 9000) && (ch2_fre <= 11000)) && ((ch3_fre >= 9000) && (ch3_fre <= 11000))){
             ch2_fre = 0;
             ch3_fre = 0;
             laser_flag = false;
