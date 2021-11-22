@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/js",
-            "args": [],
+            "args": ["${workspaceFolder}/js"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
