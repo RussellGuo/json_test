@@ -22,6 +22,7 @@
 
 // PSN will save here according the EEPROM layout design from people of product line
 #define PSN_OFFSET_ADDR_IN_EEPROM 4
+#define SAIP_OFFSET_ADDR_IN_EEPROM 100
 #define EEPROM_IO_DELAY() osDelay(2)
 
 // ReplyToSavePsnIntoEeprom, the function is in the API layer of the host-MCU communication
@@ -41,6 +42,7 @@ void ReplyToSavePsnIntoEeprom(
 {
     *error_code = NO_ERROR;
     (void)seq;
+    uint8_t *saip_byte_array = "SaIPm";
 
 
     bool ret = true;
@@ -69,10 +71,32 @@ void ReplyToSavePsnIntoEeprom(
 
     // compare read and written, they should be equal
     ret = ret && memcmp(read_back, psn_byte_array, PSN_BYTE_COUNT) == 0;
+
+    // write SaIPm
+    for (int i = 0; i < SAIPM_BYTE_COUNT; i++) {
+        ret = ret && eeprom_byte_write(saip_byte_array[i], SAIP_OFFSET_ADDR_IN_EEPROM + i);
+        // EEPROM needs 'colddown' after IO
+        EEPROM_IO_DELAY();
+        if (!ret) {
+            break;
+        }
+    }
+
+    osDelay(10);
+    // read them
+    uint8_t read_back_ip[SAIPM_BYTE_COUNT] = { 0 };
+    for (int i = 0; i < SAIPM_BYTE_COUNT; i++) {
+        ret = ret && eeprom_byte_read(read_back_ip + i, SAIP_OFFSET_ADDR_IN_EEPROM + i);
+        // EEPROM needs 'colddown' after IO
+        EEPROM_IO_DELAY();
+        if (!ret) {
+            break;
+        }
+    }
+    ret = ret && memcmp(read_back_ip, saip_byte_array, SAIPM_BYTE_COUNT) == 0;
     *return_value = ret;
 
     db9_init_for_factory();
-
 }
 
 // ReplyToGetPsnFromEeprom, the function is in the API layer of the host-MCU communication

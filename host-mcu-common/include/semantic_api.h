@@ -44,6 +44,7 @@ typedef enum {
 
 #define PSN_WORD_COUNT 8
 #define PSN_BYTE_COUNT (PSN_WORD_COUNT * sizeof (serial_datagram_item_t))
+#define SAIPM_BYTE_COUNT  5
 
 // the msg id, request id mostly
 typedef enum {
