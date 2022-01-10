@@ -22,7 +22,7 @@ __NO_RETURN int main(void)
     osKernelInitialize();
     NVIC_SetPriorityGrouping(3);  // setup priority grouping
 
-    set_rpc_log_level(LOG_INFO);
+    set_rpc_log_level(LOG_FATAL);
 
     // drivers initialization
     init_uart_io_api();
