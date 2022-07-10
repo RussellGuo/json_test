@@ -25,8 +25,25 @@ std::string hash(const std::string &filename)
 	return ret;
 }
 
+
+template <typename consumer_t>
+class deliverer_t {
+public:
+	deliverer_t(int v) {  }
+	void run() { consumer_t(this); }
+	void print_it() { printf("%s be called\n", __FUNCTION__);}
+
+};
+
+class consumer_t;
+deliverer_t<consumer_t> x{1};
+
+struct consumer_t {
+	consumer_t(deliverer_t<consumer_t>*he) { he->print_it(); }
+};
 int main(int argc, char *argv[])
 {
+	x.run();
     auto j2 = R"(
 {
 	"version": "2.0.0",
