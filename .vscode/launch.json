@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/js",
             "args": ["${workspaceFolder}/js"],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
