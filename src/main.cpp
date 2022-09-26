@@ -19,20 +19,7 @@ int main(int argc, char *argv[])
     }
 
     std::string line {"type ‘SYSENUM&’ to "};
-    for(;;) {
-        bool found = false;
-        for (const std::string sub:{"‘","’"}) {
-            auto pos = line.find(sub);
-            auto len = sub.length();
-            if (pos != std::string::npos) {
-                found = true;
-                line.replace(pos, len, "'");
-            }
-        }
-        if (!found) {
-            break;
-        }
-    }
+    line = std::regex_replace(line, std::regex("‘|’"), std::string("'"));
 
     return 0;
 }
