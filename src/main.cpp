@@ -3,23 +3,29 @@
 #include <regex>
 #include <assert.h>
 #include <iostream>
+#include "json.hpp"
 
+using json = nlohmann::json;
+
+enum state_t {
+    stop, running, completed, invalid
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM( state_t, {
+    {invalid, "error"},
+    {stop, "stopped"},
+    {running, "running"},
+    {completed, "completed"},
+})
 
 int main(int argc, char *argv[])
 {
-    std::wstring src = LR"(#include __PATH__ "main.cpp";)";
-    std::wsmatch m;
-    std::wstring include_pattern = LR"(#\s*include\s+(__PATH__)?\s*\"(.*)\"\s*;?\s*)";
-    auto ret = std::regex_match(src, m, std::wregex(include_pattern));
-    if (ret) {
-        assert(m.size() > 2);
-        std::wstring path = m[1].str();
-        std::wstring file = m[2].str();
-        std::wcout << L"path: '" << path << L"', file: '" << file << L"'" << std::endl;
-    }
-
-    std::string line {"type ‘SYSENUM&’ to "};
-    line = std::regex_replace(line, std::regex("‘|’"), std::string("'"));
-
+    json j = R"({"index":1,"value":"NA"})"_json;
+    j["state"] = stop;
+    auto str = j.dump(2);
+    auto bson = json::to_bson(j);
+    auto j2 = json::from_bson(bson);
+    auto str2 = j2.dump(2);
+    assert(str == str2);
     return 0;
 }
