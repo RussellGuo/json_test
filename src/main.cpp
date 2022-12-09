@@ -3,29 +3,38 @@
 #include <regex>
 #include <assert.h>
 #include <iostream>
+#include <memory>
+
 #include "json.hpp"
 
-using json = nlohmann::json;
-
-enum state_t {
-    stop, running, completed, invalid
+size_t idx;
+struct str {
+    str() {
+        std::cerr << "created " << n << "\n";
+    }
+    str(const str&s): map(s.map) {
+        std::cerr << "duplicated " << n << "\n";
+    }
+    str(str&&s):map(std::move(s.map)){
+        std::cerr << "moved " << n << "\n";
+    }
+    ~str() {
+        std::cerr << "released " << n <<" len = " << map.size() << "\n";
+    }
+    const size_t n = idx++;
+    std::map<const char *, int>map;
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM( state_t, {
-    {invalid, "error"},
-    {stop, "stopped"},
-    {running, "running"},
-    {completed, "completed"},
-})
+struct value_t {
+    str s;
+};
 
 int main(int argc, char *argv[])
 {
-    json j = R"({"index":1,"value":"NA"})"_json;
-    j["state"] = stop;
-    auto str = j.dump(2);
-    auto bson = json::to_bson(j);
-    auto j2 = json::from_bson(bson);
-    auto str2 = j2.dump(2);
-    assert(str == str2);
+    str s1;
+    s1.map["char"] = 1;
+    s1.map["short"] = 2;
+    auto p = std::make_shared<const value_t, value_t>({.s = std::move(s1)});
+    p = nullptr;
     return 0;
 }
