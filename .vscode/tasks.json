@@ -4,7 +4,7 @@
         {
             "label": "make",
             "type": "shell",
-            "command": "make -C src",
+            "command": "make -C build_debug",
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
