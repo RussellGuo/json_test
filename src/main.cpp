@@ -6,8 +6,6 @@
 #include <memory>
 #include <set>
 
-#include "json.hpp"
-
 struct value_t {
     const int value;
     const std::string name;
@@ -29,16 +27,45 @@ static inline bool operator < (int v1, const value_t &v2) {
 
 using value_set_t = std::set<value_t, std::less<>>;
 
-int main(int argc, char *argv[])
+namespace const_str_pool {
+using const_str = const char *;
+
+struct const_str_less_t {
+    bool operator () (const_str a, const_str b) const {
+        auto ret = strcmp(a, b);
+        return ret < 0;
+    }
+};
+
+std::set<const_str, const_str_less_t>pool;
+const_str mk_str(const_str str)
 {
-    value_set_t v_set;
-    const auto r1 = v_set.emplace(1, "A");
-    const auto r2 = v_set.emplace(2, "B");
-    const auto r3 = v_set.emplace(2, "A");
-    const auto r4 = v_set.find(2);
-    const auto r5 = v_set.find(4);
-    const auto r6 = r5 == v_set.end();
+    auto ret = pool.find(str);
+    if (ret == pool.end()) {
+        const_str new_str = strdup(str);
+        if (new_str == nullptr) {
+            throw std::bad_alloc();
+        }
+        pool.insert(new_str);
+        return new_str;
+    } else {
+        return *ret;
+    }
 
+}
 
+};
+
+int main(int, char *[])
+{
+    auto r1  = const_str_pool::mk_str("1");
+    auto r2  = const_str_pool::mk_str("2");
+    auto r1_ = const_str_pool::mk_str("1");
+    auto r2_ = const_str_pool::mk_str("2");
+    (void)r1;
+    (void)r2;
+    (void)r1_;
+    (void)r2_;
+    
     return 0;
 }

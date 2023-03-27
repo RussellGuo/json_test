@@ -1,10 +1,14 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.16)
 
-project(js_test)
+project(js)
 
-set(source
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED True)
+
+add_executable(js
     main.cpp
-    sub.cpp
 )
+target_compile_options(js PRIVATE -Wall -Wextra -Werror)
 
-add_executable(js ${source})
