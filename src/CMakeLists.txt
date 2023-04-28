@@ -13,7 +13,6 @@ set(SQLITE_SRC_DIR sqlite)
 
 add_executable(js
     main.cpp
-    ${SQLITE_SRC_DIR}/sqlite3.c
 )
 
 include_directories(
