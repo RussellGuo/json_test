@@ -1,4 +1,11 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}/src",
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceRoot}",
+        "environment": [],
+        "args": [
+            "2038json.json"
+        ]
+    }
 }
