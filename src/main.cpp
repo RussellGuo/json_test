@@ -64,11 +64,14 @@ static json_statment_t get_cpp_statment_of_json(const json &j) {
         statment += sub_item_string + "static json " + name + "()\n{\n    json ret;\n" + sub_item_append + "\n    return ret;\n}\n\n";
         name += "()";
     } else if (is_int) {
-        name = "json(" + std::to_string(j.get<int>()) + ")";
+        const std::string value_string = std::to_string(j.get<int>());
+        name = "(string_only_in_json ? json(\"" + value_string + "\") : json(" + value_string + ") )";
     } else if (is_unsigned) {
-        name = "json(" + std::to_string(j.get<unsigned>()) + ")";
+        const std::string value_string = std::to_string(j.get<unsigned>());
+        name = "(string_only_in_json ? json(\"" + value_string + "\") : json(" + value_string + ") )";
     } else if (is_float) {
-        name = "json(" + std::to_string(j.get<double>()) + ")";
+        const std::string value_string = std::to_string(j.get<double>());
+        name = "(string_only_in_json ? json(\"" + value_string + "\") : json(" + value_string + ") )";
     } else if (is_string) {
         name = "json(\"" + j.get<std::string>() + "\")";
     } else {
@@ -89,17 +92,17 @@ int main(int argc, char *argv[]) {
 
     json j = get_json_from_file(argv[1]);
 
-    std::ofstream f("dump.json", std::ios::out);
-    f << j.dump(4);
-    f.close();
 
     auto ret = get_cpp_statment_of_json(j);
 
-    std::cout << "#include <iostream>\n#include \"json.hpp\"\nusing json = nlohmann::json;\n";
     std::cout << ret.statment;
-    std::cout << "\n\n\nint main()\n{\n";
-    std::cout << "    std::cout << " + ret.var_name + ".dump(4);\n";
-    std::cout << "    return 0;\n}\n";
+    std::cout << "#define MAIN_JSON() " << ret.var_name << std::endl;
+
+#if 0
+    std::ofstream f("dump.json", std::ios::out);
+    f << j.dump(4);
+    f.close();
+#endif
 
     return 0;
 }
