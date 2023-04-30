@@ -26,7 +26,7 @@ int main() {
         for (int i = 0; i < times; i++) {
             auto string = main_json.dump();
         }
-        gen_many_times_json.print();
+        dump_many_times_json.print();
     }
 
     return 0;
