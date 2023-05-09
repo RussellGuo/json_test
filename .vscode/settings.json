@@ -4,8 +4,6 @@
     "cmake.debugConfig": {
         "cwd": "${workspaceRoot}",
         "environment": [],
-        "args": [
-            "2038json.json"
-        ]
+        "args": []
     }
 }
