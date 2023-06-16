@@ -1,5 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
+#include <sys/fcntl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <fstream>
 #include <iostream>
@@ -7,55 +11,32 @@
 #include <regex>
 #include <set>
 
-#include "txt_num.pb.h"
+static constexpr size_t TOTAL_SIZE = size_t(1) * 10 * 1024 * 1024 * 1024;
+
+static void throw_runtime(const char *reson) {
+    throw std::runtime_error(std::string(reson) + ": " + strerror(errno));
+}
 
 int main(int, char *[]) {
-    struct txt_num_t {
-        const std::string txt;
-        const double num;
-    };
-    std::vector<txt_num_t> txt_num_table{
-        {"zero", 0},
-        {"one", 1},
-        {"two", 2},
-        {"three", 3},
-        {"four", 4},
-        {"five", 5},
-        {"six", 6},
-        {"seven", 7},
-        {"eight", 8},
-        {"night", 9},
-    };
-
-    txt_num_tab txt_num_tab_to_pb;
-    for (const auto &[txt, num] : txt_num_table) {
-        auto item = txt_num_tab_to_pb.add_tab();
-        item->set_txt(txt);
-        item->set_num(num);
+    int fd = open("mmap", O_CREAT | O_RDWR | O_TRUNC, 0644);
+    if (fd < 0) {
+        throw_runtime("mmap failed");
     }
-    char buf[600] = {0};
-    size_t buf_content_len;
-    bool ret = txt_num_tab_to_pb.SerializeToArray(buf, sizeof buf);
-    if (!ret) {
-        fprintf(stderr, "protobuf error\n");
-        exit(1);
+    auto ptr = mmap(nullptr, TOTAL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (ptr == MAP_FAILED) {
+        throw_runtime("mmap failed");
     }
-    buf_content_len = txt_num_tab_to_pb.ByteSizeLong();
-    std::cout << "protobuf translated byte count: " << buf_content_len << std::endl;
-
-    txt_num_tab pb_to_txt_num_tab;
-    auto is_ok = pb_to_txt_num_tab.ParseFromArray(buf, buf_content_len);
-    if (!is_ok) {
-        fprintf(stderr, "protobuf decoding error\n");
-        exit(1);
+    auto ret = lseek(fd, TOTAL_SIZE - 1, SEEK_CUR);
+    if (ret < 0) {
+        throw_runtime("lseek");
     }
-    auto size = pb_to_txt_num_tab.tab_size();
-    for (int i = 0; i < size; i++) {
-        const auto &item = pb_to_txt_num_tab.tab(i);
-        const auto txt = item.txt();
-        const auto num = item.num();
-        std::cout << "txt: " << txt << " num: " << num << std::endl;
+    ret = write(fd, "", 1);
+    if (ret < 0) {
+        throw_runtime("write");
     }
-
+    close(fd);
+    char *p = (char *)ptr;
+    p[1024] = 1;
+    printf("ptr: %p\n", ptr);
     return 0;
 }
