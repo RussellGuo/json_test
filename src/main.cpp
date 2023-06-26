@@ -11,32 +11,30 @@
 #include <regex>
 #include <set>
 
-static constexpr size_t TOTAL_SIZE = size_t(1) * 10 * 1024 * 1024 * 1024;
+#include "crc32c.h"
+#include "openssl/md5.h"
+#include "openssl/sha.h"
 
-static void throw_runtime(const char *reson) {
-    throw std::runtime_error(std::string(reson) + ": " + strerror(errno));
-}
+static constexpr size_t total_size = 1024UL * 1024 * 1024;
 
 int main(int, char *[]) {
-    int fd = open("mmap", O_CREAT | O_RDWR | O_TRUNC, 0644);
-    if (fd < 0) {
-        throw_runtime("mmap failed");
-    }
-    auto ptr = mmap(nullptr, TOTAL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (ptr == MAP_FAILED) {
-        throw_runtime("mmap failed");
-    }
-    auto ret = lseek(fd, TOTAL_SIZE - 1, SEEK_CUR);
-    if (ret < 0) {
-        throw_runtime("lseek");
-    }
-    ret = write(fd, "", 1);
-    if (ret < 0) {
-        throw_runtime("write");
-    }
-    close(fd);
-    char *p = (char *)ptr;
-    p[1024] = 1;
-    printf("ptr: %p\n", ptr);
+    uint8_t *data_ptr = new uint8_t[total_size];
+    memset(data_ptr, 0, total_size);
+
+    const auto value = crc32c_value(data_ptr, total_size);
+    std::cout << "crc32c of 1GB-zero is " << value << std::endl;
+
+    SHA_CTX sha_context;
+    uint8_t sha_md[2048] = { 0 };
+    bool sha_result = !!SHA1_Init(&sha_context) || !!SHA1_Update(&sha_context, data_ptr, total_size) || SHA1_Final(sha_md, &sha_context);
+    std::cout << "sha1 of 1GB-zero return " << sha_result << std::endl;
+
+    MD5_CTX md5_content;
+    uint8_t md5_md[2048] = { 0 };
+    bool md5_result = !!MD5_Init(&md5_content) || !!MD5_Update(&md5_content, data_ptr, total_size) || MD5_Final(md5_md, &md5_content);
+    std::cout << "md4 of 1GB-zero return " << md5_result << std::endl;
+
+    delete[] data_ptr;
+
     return 0;
 }
