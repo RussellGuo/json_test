@@ -1,40 +1,57 @@
-#include <assert.h>
-#include <stdio.h>
-#include <sys/fcntl.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include <fstream>
 #include <iostream>
-#include <memory>
-#include <regex>
-#include <set>
+#include <string>
+#include <vector>
 
-#include "crc32c.h"
-#include "openssl/md5.h"
-#include "openssl/sha.h"
+#include "obj_hash.hpp"
 
-static constexpr size_t total_size = 1024UL * 1024 * 1024;
+// 自定义类型的hash函数怎样做的例子
+class person_t {
+   public:
+    enum gender_t : char {
+        male,
+        female,
+        others,
+    };
+
+    int no;
+    const char *name;
+    gender_t gender;
+    std::string address;
+    struct score {
+        int mid;
+        int fin;
+    };
+
+    std::vector<score> score_list;
+};
+
+inline void feed_hash_with(obj_hash_t &h, const person_t::score &score) {
+    feed_hash_with(h, score.mid);
+    feed_hash_with(h, score.fin);
+    std::cout << "score hash..." << std::endl;
+}
+
+inline void feed_hash_with(obj_hash_t &h, const person_t &person) {           // 固定用这个接口
+    feed_hash_with(h, person.no);                                             // 顺序*投喂*基本类型的数据
+    feed_hash_with(h, person.name);                                           // 顺序*投喂*C字符串
+    feed_hash_with(h, person.gender);                                         // 枚举也是可以的
+    feed_hash_with(h, person.address);                                        // 顺序*投喂*C++字符串
+    feed_hash_with(h, person.score_list.cbegin(), person.score_list.cend());  // vector 则用迭代器顺序投喂
+    // 如果成员里是其它自定义类型，也是这么写，前提是那个自定义类型已经实现了feed_hash_with
+}
 
 int main(int, char *[]) {
-    uint8_t *data_ptr = new uint8_t[total_size];
-    memset(data_ptr, 0, total_size);
-
-    const auto value = crc32c_value(data_ptr, total_size);
-    std::cout << "crc32c of 1GB-zero is " << value << std::endl;
-
-    SHA_CTX sha_context;
-    uint8_t sha_md[2048] = { 0 };
-    bool sha_result = !!SHA1_Init(&sha_context) || !!SHA1_Update(&sha_context, data_ptr, total_size) || SHA1_Final(sha_md, &sha_context);
-    std::cout << "sha1 of 1GB-zero return " << sha_result << std::endl;
-
-    MD5_CTX md5_content;
-    uint8_t md5_md[2048] = { 0 };
-    bool md5_result = !!MD5_Init(&md5_content) || !!MD5_Update(&md5_content, data_ptr, total_size) || MD5_Final(md5_md, &md5_content);
-    std::cout << "md4 of 1GB-zero return " << md5_result << std::endl;
-
-    delete[] data_ptr;
-
+    person_t person{
+        .no = 1,
+        .name = "Li Lei",
+        .gender = person_t::male,
+        .address = "#399, Chuanhe ave",
+        .score_list{
+            {90, 114},
+            {90, 104},
+            {90, 99},
+        }};                                       // 对象
+    auto hash_value = get_hash_value_of(person);  // 简便方法获得其hash
+    (void)hash_value;
     return 0;
 }

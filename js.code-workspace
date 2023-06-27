@@ -8,7 +8,9 @@
 		"files.associations": {
 			"iosfwd": "cpp",
 			"ostream": "cpp",
-			"*.inc": "cpp"
+			"*.inc": "cpp",
+			"array": "cpp",
+			"type_traits": "cpp"
 		}
 	}
 }
