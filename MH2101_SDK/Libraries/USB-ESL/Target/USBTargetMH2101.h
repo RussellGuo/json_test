@@ -1,0 +1,21 @@
+#ifndef __USB_TARGET_CONFIG_MH2101_H__
+#define __USB_TARGET_CONFIG_MH2101_H__
+
+#define CONFIG_USB_SUPPORT_CORE_ZOFFY 1
+
+// Zoffy custom config here
+#define CONFIG_USBCORE_ZOFFY_SUPPORT_DMA 0
+
+#ifndef CONFIG_USBCORE_ZOFFY_MAX_RX_PACKET_SIZE
+#define CONFIG_USBCORE_ZOFFY_MAX_RX_PACKET_SIZE (128)
+#endif
+
+#define CONFIG_USBCORE_ZOFFY_EP_COUNT (4)
+
+#include "mhscpu.h"
+
+// USB Core Base Address
+#define USB_ZOFFY_BASE USB_BASE
+#define USB_ZOFFY_IRQ  USB_IRQn
+
+#endif
