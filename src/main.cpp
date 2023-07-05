@@ -37,6 +37,8 @@ inline void feed_hash_with(obj_hash_t &h, const person_t &person) {           //
     feed_hash_with(h, person.gender);                                         // 枚举也是可以的
     feed_hash_with(h, person.address);                                        // 顺序*投喂*C++字符串
     feed_hash_with(h, person.score_list.cbegin(), person.score_list.cend());  // vector 则用迭代器顺序投喂
+    feed_hash_with(h, person.score_list);  // vector 则用迭代器顺序投喂
+    feed_hash_with(h, L"AAA");
     // 如果成员里是其它自定义类型，也是这么写，前提是那个自定义类型已经实现了feed_hash_with
 }
 

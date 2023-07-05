@@ -10,7 +10,8 @@
 			"ostream": "cpp",
 			"*.inc": "cpp",
 			"array": "cpp",
-			"type_traits": "cpp"
+			"type_traits": "cpp",
+			"string": "cpp"
 		}
 	}
 }

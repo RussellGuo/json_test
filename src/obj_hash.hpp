@@ -30,19 +30,6 @@ class obj_hash_t {
         SHA1_Update(&ctx, data_ptr, len);
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value> >
-    void feed(const T &v) {
-        feed(&v, sizeof v);
-    }
-
-    void feed(const std::string &str) {
-        feed(str.data(), str.length());
-    }
-
-    void feed(const char *str) {
-        feed(str, strlen(str));
-    }
-
     hash_result_t result() {
         hash_result_t res;
         SHA1_Final(res.data(), &ctx);
@@ -66,19 +53,35 @@ class obj_hash_t {
 //    注意 unordered_set unordered_map系列不可以用，因为hash跟顺序是有关的
 // 对于用户定义的复合类型，需要用户*伴随*定义自己的 feed_hash_with. 参见main的例子
 
-template <typename T>
-static inline void feed_hash_with(obj_hash_t &h, const T &value) {
-    h.feed(value);
-}
-
 static inline void feed_hash_with(obj_hash_t &h, const void *data_ptr, size_t len) {
     h.feed(data_ptr, len);
+}
+
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value> >
+static inline void feed_hash_with(obj_hash_t &h, const T value) {
+    feed_hash_with(h, &value, sizeof value);
+}
+
+
+static inline void feed_hash_with(obj_hash_t &h, const std::string &str) {
+    feed_hash_with(h, str.data(), str.length());
+}
+
+static inline void feed_hash_with(obj_hash_t &h, const char *str) {
+    feed_hash_with(h, str, strlen(str));
 }
 
 template <typename T_const_iterator, typename = typename std::iterator_traits<T_const_iterator>::difference_type>
 static inline void feed_hash_with(obj_hash_t &h, T_const_iterator begin, T_const_iterator end) {
     for (auto it = begin; it != end; it++) {
         feed_hash_with(h, *it);
+    }
+}
+
+template <typename T_container, typename = typename T_container::difference_type>
+static inline void feed_hash_with(obj_hash_t &h, const T_container &container) {
+    for (const auto &item : container) {
+        feed_hash_with(h, item);
     }
 }
 
