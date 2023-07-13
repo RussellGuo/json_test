@@ -1,59 +1,61 @@
+#include <assert.h>
+#include <stdio.h>
+
+#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
+#include <memory>
+#include <regex>
+#include <set>
 
-#include "obj_hash.hpp"
-
-// 自定义类型的hash函数怎样做的例子
-class person_t {
-   public:
-    enum gender_t : char {
-        male,
-        female,
-        others,
-    };
-
-    int no;
-    const char *name;
-    gender_t gender;
-    std::string address;
-    struct score {
-        int mid;
-        int fin;
-    };
-
-    std::vector<score> score_list;
-};
-
-inline void feed_hash_with(obj_hash_t &h, const person_t::score &score) {
-    feed_hash_with(h, score.mid);
-    feed_hash_with(h, score.fin);
-    std::cout << "score hash..." << std::endl;
-}
-
-inline void feed_hash_with(obj_hash_t &h, const person_t &person) {           // 固定用这个接口
-    feed_hash_with(h, person.no);                                             // 顺序*投喂*基本类型的数据
-    feed_hash_with(h, person.name);                                           // 顺序*投喂*C字符串
-    feed_hash_with(h, person.gender);                                         // 枚举也是可以的
-    feed_hash_with(h, person.address);                                        // 顺序*投喂*C++字符串
-    feed_hash_with(h, person.score_list.cbegin(), person.score_list.cend());  // vector 则用迭代器顺序投喂
-    feed_hash_with(h, person.score_list);  // vector 则用迭代器顺序投喂
-    feed_hash_with(h, L"AAA");
-    // 如果成员里是其它自定义类型，也是这么写，前提是那个自定义类型已经实现了feed_hash_with
-}
+#include "txt_num.pb.h"
 
 int main(int, char *[]) {
-    person_t person{
-        .no = 1,
-        .name = "Li Lei",
-        .gender = person_t::male,
-        .address = "#399, Chuanhe ave",
-        .score_list{
-            {90, 114},
-            {90, 104},
-            {90, 99},
-        }};                                       // 对象
-    auto hash_value = get_hash_value_of(person);  // 简便方法获得其hash
-    (void)hash_value;
+    struct txt_num_t {
+        const std::string txt;
+        const double num;
+    };
+    std::vector<txt_num_t> txt_num_table{
+        {"zero", 0},
+        {"one", 1},
+        {"two", 2},
+        {"three", 3},
+        {"four", 4},
+        {"five", 5},
+        {"six", 6},
+        {"seven", 7},
+        {"eight", 8},
+        {"night", 9},
+    };
+
+    txt_num_tab txt_num_tab_to_pb;
+    for (const auto &[txt, num] : txt_num_table) {
+        auto item = txt_num_tab_to_pb.add_tab();
+        item->set_txt(txt);
+        item->set_num(num);
+    }
+    char buf[600] = {0};
+    size_t buf_content_len;
+    bool ret = txt_num_tab_to_pb.SerializeToArray(buf, sizeof buf);
+    if (!ret) {
+        fprintf(stderr, "protobuf error\n");
+        exit(1);
+    }
+    buf_content_len = txt_num_tab_to_pb.ByteSizeLong();
+    std::cout << "protobuf translated byte count: " << buf_content_len << std::endl;
+
+    txt_num_tab pb_to_txt_num_tab;
+    auto is_ok = pb_to_txt_num_tab.ParseFromArray(buf, buf_content_len);
+    if (!is_ok) {
+        fprintf(stderr, "protobuf decoding error\n");
+        exit(1);
+    }
+    auto size = pb_to_txt_num_tab.tab_size();
+    for (int i = 0; i < size; i++) {
+        const auto &item = pb_to_txt_num_tab.tab(i);
+        const auto txt = item.txt();
+        const auto num = item.num();
+        std::cout << "txt: " << txt << " num: " << num << std::endl;
+    }
+
     return 0;
 }
