@@ -5,7 +5,7 @@ project(protobuf_example)
 find_package(Protobuf REQUIRED)
 
 # host-side PB
-protobuf_generate_cpp(PROTO_SRCS_HOST PROTO_HDRS_HOST txt_num.proto)
+protobuf_generate_cpp(PROTO_SRCS_HOST PROTO_HDRS_HOST remote_message.proto)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -27,17 +27,17 @@ target_link_libraries(protobuf-example-host ${Protobuf_LIBRARIES})
 set(NANOPB_REPO_ROOT ../../nanopb)
 
 set(NANOPB_INTERMEDIATE_DIR ${CMAKE_SOURCE_DIR}/../nanopb_intermediate)
-set(PROTO_SRCS_MCU ${NANOPB_INTERMEDIATE_DIR}/txt_num.pb.c)
-set(PROTO_HDRS_MCU ${NANOPB_INTERMEDIATE_DIR}/txt_num.pb.h)
+set(PROTO_SRCS_MCU ${NANOPB_INTERMEDIATE_DIR}/remote_message.pb.c)
+set(PROTO_HDRS_MCU ${NANOPB_INTERMEDIATE_DIR}/remote_message.pb.h)
 
 
 add_custom_command(
     OUTPUT
         ${PROTO_SRCS_MCU} ${PROTO_HDRS_MCU}
     COMMAND
-        ${NANOPB_REPO_ROOT}/generator/protoc --nanopb_out=${NANOPB_INTERMEDIATE_DIR}  txt_num.proto
+        ${NANOPB_REPO_ROOT}/generator/protoc --nanopb_out=${NANOPB_INTERMEDIATE_DIR}  remote_message.proto
     DEPENDS
-        txt_num.proto txt_num.options
+        remote_message.proto remote_message.options
     WORKING_DIRECTORY
         ${CMAKE_SOURCE_DIR}
     COMMENT

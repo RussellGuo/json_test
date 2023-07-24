@@ -1,0 +1,3 @@
+
+login_req.username max_size:25
+login_req.password max_size:12

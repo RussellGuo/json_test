@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message login_req {
+    string username = 1;
+    string password = 2;
+}
+
+enum boolean_t {
+    failed = 0;
+    succeeded = 1;
+    unknown = 2;
+}
+message login_res {
+    boolean_t status = 1;
+}
