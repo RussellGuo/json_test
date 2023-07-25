@@ -1,5 +1,10 @@
 syntax = "proto3";
 
+// 郭强，2023-7-25
+// protobuf的示例，示例的目的是在C++为代表的主机端，和nanopb/C为代表的MCU端，
+// 显示他们的消息格式是否一致
+
+// 在主机端-MCU端，模仿了登录流程，登录的消息结构如下
 message login_req {
     string username = 1;
     string password = 2;
@@ -10,6 +15,7 @@ enum boolean_t {
     succeeded = 1;
     unknown = 2;
 }
+// 返回值的消息结构如下
 message login_res {
     boolean_t status = 1;
 }
