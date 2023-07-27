@@ -157,11 +157,12 @@ int main (void) {
     // System Initialization
   SystemCoreClockUpdate();
   // ...
+  osKernelInitialize();                 // Initialize CMSIS-RTOS
+  osThreadNew(app_main, NULL, NULL);    // Create application main thread
 
   protobuf_example_main();
 
-  osKernelInitialize();                 // Initialize CMSIS-RTOS
-  osThreadNew(app_main, NULL, NULL);    // Create application main thread
+
   if (osKernelGetState() == osKernelReady) {
     osKernelStart();                    // Start thread execution
   }
