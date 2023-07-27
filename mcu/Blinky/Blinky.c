@@ -150,11 +150,16 @@ void app_main (void *argument) {
   osDelay(osWaitForever);
 }
 
+int protobuf_example_main(void);
+
 int main (void) {
 
-  // System Initialization
+    // System Initialization
   SystemCoreClockUpdate();
   // ...
+
+  protobuf_example_main();
+
   osKernelInitialize();                 // Initialize CMSIS-RTOS
   osThreadNew(app_main, NULL, NULL);    // Create application main thread
   if (osKernelGetState() == osKernelReady) {
