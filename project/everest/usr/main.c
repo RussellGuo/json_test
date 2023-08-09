@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include "mhscpu.h"
-#include "uart.h"
+#include "uart_io_API.h"
 
 #include "cmsis_os2.h"                  // ARM::CMSIS:RTOS2:Keil RTX5
 
@@ -172,7 +172,7 @@ int main (void) {
     SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_GPIO, ENABLE);
     SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0, ENABLE);
 
-    uart_Config(115200);
+    //uart_Config(115200);
     NVIC_Configuration();
 
     // System Initialization
