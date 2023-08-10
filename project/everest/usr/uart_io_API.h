@@ -31,8 +31,4 @@ bool uart_recv_byte(uint8_t *byte, const uint32_t delay);
 //   true if done; otherwise failed
 bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay);
 
-// to override default ISR of USART2 and USART0
-//void UART3_IRQHandler(void);
-//void UART0_IRQHandler(void);
-
 #endif //__UART_IO_API_H__

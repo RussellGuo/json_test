@@ -25,7 +25,7 @@ extern "C" {
 struct mcu_pin_t {
     GPIO_TypeDef *pin_port;   // likes GPIOA
     uint16_t pin_no;     // likes GPIO_PIN_1
-    GPIO_RemapTypeDef pin_mode;   // likes GPIO_MODE_OUT_PP
+    GPIO_RemapTypeDef pin_mode;   // likes GPIO_Remap_0
 };
 
 // setup pins with pin description array

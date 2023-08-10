@@ -71,6 +71,7 @@ void signal_func (osThreadId_t tid)  {
  *      Thread 1 'phaseA': Phase A output
  *---------------------------------------------------------------------------*/
 void phaseA (void *argument) {
+  uint8_t buf[15] = "uart test send";
   for (;;) {
     osThreadFlagsWait(0x0001, osFlagsWaitAny ,osWaitForever);    /* wait for an event flag 0x0001 */
     Switch_On(0);
@@ -78,6 +79,8 @@ void phaseA (void *argument) {
     signal_func(tid_phaseB);                                     /* call common signal function   */
     g_phases.phaseA = 0;
     Switch_Off(0);
+	//for uart driver send test
+	uart_send_data(buf, 14, (uint32_t)(-1));
   }
 }
 
@@ -127,9 +130,13 @@ void phaseD (void *argument) {
  *      Thread 5 'clock': Signal Clock
  *---------------------------------------------------------------------------*/
 void clock (void *argument) {
+  uint8_t byte = 0;
   for (;;) {
     // osThreadFlagsWait(0x0100, osFlagsWaitAny, osWaitForever);    /* wait for an event flag 0x0100 */
     osDelay(1000);                            /* delay  80ms                   */
+    if(uart_recv_byte(&byte,(uint32_t)(-1)))
+      printf("byte 0x%x\n",byte);
+
     printf("test timer 1000ms\n");
   }
 }
@@ -172,7 +179,8 @@ int main (void) {
     SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_GPIO, ENABLE);
     SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0, ENABLE);
 
-    //uart_Config(115200);
+    osKernelInitialize();                 // Initialize CMSIS-RTOS
+    init_uart_io_api();
     NVIC_Configuration();
 
     // System Initialization
@@ -181,7 +189,6 @@ int main (void) {
     printf("SystemCoreClock:%d\n", SystemCoreClock);
 
     // ...
-    osKernelInitialize();                 // Initialize CMSIS-RTOS
     osThreadNew(app_main, NULL, NULL);    // Create application main thread
     if (osKernelGetState() == osKernelReady) {
         osKernelStart();                    // Start thread execution

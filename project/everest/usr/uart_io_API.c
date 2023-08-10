@@ -5,19 +5,25 @@
 #include "mhscpu.h"
 #include "cmsis_os2.h"
 #include <string.h>
+#include <stdio.h>
 //#include "run_info_result_desc.h"
 #include "mcu-hw-common.h"
 
-//
-#define UART3_TX_PIN                 GPIO_Pin_9
-#define UART3_RX_PIN                 GPIO_Pin_8
-#define UART3_GPIO_PORT              GPIOE
+//define use uart0 or uart3
+//uart0 used debug or download
+//uart3 used connect ap
+#define USE_UART0
+//#define USE_UART3
 
+#ifdef USE_UART0
 #define UART0_TX_PIN                 GPIO_Pin_1
 #define UART0_RX_PIN                 GPIO_Pin_0
 #define UART0_GPIO_PORT              GPIOA
-
-#define USE_UART0
+#else
+#define UART3_TX_PIN                 GPIO_Pin_9
+#define UART3_RX_PIN                 GPIO_Pin_8
+#define UART3_GPIO_PORT              GPIOE
+#endif
 
 #ifdef USE_UART0
 #define USART                       UART0
@@ -185,7 +191,7 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
                 break;
             }
         }
-        //usart_interrupt_enable(USART, USART_INT_TBE);
+        UART_ITConfig(USART, UART_IT_TX_EMPTY, ENABLE);
     }
 
     osMutexRelease(mutex_uart_sending_id);
@@ -208,7 +214,7 @@ static void init_uart_pins_uart(void)
 static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
 {
     /* USART configure */
-      UART_InitTypeDef            UART_InitStructure;
+    UART_InitTypeDef            UART_InitStructure;
 
     UART_InitStructure.UART_BaudRate	= 115200;
     UART_InitStructure.UART_WordLength	= UART_WordLength_8b;
@@ -217,8 +223,8 @@ static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
 
     UART_Init(uart_no, &UART_InitStructure);
     UART_ITConfig(uart_no, UART_IT_RX_RECVD, ENABLE);
-
-      (void)uart_irq;
+    NVIC_EnableIRQ(USART_IRQn);
+    (void)uart_irq;
 }
 
 typedef enum
@@ -246,11 +252,11 @@ typedef enum
 static inline void uart_irq(UART_TypeDef * uart_no)
 {
     // TODO: record_uart_recv_error(1) if Frame Error/Noise Error/overrun be catched
-      uint8_t byte;
-      osStatus_t status;
+    uint8_t byte;
+    osStatus_t status;
     INT_FLAG int_Flag = (INT_FLAG)(uart_no->OFFSET_8.IIR & 0x0F);
 
-      switch(int_Flag)
+    switch(int_Flag)
     {
     //Receive data available
     case RECV_DATA:
@@ -289,7 +295,7 @@ static inline void uart_irq(UART_TypeDef * uart_no)
     }
 }
 
-#if defined(USE_UART2)
+#if defined(USE_UART3)
 void UART3_IRQHandler(void)
 {
     uart_irq(UART3);
@@ -302,3 +308,16 @@ void UART0_IRQHandler(void)
     uart_irq(UART0);
 }
 #endif
+
+int fputc(int ch, FILE *f)
+{
+    /* Place your implementation of fputc here */
+    /* e.g. write a character to the USART */
+    if (ch == '\n')
+    {
+        fputc('\r', f);
+    }
+    while(!UART_IsTXEmpty(UART0));
+    UART_SendData(UART0, (uint8_t) ch);
+    return ch;
+}
