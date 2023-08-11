@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "com.example.protobufdemo";
+message nfc_data {
+  int64 id = 1;
+  string OPEN = 2;
+  string rand = 3;
+  string colse = 4;
+
+}
