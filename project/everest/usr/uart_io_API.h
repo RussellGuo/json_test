@@ -4,6 +4,10 @@
 // By Guo Qiang, XBD, Huaqin, 2020-11-19
 // a interrupt dirven UART low-level driver
 
+//Update:
+// By Cao Meng, XBD, Huaqin, 2023-08-11
+// adapter mh2101 mcu UART driver
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>

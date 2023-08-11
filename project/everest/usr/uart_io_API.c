@@ -1,6 +1,10 @@
 // By Guo Qiang, XBD, Huaqin, 2020-11-19
 // a interrupt dirven UART low-level driver
 
+//Update:
+// By Cao Meng, XBD, Huaqin, 2023-08-11
+// adapter mh2101 mcu UART driver
+
 #include "uart_io_API.h"
 #include "mhscpu.h"
 #include "cmsis_os2.h"
@@ -15,6 +19,7 @@
 #define USE_UART0
 //#define USE_UART3
 
+//MH2101的GPIO组、对应的PIN脚、中断号
 #ifdef USE_UART0
 #define UART0_TX_PIN                 GPIO_Pin_1
 #define UART0_RX_PIN                 GPIO_Pin_0
@@ -81,7 +86,7 @@ static const osMutexAttr_t mutex_uart_sending_attr = {
 // pin define for UART
 static void init_uart_pins_uart(void);
 // controller configuration for UART
-static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq);
+static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq);//MH2101的几路串口区分使用UART_TypeDef *定义，所以改为UART_TypeDef *传参
 
 // init the UART
 // parameters: NONE
@@ -191,13 +196,14 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
                 break;
             }
         }
-        UART_ITConfig(USART, UART_IT_TX_EMPTY, ENABLE);
+        UART_ITConfig(USART, UART_IT_TX_EMPTY, ENABLE); //MH2101的中断设置函数 原型在mhscpu_uart.c
     }
 
     osMutexRelease(mutex_uart_sending_id);
     return ret;
 }
 
+//定义MH2101 UART的GPIO组 GPIO PIN脚 MODE
 static const struct mcu_pin_t uart_pin_tab[] = {
     {UART_GPIO_PORT, UART_TX_PIN, GPIO_Remap_0}, // USARTx_Tx
     {UART_GPIO_PORT, UART_RX_PIN, GPIO_Remap_0}, // USARTx_Rx
@@ -214,6 +220,7 @@ static void init_uart_pins_uart(void)
 static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
 {
     /* USART configure */
+    //MH2101 串口参数结构体初始化
     UART_InitTypeDef            UART_InitStructure;
 
     UART_InitStructure.UART_BaudRate	= 115200;
@@ -227,6 +234,7 @@ static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
     (void)uart_irq;
 }
 
+///MH2101 串口中断状态标志位
 typedef enum
 {
     //Clear to send or data set ready or ring indicator or data carrier detect.
@@ -249,6 +257,7 @@ typedef enum
     CHAR_TIMEOUT    = 0x0C
 } INT_FLAG;
 
+//MH2101 串口中断处理函数
 static inline void uart_irq(UART_TypeDef * uart_no)
 {
     // TODO: record_uart_recv_error(1) if Frame Error/Noise Error/overrun be catched
@@ -262,7 +271,7 @@ static inline void uart_irq(UART_TypeDef * uart_no)
     case RECV_DATA:
     //Recv data available but not reach the recv threshold
     case CHAR_TIMEOUT:
-        byte = (uint8_t)UART_ReceiveData(uart_no);
+        byte = (uint8_t)UART_ReceiveData(uart_no); //MH2101的串口接收函数 原型在mhscpu_uart.c
         if (osMessageQueueGetSpace(mq_id_uart_recv) < 1) {
                 uint8_t dropped_byte;
                 osMessageQueueGet(mq_id_uart_recv, &dropped_byte, 0, 0);
@@ -281,9 +290,9 @@ static inline void uart_irq(UART_TypeDef * uart_no)
         if (status == osOK) {
             uint32_t evt_set_ret = osEventFlagsSet(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG);
             evt_set_ret = 0;
-            UART_SendData(uart_no, byte);
+            UART_SendData(uart_no, byte); //MH2101的串口发送函数 原型在mhscpu_uart.c
         } else {
-            UART_ITConfig(uart_no, UART_IT_TX_EMPTY, DISABLE);
+            UART_ITConfig(uart_no, UART_IT_TX_EMPTY, DISABLE); //MH2101的中断设置函数 原型在mhscpu_uart.c
         }
         break;
     case NONE:
