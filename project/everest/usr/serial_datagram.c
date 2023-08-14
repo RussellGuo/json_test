@@ -17,7 +17,7 @@
 #include "mcu-crc32-soft.h"
 #include "uart_io_api.h"
 
-#include "run_info_result_desc.h"
+//#include "run_info_result_desc.h" //注释先不用
 
 #include <ctype.h>
 
@@ -63,7 +63,7 @@ SoT_found:
         if (curr_idx + 1 >= max_size) {
             // no space to store
             (*skipped_byte_count_ptr) += curr_idx;
-            rpc_log(LOG_ERROR, "too long datagram at '%s'", raw_datagram);
+            //rpc_log(LOG_ERROR, "too long datagram at '%s'", raw_datagram); //log注释先不用
             goto Top;
         }
 
@@ -80,20 +80,20 @@ SoT_found:
         if (raw_datagram[curr_idx] == SERIAL_DATAGRAM_START_CHR) {
             (*skipped_byte_count_ptr) += curr_idx;
             raw_datagram[curr_idx] = 0;
-            rpc_log(LOG_ERROR, "met a SoT in lookup EoT at '%s'", raw_datagram);
+            //rpc_log(LOG_ERROR, "met a SoT in lookup EoT at '%s'", raw_datagram); //log注释先不用
             goto SoT_found;
         }
     }
 
     *actual_size_ptr = curr_idx;
-    record_datagram(1);
+    //record_datagram(1);//注释先不用
     return true;
 }
 
-
-#if !defined(IS_MCU_SIDE)
-static void dispatch_mcu_log(const char *msg_str);
-#  endif
+//log注释先不用
+//#if !defined(IS_MCU_SIDE)
+//static void dispatch_mcu_log(const char *msg_str);
+//#  endif
 
 // This function will read the UART, get the datagram string one after another,
 // and convert the string into the datagram binary format
@@ -117,24 +117,25 @@ void serial_datagram_receive_loop(void *arg)
         int ret = get_raw_datagram_from_serial( (uint8_t *)datagram_str, sizeof datagram_str, &datagram_str_size, &skipped_count);
         if (!ret) {
             // cannot recovery the recv because of UART
-            rpc_log(LOG_FATAL, "recv from UART no longer OK");
+            //rpc_log(LOG_FATAL, "recv from UART no longer OK"); //log注释先不用
             return;
         }
-        rpc_log(LOG_VERBOSE, "got a datagram '%s'", datagram_str);
+        //rpc_log(LOG_VERBOSE, "got a datagram '%s'", datagram_str);
         if (skipped_count) {
-            rpc_log(LOG_WARN, "skipped %d char(s) before datagram '%s'", skipped_count, datagram_str);
-            record_uart_recv_dropped(skipped_count);
+            //rpc_log(LOG_WARN, "skipped %d char(s) before datagram '%s'", skipped_count, datagram_str); //log注释先不用
+            //record_uart_recv_dropped(skipped_count);//注释先不用
         }
 
         if (datagram_str[0] == 'L') {
+					  //注释先不用
             // LOG datagram
-            #if !defined(IS_MCU_SIDE)
-            dispatch_mcu_log(datagram_str + 1);
-            #else
-            rpc_log(LOG_ERROR, "host should not send log: '%s'", datagram_str);
+            //#if !defined(IS_MCU_SIDE)
+            //dispatch_mcu_log(datagram_str + 1);
+            //#else
+            //rpc_log(LOG_ERROR, "host should not send log: '%s'", datagram_str);
             // to record mismatch datagram.
-            record_mismatched_datagram(1);
-            #endif
+            //record_mismatched_datagram(1);
+            //#endif
             continue;
         }
         // command/response datagram
@@ -149,7 +150,7 @@ void serial_datagram_receive_loop(void *arg)
             if (isxdigit(datagram_str[i]) || datagram_str[i] == ' ') {
                 continue;
             } else {
-                rpc_log(LOG_ERROR, "bad char at '%s'", datagram_str);
+                //rpc_log(LOG_ERROR, "bad char at '%s'", datagram_str); //log注释先不用
                 isOK = false;
                 break;
             }
@@ -159,7 +160,7 @@ void serial_datagram_receive_loop(void *arg)
         if (isOK) {
             for(char *p = datagram_str; p != NULL; p = strchr(p, ' ')) {
                 if (item_count >= sizeof(items) / sizeof(items[0])) {
-                    rpc_log(LOG_ERROR, "too many chars at '%s'", datagram_str);
+                    //rpc_log(LOG_ERROR, "too many chars at '%s'", datagram_str); //log注释先不用
                     isOK = false;
                     break;
                 }
@@ -172,7 +173,7 @@ void serial_datagram_receive_loop(void *arg)
 
                 if (!isOK) {
                     // Don't think it will be happened
-                    rpc_log(LOG_ERROR, "non-hexdecimal char at '%s'", datagram_str);
+                    //rpc_log(LOG_ERROR, "non-hexdecimal char at '%s'", datagram_str); //log注释先不用
                     break;
                 }
             }
@@ -184,14 +185,14 @@ void serial_datagram_receive_loop(void *arg)
             // crc checked
             isOK = item_count >= 3 && mcu_crc32_soft(items, item_count) == 0;
             if (!isOK) {
-                rpc_log(LOG_ERROR, "item too less or CRC mismatch at '%s'", datagram_str);
+                //rpc_log(LOG_ERROR, "item too less or CRC mismatch at '%s'", datagram_str); //log注释先不用
             }
         }
         if (isOK) {
             // dispatch the message
-            serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3);
+            //serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
         } else {
-            record_mismatched_datagram(1);
+            //record_mismatched_datagram(1); //注释先不用
         }
     } // for each datagram
 
@@ -219,7 +220,7 @@ bool serial_datagram_send(const serial_datagram_item_t seq, const serial_datagra
         // right here the buf needs 1 item, 1 crc, 1 <EOT>, 1 '\0'
         if (out_len + 9 + 9 + 2 >= sizeof buf) {
             // no space
-            rpc_log(LOG_ERROR, "too long sending datagram at seq %u", seq);
+            //rpc_log(LOG_ERROR, "too long sending datagram at seq %u", seq); //log注释先不用
             return false;
         }
 
@@ -233,6 +234,8 @@ bool serial_datagram_send(const serial_datagram_item_t seq, const serial_datagra
     return ret;
 }
 
+//log注释先不用
+/*
 // The lowest log output level. Logs of lower levels will not be processed
 static log_level_t min_log_level = LOG_INFO;
 
@@ -391,4 +394,4 @@ __attribute__((weak)) void rpc_logv(log_level_t log_level, const char *tag, cons
 }
 
 #endif
-
+*/

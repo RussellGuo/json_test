@@ -46,11 +46,12 @@ typedef uint32_t serial_datagram_item_t;
 // entire receiving task will be aborted and returned
 void serial_datagram_receive_loop(void *arg);
 
+//语义层先不用
 // Once a datagram be received from remote, this function will be invoked
 // Parameters:
 //   [in]seq, msg_id, data list and data count
-void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
-    const serial_datagram_item_t *restrict data_list, const size_t len);
+//void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
+//    const serial_datagram_item_t *restrict data_list, const size_t len);
 
 // This function is used to send a datagram.
 // Parameters:
@@ -77,9 +78,9 @@ void report_skipped_bytes_before_get_raw_datagram(size_t count);
 // The usage of rpc_logv is very similar to __android_log_vprint of Android NDK.
 // A 'WEAK' version of rpc_logv has been provided, which directly outputs to stderr.
 // Developers can define their own rpc_logv. For example, under the Android NDK, call __android_log_vprint directly.
-#if !defined(IS_MCU_SIDE)
-void rpc_logv(log_level_t log_level, const char *tag, const char *format, va_list args);
-#endif
+//#if !defined(IS_MCU_SIDE)
+//void rpc_logv(log_level_t log_level, const char *tag, const char *format, va_list args);
+//#endif
 
 #ifdef __cplusplus
 }
