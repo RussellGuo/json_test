@@ -7,7 +7,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/media/ubuntu/1bab4b0e-f817-4fef-b22d-ad9816bbaa5e/POS/MCU/mcu/DEMO/Protubuf/keystore/platform.jks')
+            storeFile file('/media/ubuntu/1bab4b0e-f817-4fef-b22d-ad9816bbaa5e/POS3/mcu/DEMO/Protubuf/keystore/platform.jks')
             storePassword '123456'
             keyAlias 'platform'
             keyPassword '123456'

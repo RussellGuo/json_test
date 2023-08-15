@@ -1,7 +1,7 @@
 // IPosCard.aidl
-package com.example.protobufdemo;
-
+package com.huaqin.posservices;
 // Declare any non-default types here with import statements
+import com.huaqin.posservices.IPosCardCallback;
 
 interface IPosCard {
     /**
@@ -14,5 +14,12 @@ interface IPosCard {
     int open(int category, in Bundle bundle, in IBinder cb);
 
     void setStringData(String str);
+
     void setNfcData(in byte[] _byte);
+
+    byte[] getNfcData();
+
+    void registerCallback(IPosCardCallback cb);
+
+    void unregisterCallback(IPosCardCallback cb);
 }

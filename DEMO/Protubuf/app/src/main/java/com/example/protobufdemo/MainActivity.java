@@ -14,45 +14,41 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.huaqin.posservices.IPosCard;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,ServiceConnection {
 
     private static final String TAG = "MainActivity";
     private Intent mPosServices;
 
-    private Button button1,button2;
+   // private Button button1,button2,button3,button4;
 
     private IPosCard mBinder;
     private int mICount = 0;
+    byte[] nfc;
     private Boolean binService = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        test();
         mPosServices = new Intent();
         mPosServices.setComponent(new ComponentName("com.huaqin.posservices","com.huaqin.posservices.PosCardService"));
         setContentView(R.layout.activity_main);
         findViewById(R.id.button).setOnClickListener(this);
         findViewById(R.id.button2).setOnClickListener(this);
+        findViewById(R.id.button3).setOnClickListener(this);
+        findViewById(R.id.button4).setOnClickListener(this);
     }
 
 
-    public void test(){
+    public byte[] test(){
         Test.nfc_data.Builder build =  Test.nfc_data.newBuilder();
         build.setId(1);
-        build.setOPEN("20191018105706");
-        build.setRand("123456789");
-        build.setColse("0987654321");
+        build.setOPEN("open nfc");
+        build.setRand("read nfc type");
+        build.setColse("colse nfc");
         Test.nfc_data info = build.build();
-        byte[] nfc = info.toByteArray();
-        Log.d(TAG, "test: nfc = " +nfc);
-        try {
-            info =  Test.nfc_data.parseFrom(nfc);
-            Log.d(TAG, "test: nfc2 = " +nfc);
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
+        return info.toByteArray();
     }
 
     @Override
@@ -68,9 +64,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     unbindService( this);
                 }
                 break;
+            case R.id.button3:
+                Log.d(TAG,"SET NFC DATA");
+                try {
+                    mBinder.setNfcData(test());
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case R.id.button4:
+                Log.d(TAG,"GET NFC DATA");
+                try {
+                    byte[] nfcdata = mBinder.getNfcData();
+                    Test.nfc_data info = Test.nfc_data.parseFrom(nfcdata);
+                    Log.d(TAG, "test: info = " +info);
+                } catch (RemoteException | InvalidProtocolBufferException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
     }
-
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -78,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBinder = IPosCard.Stub.asInterface(service);
             mICount ++;
             Log.v(TAG,"第" + mICount + "次连接服务！");
+            binService = true;
             try {
                 binService = true;
                 String strData = "第" + mICount + "次连接Service成功！";
@@ -90,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
+        mBinder = null;
+        binService = false;
         Log.v(TAG,"onServiceDisconnected");
     }
 }

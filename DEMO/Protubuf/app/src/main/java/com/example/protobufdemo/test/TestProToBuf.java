@@ -6,7 +6,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public class TestProToBuf {
     public static void main(String[] args){
-        test();
+        test1();
     }
 
     public static void test(){
@@ -24,5 +24,28 @@ public class TestProToBuf {
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void test1(){
+        int[] language = { 1, 2, 3, 4, 5 ,1, 2, 3, 4, 5};
+        int[] maths = { 1, 2, 3, 4, 5 ,1, 2, 3, 4, 5};
+        int[] Einglish = { 1, 2, 3, 4, 5 ,1, 2, 3, 4, 5};
+        int[] num = new int[10];
+        for(int i = 0;i < 10; i++){
+            if(language[i] > 0 ){
+                num[i] += language[i];
+            }
+            if(maths[i] > 0 ){
+                num[i] += maths[i];
+            }
+            if(Einglish[i] > 0 ){
+                num[i] += Einglish[i];
+            }
+            num[i] = num[i]/3;
+            System.out.println("test: num = " +num[i]);
+        }
+
+        System.out.println("test: num = " +num.toString());
+
     }
 }
