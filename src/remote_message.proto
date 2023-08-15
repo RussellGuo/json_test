@@ -19,3 +19,48 @@ enum boolean_t {
 message login_res {
     boolean_t status = 1;
 }
+
+// 在主机端-MCU端，模仿了登出流程。请求内容如下
+message logout_req {
+    int32 dummy = 1;
+}
+
+// 返回值消息结构如下
+message logout_res {
+    boolean_t status = 1;
+}
+
+// 事件示例1，按键
+message key_evt {
+    int32 key_code = 1;
+    bool key_action = 2;
+}
+
+// 事件示例2，日志（日志归入事件是可以的，后者属于通用机制）
+message log_evt {
+    int32 level = 1;
+    string msg = 2;
+}
+
+// 从host发往mcu的消息的总类型
+message to_mcu {
+    int32 seq = 1;
+    oneof req {
+        login_req login = 3;
+        logout_req logout = 4;
+    }
+    fixed32 crc = 2;
+}
+
+// 从mcu发到host的数据的总类型，包括req的响应，event和log。log目前算作一种event。
+message from_mcu {
+    int32 seq = 1;
+    oneof res {
+        login_res login = 3;
+        logout_res logout = 4;
+        key_evt key = 201;
+        log_evt log = 202;
+    }
+    fixed32 crc = 2;
+}
+

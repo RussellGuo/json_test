@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14remote_message.proto\"/\n\tlogin_req\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\'\n\tlogin_res\x12\x1a\n\x06status\x18\x01 \x01(\x0e\x32\n.boolean_t*3\n\tboolean_t\x12\n\n\x06\x66\x61iled\x10\x00\x12\r\n\tsucceeded\x10\x01\x12\x0b\n\x07unknown\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n\x14remote_message.proto\"/\n\tlogin_req\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\'\n\tlogin_res\x12\x1a\n\x06status\x18\x01 \x01(\x0e\x32\n.boolean_t\"\x1b\n\nlogout_req\x12\r\n\x05\x64ummy\x18\x01 \x01(\x05\"(\n\nlogout_res\x12\x1a\n\x06status\x18\x01 \x01(\x0e\x32\n.boolean_t\"/\n\x07key_evt\x12\x10\n\x08key_code\x18\x01 \x01(\x05\x12\x12\n\nkey_action\x18\x02 \x01(\x08\"%\n\x07log_evt\x12\r\n\x05level\x18\x01 \x01(\x05\x12\x0b\n\x03msg\x18\x02 \x01(\t\"e\n\x06to_mcu\x12\x0b\n\x03seq\x18\x01 \x01(\x05\x12\x1b\n\x05login\x18\x03 \x01(\x0b\x32\n.login_reqH\x00\x12\x1d\n\x06logout\x18\x04 \x01(\x0b\x32\x0b.logout_reqH\x00\x12\x0b\n\x03\x63rc\x18\x02 \x01(\x07\x42\x05\n\x03req\"\x9b\x01\n\x08\x66rom_mcu\x12\x0b\n\x03seq\x18\x01 \x01(\x05\x12\x1b\n\x05login\x18\x03 \x01(\x0b\x32\n.login_resH\x00\x12\x1d\n\x06logout\x18\x04 \x01(\x0b\x32\x0b.logout_resH\x00\x12\x18\n\x03key\x18\xc9\x01 \x01(\x0b\x32\x08.key_evtH\x00\x12\x18\n\x03log\x18\xca\x01 \x01(\x0b\x32\x08.log_evtH\x00\x12\x0b\n\x03\x63rc\x18\x02 \x01(\x07\x42\x05\n\x03res*3\n\tboolean_t\x12\n\n\x06\x66\x61iled\x10\x00\x12\r\n\tsucceeded\x10\x01\x12\x0b\n\x07unknown\x10\x02\x62\x06proto3')
 )
 
 _BOOLEAN_T = _descriptor.EnumDescriptor(
@@ -44,8 +44,8 @@ _BOOLEAN_T = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=114,
-  serialized_end=165,
+  serialized_start=534,
+  serialized_end=585,
 )
 _sym_db.RegisterEnumDescriptor(_BOOLEAN_T)
 
@@ -124,9 +124,302 @@ _LOGIN_RES = _descriptor.Descriptor(
   serialized_end=112,
 )
 
+
+_LOGOUT_REQ = _descriptor.Descriptor(
+  name='logout_req',
+  full_name='logout_req',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='dummy', full_name='logout_req.dummy', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=114,
+  serialized_end=141,
+)
+
+
+_LOGOUT_RES = _descriptor.Descriptor(
+  name='logout_res',
+  full_name='logout_res',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='logout_res.status', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=143,
+  serialized_end=183,
+)
+
+
+_KEY_EVT = _descriptor.Descriptor(
+  name='key_evt',
+  full_name='key_evt',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key_code', full_name='key_evt.key_code', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='key_action', full_name='key_evt.key_action', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=185,
+  serialized_end=232,
+)
+
+
+_LOG_EVT = _descriptor.Descriptor(
+  name='log_evt',
+  full_name='log_evt',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='level', full_name='log_evt.level', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='msg', full_name='log_evt.msg', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=234,
+  serialized_end=271,
+)
+
+
+_TO_MCU = _descriptor.Descriptor(
+  name='to_mcu',
+  full_name='to_mcu',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='seq', full_name='to_mcu.seq', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='login', full_name='to_mcu.login', index=1,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='logout', full_name='to_mcu.logout', index=2,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='crc', full_name='to_mcu.crc', index=3,
+      number=2, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='req', full_name='to_mcu.req',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=273,
+  serialized_end=374,
+)
+
+
+_FROM_MCU = _descriptor.Descriptor(
+  name='from_mcu',
+  full_name='from_mcu',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='seq', full_name='from_mcu.seq', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='login', full_name='from_mcu.login', index=1,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='logout', full_name='from_mcu.logout', index=2,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='key', full_name='from_mcu.key', index=3,
+      number=201, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='log', full_name='from_mcu.log', index=4,
+      number=202, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='crc', full_name='from_mcu.crc', index=5,
+      number=2, type=7, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='res', full_name='from_mcu.res',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=377,
+  serialized_end=532,
+)
+
 _LOGIN_RES.fields_by_name['status'].enum_type = _BOOLEAN_T
+_LOGOUT_RES.fields_by_name['status'].enum_type = _BOOLEAN_T
+_TO_MCU.fields_by_name['login'].message_type = _LOGIN_REQ
+_TO_MCU.fields_by_name['logout'].message_type = _LOGOUT_REQ
+_TO_MCU.oneofs_by_name['req'].fields.append(
+  _TO_MCU.fields_by_name['login'])
+_TO_MCU.fields_by_name['login'].containing_oneof = _TO_MCU.oneofs_by_name['req']
+_TO_MCU.oneofs_by_name['req'].fields.append(
+  _TO_MCU.fields_by_name['logout'])
+_TO_MCU.fields_by_name['logout'].containing_oneof = _TO_MCU.oneofs_by_name['req']
+_FROM_MCU.fields_by_name['login'].message_type = _LOGIN_RES
+_FROM_MCU.fields_by_name['logout'].message_type = _LOGOUT_RES
+_FROM_MCU.fields_by_name['key'].message_type = _KEY_EVT
+_FROM_MCU.fields_by_name['log'].message_type = _LOG_EVT
+_FROM_MCU.oneofs_by_name['res'].fields.append(
+  _FROM_MCU.fields_by_name['login'])
+_FROM_MCU.fields_by_name['login'].containing_oneof = _FROM_MCU.oneofs_by_name['res']
+_FROM_MCU.oneofs_by_name['res'].fields.append(
+  _FROM_MCU.fields_by_name['logout'])
+_FROM_MCU.fields_by_name['logout'].containing_oneof = _FROM_MCU.oneofs_by_name['res']
+_FROM_MCU.oneofs_by_name['res'].fields.append(
+  _FROM_MCU.fields_by_name['key'])
+_FROM_MCU.fields_by_name['key'].containing_oneof = _FROM_MCU.oneofs_by_name['res']
+_FROM_MCU.oneofs_by_name['res'].fields.append(
+  _FROM_MCU.fields_by_name['log'])
+_FROM_MCU.fields_by_name['log'].containing_oneof = _FROM_MCU.oneofs_by_name['res']
 DESCRIPTOR.message_types_by_name['login_req'] = _LOGIN_REQ
 DESCRIPTOR.message_types_by_name['login_res'] = _LOGIN_RES
+DESCRIPTOR.message_types_by_name['logout_req'] = _LOGOUT_REQ
+DESCRIPTOR.message_types_by_name['logout_res'] = _LOGOUT_RES
+DESCRIPTOR.message_types_by_name['key_evt'] = _KEY_EVT
+DESCRIPTOR.message_types_by_name['log_evt'] = _LOG_EVT
+DESCRIPTOR.message_types_by_name['to_mcu'] = _TO_MCU
+DESCRIPTOR.message_types_by_name['from_mcu'] = _FROM_MCU
 DESCRIPTOR.enum_types_by_name['boolean_t'] = _BOOLEAN_T
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -143,6 +436,48 @@ login_res = _reflection.GeneratedProtocolMessageType('login_res', (_message.Mess
   # @@protoc_insertion_point(class_scope:login_res)
   ))
 _sym_db.RegisterMessage(login_res)
+
+logout_req = _reflection.GeneratedProtocolMessageType('logout_req', (_message.Message,), dict(
+  DESCRIPTOR = _LOGOUT_REQ,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:logout_req)
+  ))
+_sym_db.RegisterMessage(logout_req)
+
+logout_res = _reflection.GeneratedProtocolMessageType('logout_res', (_message.Message,), dict(
+  DESCRIPTOR = _LOGOUT_RES,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:logout_res)
+  ))
+_sym_db.RegisterMessage(logout_res)
+
+key_evt = _reflection.GeneratedProtocolMessageType('key_evt', (_message.Message,), dict(
+  DESCRIPTOR = _KEY_EVT,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:key_evt)
+  ))
+_sym_db.RegisterMessage(key_evt)
+
+log_evt = _reflection.GeneratedProtocolMessageType('log_evt', (_message.Message,), dict(
+  DESCRIPTOR = _LOG_EVT,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:log_evt)
+  ))
+_sym_db.RegisterMessage(log_evt)
+
+to_mcu = _reflection.GeneratedProtocolMessageType('to_mcu', (_message.Message,), dict(
+  DESCRIPTOR = _TO_MCU,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:to_mcu)
+  ))
+_sym_db.RegisterMessage(to_mcu)
+
+from_mcu = _reflection.GeneratedProtocolMessageType('from_mcu', (_message.Message,), dict(
+  DESCRIPTOR = _FROM_MCU,
+  __module__ = 'remote_message_pb2'
+  # @@protoc_insertion_point(class_scope:from_mcu)
+  ))
+_sym_db.RegisterMessage(from_mcu)
 
 
 # @@protoc_insertion_point(module_scope)
