@@ -12,6 +12,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.IPosCard;
@@ -21,16 +22,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
     private Intent mPosServices;
 
-   // private Button button1,button2,button3,button4;
-
     private IPosCard mBinder;
     private int mICount = 0;
     byte[] nfc;
     private Boolean binService = false;
 
+    private Context mContext = null;
+    private Toast toast = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
+        //创建Intent 设置需要连接的服务
         mPosServices = new Intent();
         mPosServices.setComponent(new ComponentName("com.huaqin.posservices","com.huaqin.posservices.PosCardService"));
         setContentView(R.layout.activity_main);
@@ -41,8 +45,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    /**
+     * 初始化proto数据，方便测试
+     * @return　输出proto反序列化后数据
+     */
     public byte[] test(){
+        //创建proto对象
         Test.nfc_data.Builder build =  Test.nfc_data.newBuilder();
+        //初始化数据
         build.setId(1);
         build.setOPEN("open nfc");
         build.setRand("read nfc type");
@@ -56,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.button:
                 Log.d(TAG,"bind PosServices");
+                //绑定服务
                 bindService(mPosServices, this, Context.BIND_AUTO_CREATE);
                 break;
             case R.id.button2:
@@ -67,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button3:
                 Log.d(TAG,"SET NFC DATA");
                 try {
+                    //把proto反序列化后数据传给services
                     mBinder.setNfcData(test());
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
@@ -75,8 +87,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button4:
                 Log.d(TAG,"GET NFC DATA");
                 try {
+                    //调用services 方法获取服务端byte数据
                     byte[] nfcdata = mBinder.getNfcData();
+                    //对获取到的数据进行序列化
                     Test.nfc_data info = Test.nfc_data.parseFrom(nfcdata);
+                    toast = Toast.makeText(mContext, info.toString(), Toast.LENGTH_SHORT);
+                    toast.show();
                     Log.d(TAG, "test: info = " +info);
                 } catch (RemoteException | InvalidProtocolBufferException e) {
                     throw new RuntimeException(e);
@@ -85,6 +101,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     *
+     * @param name The concrete component name of the service that has
+     * been connected.
+     *
+     * @param service The IBinder of the Service's communication channel,
+     * which you can now make calls on.
+     */
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         if(mBinder == null) {
