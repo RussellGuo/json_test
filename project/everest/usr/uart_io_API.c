@@ -16,10 +16,10 @@
 //define use uart0 or uart3
 //uart0 used debug or download
 //uart3 used connect ap
-#define USE_UART0
-//#define USE_UART3
+//#define USE_UART0
+#define USE_UART3
 
-//MH2101的GPIO组、对应的PIN脚、中断号
+//MH2101碌脛GPIO脳茅隆垄露脭脫娄碌脛PIN陆脜隆垄脰脨露脧潞脜
 #ifdef USE_UART0
 #define UART0_TX_PIN                 GPIO_Pin_1
 #define UART0_RX_PIN                 GPIO_Pin_0
@@ -38,9 +38,15 @@
 #define USART_IRQn                  UART3_IRQn
 #endif
 
+#ifdef USE_UART0
 #define UART_TX_PIN                 UART0_TX_PIN
 #define UART_RX_PIN                 UART0_RX_PIN
 #define UART_GPIO_PORT              UART0_GPIO_PORT
+#else
+#define UART_TX_PIN                 UART3_TX_PIN
+#define UART_RX_PIN                 UART3_RX_PIN
+#define UART_GPIO_PORT              UART3_GPIO_PORT
+#endif
 
 #define MAX_BYTE_RECV 136 // same as max datagram size
 #define MAX_BYTE_SEND 136 // same as max datagram size
@@ -86,7 +92,7 @@ static const osMutexAttr_t mutex_uart_sending_attr = {
 // pin define for UART
 static void init_uart_pins_uart(void);
 // controller configuration for UART
-static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq);//MH2101的几路串口区分使用UART_TypeDef *定义，所以改为UART_TypeDef *传参
+static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq);//MH2101碌脛录赂脗路麓庐驴脷脟酶路脰脢鹿脫脙UART_TypeDef *露篓脪氓拢卢脣霉脪脭赂脛脦陋UART_TypeDef *麓芦虏脦
 
 // init the UART
 // parameters: NONE
@@ -103,6 +109,10 @@ bool init_uart_io_api(void)
     if (ret) {
         init_uart_pins_uart();
         init_uart_controller(USART, USART_IRQn);
+        #ifdef USE_UART3
+        //uart0 鲁玫脢录禄炉 路陆卤茫debug
+        init_uart_controller(UART0,USART_IRQn);
+        #endif
     }
 
     return ret;
@@ -196,17 +206,22 @@ bool uart_send_data(const uint8_t *buf, size_t size, const uint32_t delay)
                 break;
             }
         }
-        UART_ITConfig(USART, UART_IT_TX_EMPTY, ENABLE); //MH2101的中断设置函数 原型在mhscpu_uart.c
+        UART_ITConfig(USART, UART_IT_TX_EMPTY, ENABLE); //MH2101碌脛脰脨露脧脡猫脰脙潞炉脢媒 脭颅脨脥脭脷mhscpu_uart.c
     }
 
     osMutexRelease(mutex_uart_sending_id);
     return ret;
 }
 
-//定义MH2101 UART的GPIO组 GPIO PIN脚 MODE
+//露篓脪氓MH2101 UART碌脛GPIO脳茅 GPIO PIN陆脜 MODE
 static const struct mcu_pin_t uart_pin_tab[] = {
+#ifdef USE_UART0
     {UART_GPIO_PORT, UART_TX_PIN, GPIO_Remap_0}, // USARTx_Tx
     {UART_GPIO_PORT, UART_RX_PIN, GPIO_Remap_0}, // USARTx_Rx
+#else
+    {UART_GPIO_PORT, UART_TX_PIN, GPIO_Remap_2}, // USARTx_Tx
+    {UART_GPIO_PORT, UART_RX_PIN, GPIO_Remap_2}, // USARTx_Rx
+#endif
 };
 
 // pin define for UART
@@ -220,13 +235,16 @@ static void init_uart_pins_uart(void)
 static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
 {
     /* USART configure */
-    //MH2101 串口参数结构体初始化
+    //MH2101 麓庐驴脷虏脦脢媒陆谩鹿鹿脤氓鲁玫脢录禄炉
     UART_InitTypeDef            UART_InitStructure;
-
-    UART_InitStructure.UART_BaudRate	= 115200;
-    UART_InitStructure.UART_WordLength	= UART_WordLength_8b;
-    UART_InitStructure.UART_Parity		= UART_Parity_No;
-    UART_InitStructure.UART_StopBits	= UART_StopBits_1;
+    #ifdef USE_UART3
+    //uart0 鲁玫脢录禄炉 路陆卤茫debug
+    GPIO_PinRemapConfig(GPIOA, GPIO_Pin_0 |GPIO_Pin_1, GPIO_Remap_0);
+    #endif
+    UART_InitStructure.UART_BaudRate = 115200;
+    UART_InitStructure.UART_WordLength = UART_WordLength_8b;
+    UART_InitStructure.UART_Parity = UART_Parity_No;
+    UART_InitStructure.UART_StopBits = UART_StopBits_1;
 
     UART_Init(uart_no, &UART_InitStructure);
     UART_ITConfig(uart_no, UART_IT_RX_RECVD, ENABLE);
@@ -234,7 +252,7 @@ static void init_uart_controller(UART_TypeDef * uart_no, uint8_t uart_irq)
     (void)uart_irq;
 }
 
-///MH2101 串口中断状态标志位
+///MH2101 麓庐驴脷脰脨露脧脳麓脤卢卤锚脰戮脦禄
 typedef enum
 {
     //Clear to send or data set ready or ring indicator or data carrier detect.
@@ -257,7 +275,7 @@ typedef enum
     CHAR_TIMEOUT    = 0x0C
 } INT_FLAG;
 
-//MH2101 串口中断处理函数
+//MH2101 麓庐驴脷脰脨露脧麓娄脌铆潞炉脢媒
 static inline void uart_irq(UART_TypeDef * uart_no)
 {
     // TODO: record_uart_recv_error(1) if Frame Error/Noise Error/overrun be catched
@@ -271,7 +289,7 @@ static inline void uart_irq(UART_TypeDef * uart_no)
     case RECV_DATA:
     //Recv data available but not reach the recv threshold
     case CHAR_TIMEOUT:
-        byte = (uint8_t)UART_ReceiveData(uart_no); //MH2101的串口接收函数 原型在mhscpu_uart.c
+        byte = (uint8_t)UART_ReceiveData(uart_no); //MH2101碌脛麓庐驴脷陆脫脢脮潞炉脢媒 脭颅脨脥脭脷mhscpu_uart.c
         if (osMessageQueueGetSpace(mq_id_uart_recv) < 1) {
                 uint8_t dropped_byte;
                 osMessageQueueGet(mq_id_uart_recv, &dropped_byte, 0, 0);
@@ -290,9 +308,9 @@ static inline void uart_irq(UART_TypeDef * uart_no)
         if (status == osOK) {
             uint32_t evt_set_ret = osEventFlagsSet(evt_flags_id_of_sending_queue_delivery, SEND_QUEUE_DELIVERY_FLAG);
             evt_set_ret = 0;
-            UART_SendData(uart_no, byte); //MH2101的串口发送函数 原型在mhscpu_uart.c
+            UART_SendData(uart_no, byte); //MH2101碌脛麓庐驴脷路垄脣脥潞炉脢媒 脭颅脨脥脭脷mhscpu_uart.c
         } else {
-            UART_ITConfig(uart_no, UART_IT_TX_EMPTY, DISABLE); //MH2101的中断设置函数 原型在mhscpu_uart.c
+            UART_ITConfig(uart_no, UART_IT_TX_EMPTY, DISABLE); //MH2101碌脛脰脨露脧脡猫脰脙潞炉脢媒 脭颅脨脥脭脷mhscpu_uart.c
         }
         break;
     case NONE:

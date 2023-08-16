@@ -79,8 +79,8 @@ void phaseA (void *argument) {
     signal_func(tid_phaseB);                                     /* call common signal function   */
     g_phases.phaseA = 0;
     Switch_Off(0);
-	//for uart driver send test
-	uart_send_data(buf, 14, (uint32_t)(-1));
+   //for uart driver send test
+   uart_send_data(buf, 14, (uint32_t)(-1));
   }
 }
 
@@ -131,13 +131,17 @@ void phaseD (void *argument) {
  *---------------------------------------------------------------------------*/
 void clock (void *argument) {
   uint8_t byte = 0;
+  //uint8_t buf[15] = "uart test send";
+  uint8_t buf[15] = "send";
   for (;;) {
     // osThreadFlagsWait(0x0100, osFlagsWaitAny, osWaitForever);    /* wait for an event flag 0x0100 */
     osDelay(1000);                            /* delay  80ms                   */
     if(uart_recv_byte(&byte,(uint32_t)(-1)))
+    {
       printf("byte 0x%x\n",byte);
-
-    printf("test timer 1000ms\n");
+      uart_send_data(buf,4,(uint32_t)(-1));
+     }
+    //printf("test timer 1000ms\n");
   }
 }
 
@@ -166,6 +170,12 @@ void NVIC_Configuration(void)
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
+
+    NVIC_InitStructure.NVIC_IRQChannel = UART3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 }
 
 int main (void) {
@@ -176,8 +186,8 @@ int main (void) {
     SYSCTRL_HCLKConfig(SYSCTRL_HCLK_Div_None);
     SYSCTRL_PCLKConfig(SYSCTRL_PCLK_Div2);
 
-    SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_GPIO, ENABLE);
-    SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0, ENABLE);
+    SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_UART3 | SYSCTRL_APBPeriph_GPIO, ENABLE);
+    SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_UART3, ENABLE);
 
     osKernelInitialize();                 // Initialize CMSIS-RTOS
     init_uart_io_api();
