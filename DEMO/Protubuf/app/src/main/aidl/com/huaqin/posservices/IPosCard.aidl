@@ -19,6 +19,10 @@ interface IPosCard {
 
     byte[] getNfcData();
 
+    void setLogin(in byte[] _byte);
+
+    byte[] getLogin();
+
     void registerCallback(IPosCardCallback cb);
 
     void unregisterCallback(IPosCardCallback cb);

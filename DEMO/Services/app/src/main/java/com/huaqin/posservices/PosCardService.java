@@ -1,5 +1,8 @@
 package com.huaqin.posservices;
 
+import static com.example.protobufdemo.RemoteMessage.boolean_t.failed;
+import static com.example.protobufdemo.RemoteMessage.boolean_t.succeeded;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +11,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
+import com.example.protobufdemo.RemoteMessage;
 import com.example.protobufdemo.Test;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -19,6 +21,8 @@ public class PosCardService extends Service {
     private String mStrData;
     private Boolean mSetServicesRuning = false;
     private byte[] mByte;
+    private byte[] mLoginByte;
+    private byte[] mLoginResult;
     public PosCardService() {
     }
 
@@ -80,6 +84,29 @@ public class PosCardService extends Service {
             return mByte;
         }
 
+
+        /**
+         * 模拟登录方法
+         * @param _byte
+         * @throws RemoteException
+         */
+        @Override
+        public void setLogin(byte[] _byte) throws RemoteException {
+            getLoginTest(_byte);
+            //mLoginByte = _byte;
+        }
+
+        /**
+         *获取登录数据
+         * @return
+         * @throws RemoteException
+         */
+        @Override
+        public byte[] getLogin() throws RemoteException {
+            Log.d(TAG, "getLogin " );
+            return mLoginResult;
+        }
+
         /**
          *注册回调
          * @param cb
@@ -124,6 +151,38 @@ public class PosCardService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    void getLoginTest(byte[] _byte){
+        try {
+            //解析收到的账号与密码，反序列化
+            RemoteMessage.to_mcu info =  RemoteMessage.to_mcu.parseFrom(_byte);
+            String userName = info.getLogin().getUsername();
+            String password = info.getLogin().getPassword();
+            //创建返回结果对象
+            RemoteMessage.from_mcu.Builder result = RemoteMessage.from_mcu.newBuilder();
+            //判断账号密码
+            if("admin".equals(userName) && "admin".equals(password)){
+                //设置返回结果－登录成功
+                result.setSeq(1)
+                        .setLogin(RemoteMessage.login_res.newBuilder()
+                                .setStatus(succeeded))
+                        .setCrc(2);
+                Log.d(TAG,"login pass = " + result.toString());
+            }else{
+                //设置返回结果－登录失败
+                result.setSeq(2)
+                        .setLogin(RemoteMessage.login_res.newBuilder()
+                                .setStatus(failed))
+                        .setCrc(3);
+                Log.d(TAG,"login fail = " + result.toString());
+            }
+            //将结果对象序列化
+            mLoginResult = result.build().toByteArray();
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**

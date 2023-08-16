@@ -34,5 +34,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="getNfcData" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login" />
+
+        <Button
+            android:id="@+id/button6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="getResult" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

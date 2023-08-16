@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button2).setOnClickListener(this);
         findViewById(R.id.button3).setOnClickListener(this);
         findViewById(R.id.button4).setOnClickListener(this);
+        findViewById(R.id.button5).setOnClickListener(this);
+        findViewById(R.id.button6).setOnClickListener(this);
     }
 
 
@@ -59,6 +61,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         build.setColse("colse nfc");
         Test.nfc_data info = build.build();
         return info.toByteArray();
+    }
+
+    /**
+     * 创建登录数据
+     * @return
+     */
+    public byte[] testLogin(){
+        Log.d(TAG,"buildLogin");
+        //发给mcu　proto数据对象
+        RemoteMessage.to_mcu.Builder build = RemoteMessage.to_mcu.newBuilder();
+        //账号密码proto数据对象
+        RemoteMessage.login_req.Builder buildLogin = RemoteMessage.login_req.newBuilder();
+        build.setSeq(1)
+                .setLogin(buildLogin.setUsername("admin")
+                        .setPassword("admin"))
+                .setCrc(2);
+        Log.d(TAG,"buildLogin = " + build.build());
+        return build.build().toByteArray();
     }
 
     @Override
@@ -94,6 +114,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     toast = Toast.makeText(mContext, info.toString(), Toast.LENGTH_SHORT);
                     toast.show();
                     Log.d(TAG, "test: info = " +info);
+                } catch (RemoteException | InvalidProtocolBufferException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case R.id.button5:
+                Log.d(TAG,"LOGIN");
+                try {
+                    //把proto反序列化后数据传给services
+                    mBinder.setLogin(testLogin());
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case R.id.button6:
+                Log.d(TAG,"GET LOGIN RESULT");
+                try {
+                    //调用services 方法获取服务端byte数据
+                    byte[] loginResult = mBinder.getLogin();
+                    //对获取到的数据进行序列化
+                    RemoteMessage.from_mcu info = RemoteMessage.from_mcu.parseFrom(loginResult);
+                    toast = Toast.makeText(mContext, "LOGIN " + info.getLogin(), Toast.LENGTH_SHORT);
+                    toast.show();
+                    Log.d(TAG, "test: info = " +info.getLogin());
                 } catch (RemoteException | InvalidProtocolBufferException e) {
                     throw new RuntimeException(e);
                 }
