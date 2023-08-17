@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #if !defined(_SERIAL_DATAGRAM_DEVICE_NAME)
-#define _SERIAL_DATAGRAM_DEVICE_NAME "/dev/ttyHS1"
+#define _SERIAL_DATAGRAM_DEVICE_NAME "/dev/ttyS1"
 #endif
 
 static int device_fd = -1;

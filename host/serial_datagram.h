@@ -20,7 +20,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "misc.h"
+//#include "misc.h"
 
 // datagram delimiter description
 #define SERIAL_DATAGRAM_START_CHR '\r'
