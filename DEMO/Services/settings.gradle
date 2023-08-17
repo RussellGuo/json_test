@@ -1,2 +1,3 @@
 rootProject.name = "PosServices"
 include ':app'
+include ':poslibrary'
