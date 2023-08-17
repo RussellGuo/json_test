@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include "mhscpu.h"
 #include "uart_io_API.h"
+#include "serial_datagram.h"
 
 #include "cmsis_os2.h"                  // ARM::CMSIS:RTOS2:Keil RTX5
 
@@ -150,11 +151,11 @@ void clock (void *argument) {
  *---------------------------------------------------------------------------*/
 void app_main (void *argument) {
 
-  tid_phaseA = osThreadNew(phaseA, NULL, NULL);
+  tid_phaseA = osThreadNew(serial_datagram_receive_loop, NULL, NULL);
   tid_phaseB = osThreadNew(phaseB, NULL, NULL);
   tid_phaseC = osThreadNew(phaseC, NULL, NULL);
   tid_phaseD = osThreadNew(phaseD, NULL, NULL);
-  tid_clock  = osThreadNew(clock,  NULL, NULL);
+  //tid_clock  = osThreadNew(clock,  NULL, NULL);
 
   osThreadFlagsSet(tid_phaseA, 0x0001);     /* set signal to phaseA thread   */
 
