@@ -77,7 +77,6 @@ int main(int, char *[]) {
     to_mcu to_mcu_req_obj;
     to_mcu_req_obj.set_allocated_login(&login_req_obj);  // 这个写法是我找到的唯一能用的方法
     to_mcu_req_obj.set_seq(0x1U);
-    to_mcu_req_obj.set_crc(0xffffU);
     auto to_mcu_req_binary = pb_encoding(to_mcu_req_obj);
     if (to_mcu_req_binary.empty()) {
         // error
@@ -88,16 +87,17 @@ int main(int, char *[]) {
     std::cerr << "to_mcu_req: protobuf translated byte count: " << to_mcu_req_binary.size() << std::endl;
 
     // 应该当是这个结果。注意这个串会拿到MCU端解码。目前这部分是我手工复制过去的。
-    const std::vector<uint8_t> expected_to_mcu_req_encoding_binary{0x08, 0x01, 0x15, 0xff, 0xff, 0x00, 0x00, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
+    const std::vector<uint8_t> expected_to_mcu_req_encoding_binary{0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
     std::cerr << "to_mcu_req encoding result: " << (to_mcu_req_binary == expected_to_mcu_req_encoding_binary) << std::endl;
 
     // 解码from_mcu
     // 跟普通解码没有不同。不同的是获取obj的值的方法要注意
-    const std::vector<uint8_t>from_mcu_res_binary {0x08, 0x02, 0x15, 0xfe, 0xff, 0x00, 0x00, 0x1a, 0x02, 0x08, 0x02};
+    const std::vector<uint8_t>from_mcu_res_binary {0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
     from_mcu from_mcu_res_obj;
     is_ok = pb_decoding(from_mcu_res_binary, from_mcu_res_obj);
     is_ok &= from_mcu_res_obj.res_case() == from_mcu_res_obj.kLogin;
     is_ok &= from_mcu_res_obj.login().status() == boolean_t::unknown;
+    is_ok &= from_mcu_res_obj.err_code() == remote_call_err_code::no_impl;
     std::cerr << "from_mcu_res: decoding result = " << is_ok << std::endl;
 
     return 0;
