@@ -22,16 +22,17 @@ del req_list, res_list, evt_list, item, req, res, evt
 
 
 def print_mcu_c_code(dir):
-    ''' 根据pb的内容生成mcu的C代码，输出路径在 dir，文件名是约定好的 semantic_api.[ch]'''
-    h_file = open(dir + '/semantic_api.h', "w")
-    c_file = open(dir + '/semantic_api.c', "w")
+    ''' 根据pb的内容生成mcu的C代码，输出路径在 dir，文件名是约定好的 semantic_api.generated.[ch]'''
+
+    h_file = open(dir + '/semantic_api.generated.h', "w")
+    c_file = open(dir + '/semantic_api.generated.c', "w")
 
     # 先输出一下头文件。目前还不知道文件名/路径，先打印到终端看看
     print('''
 /* 别编辑，自动生成的代码
    生成命令是： gen_pb_rpc_code.py 目标C代码目录 目标Java代码目录
 
-   semantic_api.h，本文件包含了：
+   semantic_api.generated.h，本文件包含了：
       1> host端请求/响应的语义层程序的总入口
       2> host端请求响应中，针对不同业务的各自的入口（其中.c中包含了一个 weak 版本的实现，使得整个程序在业务不全的时候也能编译和工作，但最终还是要有正规的C实现）
       3> MCU发送事件到host的各种evt的入口
@@ -50,10 +51,11 @@ remote_call_err_code remote_call_service(const to_mcu *to_mcu_obj, from_mcu *fro
     for func in rpc_func_map:
         req_type_name, req_obj_name, req_number, req_type_is_dummy = rpc_func_map[func][0]
         res_type_name, res_obj_name, res_number, res_type_is_dummy = rpc_func_map[func][1]
-        print("remote_call_err_code remote_call_service_for_%s(const %s *%s, %s *%s); //业务%s的处理函数，被remote_call_service调用" %
-              (func, req_type_name, req_obj_name, res_type_name, res_obj_name, func), file=h_file)
+        print("remote_call_err_code remote_call_service_for_%s(const %s *%s_req_obj, %s *%s_res_obj); //业务%s的处理函数，被remote_call_service调用" %
+              (func, req_type_name, func, res_type_name, func, func), file=h_file)
         pass
 
+    print("\nbool send_remote_res(from_mcu *from_mcu_obj); // 本函数为所有事件函数提供服务", file=h_file)
     print("\n// 下面是事件函数", file=h_file)
     for evt in evt_map:
         evt_type_name, evt_obj_name, evt_number, evt_type_is_dummy = evt_map[evt]
@@ -68,7 +70,7 @@ remote_call_err_code remote_call_service(const to_mcu *to_mcu_obj, from_mcu *fro
 
  */
 
-#include "semantic_api.h"
+#include "semantic_api.generated.h"
 ''', file=c_file)
 
     print("// 以下是一些带'weak'属性的子服务程序，是一个占位性质的实现。真实的实现需要其它地方做，而且不能带weak属性。这个属性表示“同名的有正式定义的时候用正式定义，没有的请用我”", file=c_file)
@@ -99,8 +101,8 @@ bool send_remote_event_for_%s(const %s *%s) {
 }''' % (evt, evt_type_name, evt_obj_name, evt, evt_obj_name, evt_obj_name), file=c_file)
 
     print("\n\n// 以下是总处理入口函数", file=c_file)
-    print('''remote_call_err_code remote_call_service(const to_mcu *to_mcu_obj, from_mcu *from_mcu_obj) {
-    *from_mcu_obj = from_mcu_init_zero;
+    print(
+'''remote_call_err_code remote_call_service(const to_mcu *to_mcu_obj, from_mcu *from_mcu_obj) {
     remote_call_err_code err_code;
 
     switch(to_mcu_obj->which_req) {''', file=c_file, end='')
@@ -111,7 +113,7 @@ bool send_remote_event_for_%s(const %s *%s) {
         print('''
     case to_mcu_%s_tag:
         from_mcu_obj->which_res = from_mcu_%s_tag;
-        err_code = remote_call_service_for_%s(&to_mcu_obj->req.%s, &from_mcu_obj->req.%s);
+        err_code = remote_call_service_for_%s(&to_mcu_obj->req.%s, &from_mcu_obj->res.%s);
         break;
 ''' % (func, res_obj_name, func, req_obj_name, res_obj_name), file=c_file, end='')
 
@@ -129,7 +131,7 @@ bool send_remote_event_for_%s(const %s *%s) {
 
 
 try:
-    print_mcu_c_code(".")
+    print_mcu_c_code("src")
     exit(0)
 except Exception as e:
     print(str(e))

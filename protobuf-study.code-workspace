@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"pb_decode.h": "c"
+			"pb_decode.h": "c",
+			"semantic_api.h": "c"
 		},
 		"[python]": {
 			"editor.defaultFormatter": "ms-python.autopep8"
