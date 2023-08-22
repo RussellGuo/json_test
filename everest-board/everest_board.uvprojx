@@ -337,9 +337,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_STDPERIPH_DRIVER</Define>
+              <Define>PB_NO_STATIC_ASSERT=1 USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Include;..\MH2101_SDK\Libraries\MHSCPU_Driver\inc;..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include;.\</IncludePath>
+              <IncludePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Include;..\MH2101_SDK\Libraries\MHSCPU_Driver\inc;..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include;.\;..\..\nanopb;..\nanopb_intermediate</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -445,6 +445,46 @@
         </Group>
         <Group>
           <GroupName>mcu-services-hw</GroupName>
+        </Group>
+        <Group>
+          <GroupName>nanopb_intermediate</GroupName>
+          <Files>
+            <File>
+              <FileName>remote_message.pb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\nanopb_intermediate\remote_message.pb.c</FilePath>
+            </File>
+            <File>
+              <FileName>semantic_api.generated.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\nanopb_intermediate\semantic_api.generated.c</FilePath>
+            </File>
+            <File>
+              <FileName>semantic_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\nanopb_intermediate\semantic_api.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>nanopb_common</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\nanopb\pb_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_decode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\nanopb\pb_decode.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\nanopb\pb_encode.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>mh2101-sdk</GroupName>
