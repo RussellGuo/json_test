@@ -4,3 +4,5 @@
 !**/mdk/RTE/CMSIS/
 !**/mdk/RTE/CMSIS/*
 !**/mdk/**/*.uvprojx
+/Objects/
+/Listings/

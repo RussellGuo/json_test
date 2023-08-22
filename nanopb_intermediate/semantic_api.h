@@ -4,4 +4,4 @@
 #include "pb_decode.h"
 
 // 处理来自host的报文
-bool process_incoming_datagram(const void *data_ptr, pb_size_t len);
+bool process_incoming_datagram(const void *data_ptr, unsigned short len);

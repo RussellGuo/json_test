@@ -70,7 +70,6 @@ bool send_datagram(const void *data_ptr, unsigned short len);
 
 bool process_incoming_datagram(const void *data_ptr, unsigned short len); // 被回调的报文处理函数。同上TODO
 
-// bool process_incoming_datagram(const void *data_ptr, pb_size_t len)
 // should be implemented by monitor progress, for diagnosis
 void report_mismatch_raw_datagram(const void *raw_datagram, size_t raw_datagram_len);
 void report_skipped_bytes_before_get_raw_datagram(size_t count);
