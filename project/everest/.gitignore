@@ -1,6 +1,0 @@
-**/mdk/**/*
-!**/mdk/RTE/
-**/mdk/RTE/*
-!**/mdk/RTE/CMSIS/
-!**/mdk/RTE/CMSIS/*
-!**/mdk/**/*.uvprojx
