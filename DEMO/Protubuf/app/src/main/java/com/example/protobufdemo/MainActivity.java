@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.IPosCard;
+import com.huaqin.posservices.IReadCardCallback;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,ServiceConnection {
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mContext = this;
         //创建Intent 设置需要连接的服务
         mPosServices = new Intent();
+        test1();
         mPosServices.setComponent(new ComponentName("com.huaqin.posservices","com.huaqin.posservices.PosCardService"));
         setContentView(R.layout.activity_main);
         findViewById(R.id.button).setOnClickListener(this);
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button4).setOnClickListener(this);
         findViewById(R.id.button5).setOnClickListener(this);
         findViewById(R.id.button6).setOnClickListener(this);
+        findViewById(R.id.button7).setOnClickListener(this);
     }
 
 
@@ -75,11 +78,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RemoteMessage.login_req.Builder buildLogin = RemoteMessage.login_req.newBuilder();
         build.setSeq(1)
                 .setLogin(buildLogin.setUsername("admin")
-                        .setPassword("admin"))
-                .setCrc(2);
+                        .setPassword("admin"));
+                //.setCrc(2);
         Log.d(TAG,"buildLogin = " + build.build());
         return build.build().toByteArray();
     }
+
+
+    private void test1(){
+        byte[]  to_mcu_buf = {0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
+        byte[] expected_from_mcu_binary = {0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
+        try {
+            RemoteMessage.to_mcu toMcu=   RemoteMessage.to_mcu.parseFrom(to_mcu_buf);
+            Log.d(TAG,"toMcu = " + toMcu.toString());
+
+            RemoteMessage.from_mcu fromMcu=   RemoteMessage.from_mcu.parseFrom(expected_from_mcu_binary);
+            Log.d(TAG,"from_mcu = " + fromMcu.toString());
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -141,6 +162,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     throw new RuntimeException(e);
                 }
                 break;
+            case R.id.button7:
+                Log.d(TAG,"CHECK CARD");
+                try {
+                    mBinder.checkCard();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
     }
 
@@ -160,9 +189,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.v(TAG,"第" + mICount + "次连接服务！");
             binService = true;
             try {
-                binService = true;
                 String strData = "第" + mICount + "次连接Service成功！";
                 mBinder.setStringData(strData);
+                mBinder.registerCallback(readCardCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -175,4 +204,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         binService = false;
         Log.v(TAG,"onServiceDisconnected");
     }
+
+    IReadCardCallback readCardCallback = new IReadCardCallback.Stub(){
+
+        @Override
+        public void onError(int i, String s) throws RemoteException {
+
+        }
+
+        @Override
+        public void onCardDetected(String s) throws RemoteException {
+            toast = Toast.makeText(mContext, s, Toast.LENGTH_SHORT);
+            toast.show();
+            Log.d(TAG,"Read card result = " + s);
+        }
+    };
 }

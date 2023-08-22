@@ -1,7 +1,7 @@
 // IPosCard.aidl
 package com.huaqin.posservices;
 // Declare any non-default types here with import statements
-import com.huaqin.posservices.IPosCardCallback;
+import com.huaqin.posservices.IReadCardCallback;
 
 interface IPosCard {
     /**
@@ -23,7 +23,9 @@ interface IPosCard {
 
     byte[] getLogin();
 
-    void registerCallback(IPosCardCallback cb);
+    void checkCard();
 
-    void unregisterCallback(IPosCardCallback cb);
+    void registerCallback(IReadCardCallback cb);
+
+    void unregisterCallback(IReadCardCallback cb);
 }

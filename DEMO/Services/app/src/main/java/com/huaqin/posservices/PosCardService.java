@@ -26,7 +26,7 @@ public class PosCardService extends Service {
     public PosCardService() {
     }
 
-    final RemoteCallbackList<IPosCardCallback> mCallbacks = new RemoteCallbackList<IPosCardCallback>();
+    final RemoteCallbackList<IReadCardCallback> mCallbacks = new RemoteCallbackList<IReadCardCallback>();
 
     /**
      *
@@ -107,26 +107,27 @@ public class PosCardService extends Service {
             return mLoginResult;
         }
 
-        /**
-         *注册回调
-         * @param cb
-         * @throws RemoteException
-         */
         @Override
-        public void registerCallback(IPosCardCallback cb) throws RemoteException {
+        public void checkCard() throws RemoteException {
+            Log.d(TAG, "Start checkCard" );
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            startCallback();
+        }
+
+        @Override
+        public void registerCallback(IReadCardCallback cb) throws RemoteException {
             if (cb != null) {
                 mCallbacks.register(cb);
-                startCallback();
+                //startCallback();
             }
         }
 
-        /**
-         *取消注册
-         * @param cb
-         * @throws RemoteException
-         */
         @Override
-        public void unregisterCallback(IPosCardCallback cb) throws RemoteException {
+        public void unregisterCallback(IReadCardCallback cb) throws RemoteException {
             if (cb != null) {
                 mCallbacks.unregister(cb);
             }
@@ -194,7 +195,7 @@ public class PosCardService extends Service {
         for (int i = 0; i < N; i++) {
             try {
                 Log.d(TAG, "callback hello world 123");
-                mCallbacks.getBroadcastItem(i).serverReport("hello world");
+                mCallbacks.getBroadcastItem(i).onCardDetected(" Read A Card Success");
             } catch (RemoteException e){
                 e.printStackTrace();
             }
