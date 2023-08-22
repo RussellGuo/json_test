@@ -61,3 +61,7 @@ res_list = get_field_list(
 req_list = get_field_list(
     remote_message_pb2._TO_MCU.oneofs_by_name['req'].fields, lambda type_name: type_name.endswith('_req'))
 pass
+
+if __name__ == '__main__':
+    print('本文件不可单独执行')
+    exit(1)

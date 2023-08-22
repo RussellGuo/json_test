@@ -1,3 +1,4 @@
+import sys
 import meta_info_from_pb
 
 req_list, res_list, evt_list = meta_info_from_pb.req_list, meta_info_from_pb.res_list, meta_info_from_pb.evt_list
@@ -129,10 +130,29 @@ bool send_remote_event_for_%s(const %s *%s) {
     c_file.close()
     return
 
+def print_android_java_code(dir):
+    ''' 根据pb的内容生成Android的Java代码，输出路径在 dir，文件名是约定好的XXX(还不知道叫啥)'''
+    pass
 
-try:
-    print_mcu_c_code("src")
-    exit(0)
-except Exception as e:
-    print(str(e))
-    exit(1)
+def usage():
+    print("用法：不加参数或者加上 '目标C目录名'和'目标Java目录名'")
+
+if __name__ == '__main__':
+    print(sys.argv)
+
+    if len(sys.argv) == 3:
+        c_dir = sys.argv[1]
+        java_dir = sys.argv[2]
+    elif len(sys.argv) == 1:
+        c_dir = java_dir = 'src'
+    else:
+        usage()
+        exit(1)
+
+    try:
+        print_mcu_c_code(c_dir)
+        print_android_java_code(java_dir)
+        exit(0)
+    except Exception as e:
+        print(str(e))
+        exit(1)
