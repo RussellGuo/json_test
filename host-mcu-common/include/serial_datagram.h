@@ -54,8 +54,8 @@ void serial_datagram_receive_loop(void *arg);
 // Once a datagram be received from remote, this function will be invoked
 // Parameters:
 //   [in]seq, msg_id, data list and data count
-//void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
-//    const serial_datagram_item_t *restrict data_list, const size_t len);
+void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
+    const serial_datagram_item_t *restrict data_list, const size_t len);
 
 // This function is used to send a datagram.
 // Parameters:

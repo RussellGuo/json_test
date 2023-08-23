@@ -194,9 +194,9 @@ void serial_datagram_receive_loop(void *arg)
         }
         if (isOK) {
             // dispatch the message
-            printf("mcu datagram test ok\n");
-            serial_datagram_send(123,0x08,NULL,0);
-            //serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
+            printf("datagram_str:%x %x %x %x %x %x %x %x %x %x %x %x %x %x\n", datagram_str[0], datagram_str[1], datagram_str[2], datagram_str[3], datagram_str[4], datagram_str[5],
+            datagram_str[6], datagram_str[7], datagram_str[8], datagram_str[9], datagram_str[10], datagram_str[11], datagram_str[12], datagram_str[13]);
+            serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
         } else {
             //record_mismatched_datagram(1); //注释先不用
         }
