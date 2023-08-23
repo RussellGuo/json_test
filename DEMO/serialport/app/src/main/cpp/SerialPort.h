@@ -20,7 +20,7 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_initUart
  * Method:    serialDatagramSend
  * Signature: ()Z
  */
-JNIEXPORT void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramSend
+JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramSend
 (JNIEnv *, jobject);
 
 /*

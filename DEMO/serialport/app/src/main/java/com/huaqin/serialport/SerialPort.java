@@ -9,7 +9,7 @@ public class SerialPort {
     //初始化串口
     public static native boolean initUart();
     //发送指令
-    public static native void serialDatagramSend();
+    public static native boolean serialDatagramSend();
     //获取结果
     public static native void serialDatagramReceiveLoop();
 }

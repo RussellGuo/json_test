@@ -10,6 +10,9 @@
 
 #ifndef _Included_com_huaqin_serialport_SerialPort
 #define _Included_com_huaqin_serialport_SerialPort
+
+pid_t fork();
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,9 +25,7 @@ extern "C" {
 JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_initUart
         (JNIEnv *, jobject){
     bool ret;
-    printf("zhangwencai initUart");
     ret = init_uart_io_api();
-    printf("zhangwencai %d for init_uart_io_api\n", ret);
     return ret;
 }
 
@@ -33,19 +34,17 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_initUart
  * Method:    serialDatagramSend
  * Signature: ()Z
  */
-JNIEXPORT void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramSend
+JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramSend
         (JNIEnv *, jclass){
-    serial_datagram_send(123, 0x08, NULL, 0);
+    bool bet;
+    bet = serial_datagram_send(123, 0x08, NULL, 0);
+    return bet;
 }
 
-/*
- * Class:     com_huaqin_serialport_SerialPort
- * Method:    serialDatagramReceiveLoop
- * Signature: ()Z
- */
-JNIEXPORT void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramReceiveLoop
+
+void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramReceiveLoop
         (JNIEnv *, jobject){
-    serial_datagram_receive_loop(0);
+        serial_datagram_receive_loop(0);
 }
 
 #ifdef __cplusplus
