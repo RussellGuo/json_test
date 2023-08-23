@@ -5,6 +5,10 @@
 
  *  Created on: Nov 27, 2020
  *      Author: Guo Qiang
+ *
+ *  移植到everest的host-mcu上。曹猛在2023-8月初移植的，但这个懒家伙没在这里说明
+ *
+ *  郭强 2023-8-22日新增了一对"dirty and quick"的调用函数，数据报对语义层接口改成字节对齐的了。未来要单独优化这段。
  */
 
 #include <stdio.h>
@@ -127,7 +131,7 @@ void serial_datagram_receive_loop(void *arg)
         }
 
         if (datagram_str[0] == 'L') {
-					  //注释先不用
+            //注释先不用
             // LOG datagram
             //#if !defined(IS_MCU_SIDE)
             //dispatch_mcu_log(datagram_str + 1);
@@ -191,7 +195,7 @@ void serial_datagram_receive_loop(void *arg)
         if (isOK) {
             // dispatch the message
             printf("datagram test ok\n");
-            //serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
+            serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
         } else {
             //record_mismatched_datagram(1); //注释先不用
         }
@@ -396,3 +400,25 @@ __attribute__((weak)) void rpc_logv(log_level_t log_level, const char *tag, cons
 
 #endif
 */
+
+__attribute__((weak)) bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
+    (void)data_ptr;
+    (void)len;
+    return false;
+}
+
+bool send_datagram(const void *data_ptr, unsigned short len) {
+    bool ret;
+    if (len == 0) {
+        return false;
+    }
+    size_t item_size = ((len - 1) / 4 + 1);
+    ret = serial_datagram_send(0, 0, (const serial_datagram_item_t *)data_ptr, item_size);
+    return ret;
+}
+
+void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id, const serial_datagram_item_t *restrict data_list, const size_t len) {
+    (void)seq;
+    (void)msg_id;
+    process_incoming_datagram(data_list, len * 4);
+}

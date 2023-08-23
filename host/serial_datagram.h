@@ -6,6 +6,10 @@
  *  Created on: Nov 27, 2020
  *      Author: Guo Qiang
  *   please reference the document "SaIP communication protocol between the host and the MCU"
+ *
+ *  移植到everest的host-mcu上。曹猛在2023-8月初移植的，但这个懒家伙没在这里说明
+ * 
+ *  郭强 2023-8-22日新增了一对"dirty and quick"的调用函数，数据报对语义层接口改成字节对齐的了。未来要单独优化这段。
  */
 
 #ifndef __SERIAL_DATAGRAM_H_
@@ -50,8 +54,8 @@ void serial_datagram_receive_loop(void *arg);
 // Once a datagram be received from remote, this function will be invoked
 // Parameters:
 //   [in]seq, msg_id, data list and data count
-//void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
-//    const serial_datagram_item_t *restrict data_list, const size_t len);
+void serial_datagram_arrived(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
+    const serial_datagram_item_t *restrict data_list, const size_t len);
 
 // This function is used to send a datagram.
 // Parameters:
@@ -61,6 +65,10 @@ void serial_datagram_receive_loop(void *arg);
 bool serial_datagram_send(const serial_datagram_item_t seq, const serial_datagram_item_t msg_id,
     const serial_datagram_item_t *restrict data_list, const size_t len);
 
+// 字节对齐版的报文发送，目前是假设data_ptr是32bits对齐，然后直接调用了之前的serial_datagram_send。TODO: 需要专用化的版本
+bool send_datagram(const void *data_ptr, unsigned short len);
+
+bool process_incoming_datagram(const void *data_ptr, unsigned short len); // 被回调的报文处理函数。同上TODO
 
 // should be implemented by monitor progress, for diagnosis
 void report_mismatch_raw_datagram(const void *raw_datagram, size_t raw_datagram_len);
