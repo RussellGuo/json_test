@@ -84,3 +84,6 @@ add_executable(protobuf-example-mcu
 # 注意不能包含 ${CMAKE_CURRENT_BINARY_DIR}，因为会和C++的输出头文件打架
 target_include_directories(protobuf-example-mcu PRIVATE ${NANOPB_REPO_ROOT} ${NANOPB_INTERMEDIATE_DIR})
 target_compile_options(protobuf-example-mcu PRIVATE -Wall -Wextra -Werror)
+
+add_executable(datagram datagram_codec.c crc8_soft.c)
+target_compile_options(datagram PRIVATE -Wall -Wextra -Werror)
