@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.protobufdemo.remotemessage.RemoteMessageApi;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.IPosCard;
 import com.huaqin.posservices.IReadCardCallback;
@@ -47,6 +48,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button5).setOnClickListener(this);
         findViewById(R.id.button6).setOnClickListener(this);
         findViewById(R.id.button7).setOnClickListener(this);
+
+        RemoteMessageApi api = new RemoteMessageApi();
+        RemoteMessage.login_req.Builder loginInfo = RemoteMessage.login_req.newBuilder();
+        loginInfo.setUsername("Russell");
+        loginInfo.setPassword("12345");
+
+        RemoteMessage.logout_req.Builder logOUTInfo = RemoteMessage.logout_req.newBuilder();
+        logOUTInfo.setDummy(1);
+        api.remoteCllService(loginInfo.build());
+        api.remoteCllService(logOUTInfo.build());
     }
 
 

@@ -3,13 +3,14 @@ package com.example.protobufdemo.remotemessage;
 import static com.example.protobufdemo.remotemessage.RemoteMessageConstants.TO_MCU_LOGIN_TAG;
 import static com.example.protobufdemo.remotemessage.RemoteMessageConstants.TO_MCU_LOGOUT_TAG;
 
+import android.os.IBinder;
 import android.util.Log;
 
 import com.example.protobufdemo.RemoteMessage;
 
 public class RemoteMessageApi {
     private String TAG = "RemoteMessageApi";
-
+    ///private HashMap<IBinder, ServiceBinderListener> mListenersMap;
     RemoteMessage.to_mcu.Builder mcuInfo ;
 
     /**

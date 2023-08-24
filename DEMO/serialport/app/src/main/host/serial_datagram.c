@@ -16,7 +16,9 @@
 
 #include "mcu-crc32-soft.h"
 #include "uart_io_api.h"
-
+#include <android/log.h>
+#define TAG "JNI-TEST"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);
 //#include "run_info_result_desc.h" //注释先不用
 
 #include <ctype.h>
@@ -191,6 +193,7 @@ void serial_datagram_receive_loop(void *arg)
         if (isOK) {
             // dispatch the message
             printf("datagram test ok\n");
+            LOGD("datagram test ok");
             //serial_datagram_arrived(items[0], items[1], items + 2, item_count - 3); //注释先不用
         } else {
             //record_mismatched_datagram(1); //注释先不用

@@ -54,20 +54,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.button2:
                 Log.d(TAG, "serial Datagram Send ");
-
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG,"res = " );
-                        while (true){
-                            Log.d(TAG,"res = " );
-                            SerialPort.serialDatagramReceiveLoop();
-                        }
-                    }
+                        SerialPort.serialDatagramReceiveLoop();
+                       }
                 }).start();
-                boolean rel;
-                rel =  SerialPort.serialDatagramSend();
-                Log.d(TAG,"rel = " + rel);
+               // boolean rel;
+               // rel =  SerialPort.serialDatagramSend();
+               // Log.d(TAG,"rel = " + rel);
                 break;
         }
     }
