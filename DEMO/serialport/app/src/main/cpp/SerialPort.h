@@ -31,6 +31,8 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramS
 JNIEXPORT void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramReceiveLoop
 (JNIEnv *, jobject);
 
+void receive_loop_result(const void *data_ptr, unsigned short len);
+
 #ifdef __cplusplus
 }
 #endif

@@ -44,6 +44,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public native String stringFromJNI();
 
+    Thread thread = new Thread() {
+        @Override
+        public void run() {
+            SerialPort.serialDatagramReceiveLoop();
+        }
+    };
+
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -54,17 +62,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.button2:
                 Log.d(TAG, "serial Datagram Send ");
-                new Thread(new Runnable() {
+                //thread.start();
+                new Thread() {
                     @Override
                     public void run() {
-                        Log.d(TAG,"res = " );
                         SerialPort.serialDatagramReceiveLoop();
-                       }
-                }).start();
-               // boolean rel;
-               // rel =  SerialPort.serialDatagramSend();
-               // Log.d(TAG,"rel = " + rel);
+                    }
+                }.start();
+                boolean rel;
+                rel =  SerialPort.serialDatagramSend();
+                Log.d(TAG,"rel = " + rel);
+
+               /* try {
+                    Thread.sleep(5000);
+                    thread.stop();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }*/
                 break;
         }
+    }
+
+    public void onResultCallBack(int obj) {
+        Log.e( TAG, "onResultCallBack: " + obj);
+        thread.stop();
     }
 }

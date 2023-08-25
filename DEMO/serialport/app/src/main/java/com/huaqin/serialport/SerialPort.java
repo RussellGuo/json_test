@@ -7,10 +7,16 @@ public class SerialPort {
     static {
         System.loadLibrary("serialport");
     }
+    private final String TAG = "SerialPort";
+    //回调到各个线程
+    public interface OnSubProgressListener {
+        public int onProgressChange(long total, long already);
+    };
 
     //供JNI端回调的Java方法
-    public void onNativeCallBack(int count) {
-        Log.e( "zhangwencai", "onNativeCallBack: " + count);
+    public void onNativeCallBack(int obj) {
+        Log.e( TAG, "onNativeCallBack: " + obj);
+
     }
 
     //初始化串口

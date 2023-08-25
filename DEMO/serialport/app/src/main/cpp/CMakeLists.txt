@@ -31,7 +31,13 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         SerialPort.c
         ../host/serial_datagram.c
-        ../host/uart_io_api.c)
+        ../host/uart_io_api.c
+        ../host/pb_common.c
+        ../host/pb_decode.c
+        ../host/pb_encode.c
+        ../host/remote_message.pb.c
+        ../host/semantic_api.c
+        ../host/semantic_api.generated.c)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
