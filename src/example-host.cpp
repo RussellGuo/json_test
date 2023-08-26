@@ -75,15 +75,16 @@ int main(int, char *[]) {
 
     // 示例oneof的用法
     to_mcu to_mcu_req_obj;
-    to_mcu_req_obj.set_allocated_login(&login_req_obj);  // 这个写法是我找到的唯一能用的方法
-    to_mcu_req_obj.set_seq(0x1U);
+    auto login = to_mcu_req_obj.mutable_login();  // 关于嵌套的消息类型，上一个版本不是常规用法，目前这个标准
+    login->set_username("Russell");               // 设置子消息的字段
+    login->set_password("12345");                 // 同上
+    to_mcu_req_obj.set_seq(0x1U);                 // 设置一般字段
     auto to_mcu_req_binary = pb_encoding(to_mcu_req_obj);
     if (to_mcu_req_binary.empty()) {
         // error
         std::cerr << "to_mcu_req_obj encoding error" << std::endl;
         exit(1);
     }
-    to_mcu_req_obj.release_login();  // 如果不是new出来的指针，得尽快release掉，否则会在to_mcu_req的析构中被灾难性的delete. 此处的release不会调用delete
     std::cerr << "to_mcu_req: protobuf translated byte count: " << to_mcu_req_binary.size() << std::endl;
 
     // 应该当是这个结果。注意这个串会拿到MCU端解码。目前这部分是我手工复制过去的。
@@ -92,7 +93,7 @@ int main(int, char *[]) {
 
     // 解码from_mcu
     // 跟普通解码没有不同。不同的是获取obj的值的方法要注意
-    const std::vector<uint8_t>from_mcu_res_binary {0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
+    const std::vector<uint8_t> from_mcu_res_binary{0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
     from_mcu from_mcu_res_obj;
     is_ok = pb_decoding(from_mcu_res_binary, from_mcu_res_obj);
     is_ok &= from_mcu_res_obj.res_case() == from_mcu_res_obj.kLogin;
