@@ -11,7 +11,8 @@
 			"*.inc": "cpp",
 			"array": "cpp",
 			"type_traits": "cpp",
-			"string": "cpp"
+			"string": "cpp",
+			"thread": "cpp"
 		}
 	}
 }
