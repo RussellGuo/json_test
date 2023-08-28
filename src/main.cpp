@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <condition_variable>
 #include <fstream>
@@ -12,36 +13,15 @@
 
 using binary_t = std::vector<uint8_t>;
 
-#if 0
-static void send_req_to_sql_thread(ipc_req_t &req) {
-    {
-        std::unique_lock<std::mutex> lk(cv_m);
-        cv.wait(lk, [] { return ipc_req_queue.size() < ipc_max_size; });
-        ipc_req_queue.push_back(req);
-    }
-    cv.notify_all();
-}
-
-static void recv_req(ipc_req_t &req) {
-    {
-        std::unique_lock<std::mutex> lk(cv_m);
-        cv.wait(lk, [] { return !ipc_req_queue.empty(); });
-        req = ipc_req_queue.front();
-        ipc_req_queue.pop_front();
-    }
-    cv.notify_all();
-}
-#endif
-
-class inter_thread_binary_data_pipe_t {
+class thread_safe_pipe_t {
    public:
-    explicit inter_thread_binary_data_pipe_t(size_t _max_len = 16U * 1024) : max_len(_max_len), p(new uint8_t[max_len]) {}
-    ~inter_thread_binary_data_pipe_t() { delete p; }
+    explicit thread_safe_pipe_t(size_t _max_len = 16U * 1024) : max_len(_max_len), p(new uint8_t[max_len]) {}
+    ~thread_safe_pipe_t() { delete[] p; }
 
-    inter_thread_binary_data_pipe_t(const inter_thread_binary_data_pipe_t &) = delete;
-    inter_thread_binary_data_pipe_t(inter_thread_binary_data_pipe_t &&) = delete;
-    inter_thread_binary_data_pipe_t &operator=(const inter_thread_binary_data_pipe_t &) = delete;
-    inter_thread_binary_data_pipe_t &operator=(inter_thread_binary_data_pipe_t &&) = delete;
+    thread_safe_pipe_t(const thread_safe_pipe_t &) = delete;
+    thread_safe_pipe_t(thread_safe_pipe_t &&) = delete;
+    thread_safe_pipe_t &operator=(const thread_safe_pipe_t &) = delete;
+    thread_safe_pipe_t &operator=(thread_safe_pipe_t &&) = delete;
 
     bool queue_data(const uint8_t *data_ptr, uint32_t data_len) {
         const auto new_tail_idx = tail_idx + data_len;
@@ -49,21 +29,21 @@ class inter_thread_binary_data_pipe_t {
             return false;
         }
         {
-            std::unique_lock<std::mutex> lk(cv_m);
+            std::lock_guard<std::mutex> lk(cv_m);
             memcpy(p + tail_idx, data_ptr, data_len);
             tail_idx = new_tail_idx;
         }
-        cv.notify_all();
+        cv.notify_one();
 
         return true;
     }
 
     void queue_no_more_data() {
         {
-            std::unique_lock<std::mutex> lk(cv_m);
+            std::lock_guard<std::mutex> lk(cv_m);
             finished = true;
         }
-        cv.notify_all();
+        cv.notify_one();
     }
 
     void dequeue_data(const uint8_t *&data_ptr, size_t &data_num, size_t data_item_len) {
@@ -80,6 +60,11 @@ class inter_thread_binary_data_pipe_t {
         return tail_idx - head_idx;
     }
 
+    void reset() {
+        head_idx = tail_idx = 0;
+        finished = false;
+    }
+
    private:
     std::condition_variable cv{};
     std::mutex cv_m{};
@@ -90,7 +75,7 @@ class inter_thread_binary_data_pipe_t {
 };
 
 int main(int, char *[]) {
-    inter_thread_binary_data_pipe_t pipe{32};
+    thread_safe_pipe_t pipe{32};
 
     auto consumer_proc = [&pipe] {
         for (;;) {
@@ -105,6 +90,9 @@ int main(int, char *[]) {
     std::thread t{consumer_proc};
     uint8_t buf[10];
     memcpy(buf, "1234", 4);
+    pipe.queue_data(buf, 4);
+    memcpy(buf, "abcd", 4);
+    usleep(10000);
     pipe.queue_data(buf, 4);
     pipe.queue_no_more_data();
     t.join();
