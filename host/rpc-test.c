@@ -5,23 +5,16 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <sys/time.h>
-
-//#include "semantic_api.h"
-//#include "mcu-led-mode.h"
-//#include "mcu-laser-mode.h"
-//#include "mcu-flashlight-mode.h"
-//#include "mcu-camera-mode.h"
-
 #include "uart_io_api.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 #include "remote_message.pb.h"
-
+#include "datagram_codec.h"
 
 int main(void)
 {
     //set_rpc_log_level(LOG_VERBOSE);
-    //¹¹ÔìÒ»¸öto mcu±àÂëµÄÀý×Ó
+    //Â¹Â¹Ã”Ã¬Ã’Â»Â¸Ã¶to mcuÂ±Ã Ã‚Ã«ÂµÃ„Ã€Ã½Ã—Ã“
     bool ret;
     login_req login_req_obj = {"caomeng", "123456"};
     //login_req_obj.username = "caomeng";
@@ -37,8 +30,6 @@ int main(void)
     pb_ostream_t out_stream = pb_ostream_from_buffer(login_req_buf, sizeof(login_req_buf));
 
     bool status = pb_encode(&out_stream, to_mcu_fields, &to_mcu_obj);
-    printf("outstream:%x %x %x %x %x %x %x %x %x %x %x %x %x %x\n", login_req_buf[0], login_req_buf[1], login_req_buf[2], login_req_buf[3], login_req_buf[4], login_req_buf[5],
-    login_req_buf[6], login_req_buf[7], login_req_buf[8], login_req_buf[9], login_req_buf[10], login_req_buf[11], login_req_buf[12], login_req_buf[13]);
 
     ret = init_uart_io_api();
     printf("ret %d for init_uart_io_api\n", ret);

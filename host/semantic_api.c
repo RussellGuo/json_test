@@ -1,7 +1,6 @@
 
 #include "semantic_api.h"
-
-#include "serial_datagram.h"
+#include "datagram_codec.h"
 
 #define MAX_RESPONSE_SIZE 80
 
