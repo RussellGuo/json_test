@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include "mhscpu.h"
 #include "uart_io_API.h"
-#include "serial_datagram.h"
+#include "datagram_codec.h"
 #include "cmsis_os2.h"                  // ARM::CMSIS:RTOS2:Keil RTX5
 
 osThreadId_t tid_phaseA;                /* Thread id of thread: phase_a      */

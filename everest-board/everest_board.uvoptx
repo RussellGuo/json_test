@@ -356,12 +356,24 @@
     <File>
       <GroupNumber>3</GroupNumber>
       <FileNumber>6</FileNumber>
-      <FileType>5</FileType>
+      <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\host-mcu-common\include\serial_datagram.h</PathWithFileName>
-      <FilenameWithoutPath>serial_datagram.h</FilenameWithoutPath>
+      <PathWithFileName>..\host-mcu-common\source\datagram_codec.c</PathWithFileName>
+      <FilenameWithoutPath>datagram_codec.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>7</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\host-mcu-common\source\crc8_soft.c</PathWithFileName>
+      <FilenameWithoutPath>crc8_soft.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -369,22 +381,10 @@
 
   <Group>
     <GroupName>host-mcu-api</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
-    <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>7</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\host-mcu-common\include\mcu-crc32-soft.h</PathWithFileName>
-      <FilenameWithoutPath>mcu-crc32-soft.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
     <File>
       <GroupNumber>4</GroupNumber>
       <FileNumber>8</FileNumber>

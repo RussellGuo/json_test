@@ -1,7 +1,7 @@
 
 #include "semantic_api.h"
 #include <stdio.h>
-#include "serial_datagram.h"
+#include "datagram_codec.h"
 
 #define MAX_RESPONSE_SIZE 80
 
@@ -20,7 +20,7 @@ bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
     pb_istream_t in_stream = pb_istream_from_buffer(data_ptr, len);                       // 准备解码
     to_mcu to_mcu_obj = to_mcu_init_zero;                                                 // 解码结果的对象
     bool status = pb_decode(&in_stream, to_mcu_fields, &to_mcu_obj);                      // 解！
-    printf("encode: %s %s\n", to_mcu_obj.req.login.username, to_mcu_obj.req.login.password);
+    printf("decode:%s %s\n", to_mcu_obj.req.login.username, to_mcu_obj.req.login.password);
     if (status) {                                                                         // 解码成功，准备响应报文
         from_mcu from_mcu_obj = from_mcu_init_zero;                                       // 解码报文对象准备
         remote_call_err_code err_code = remote_call_service(&to_mcu_obj, &from_mcu_obj);  // 调用服务分发总程序

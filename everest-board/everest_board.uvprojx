@@ -419,20 +419,20 @@
               <FilePath>..\host-mcu-common\source\serial_datagram.c</FilePath>
             </File>
             <File>
-              <FileName>serial_datagram.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\serial_datagram.h</FilePath>
+              <FileName>datagram_codec.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\host-mcu-common\source\datagram_codec.c</FilePath>
+            </File>
+            <File>
+              <FileName>crc8_soft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\host-mcu-common\source\crc8_soft.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
           <GroupName>host-mcu-api</GroupName>
           <Files>
-            <File>
-              <FileName>mcu-crc32-soft.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\host-mcu-common\include\mcu-crc32-soft.h</FilePath>
-            </File>
             <File>
               <FileName>uart_io_API.h</FileName>
               <FileType>5</FileType>
