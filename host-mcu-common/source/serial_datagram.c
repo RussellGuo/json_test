@@ -101,16 +101,17 @@ SoT_found:
 // entire receiving task will be aborted and returned
 void serial_datagram_receive_loop(void *arg)
 {
-    uint8_t decoded_data[MAX_DATAGRAM_LEN] = {0};
-    size_t decoded_data_len = sizeof decoded_data;
     (void)arg;
     for(;;) { // for each datagram
         // get raw-data
         char datagram_str[MAX_DATAGRAM_LEN];
         size_t datagram_str_size;
+        uint8_t decoded_data[MAX_DATAGRAM_LEN] = {0};
+        size_t decoded_data_len = sizeof decoded_data;
         size_t skipped_count;
 
         memset(datagram_str, 0, sizeof datagram_str);
+        memset(decoded_data, 0, sizeof decoded_data);
         int ret = get_raw_datagram_from_serial( (uint8_t *)datagram_str, sizeof datagram_str, &datagram_str_size, &skipped_count);
         if (!ret) {
             return;
