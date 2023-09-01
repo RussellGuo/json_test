@@ -47,19 +47,19 @@ remote_call_err_code remote_call_service(const to_mcu *to_mcu_obj, from_mcu *fro
     remote_call_err_code err_code;
 
     switch(to_mcu_obj->which_req) {
-        case to_mcu_login_tag:
-            from_mcu_obj->which_res = from_mcu_login_tag;
-            err_code = remote_call_service_for_login(&to_mcu_obj->req.login, &from_mcu_obj->res.login);
-            break;
+    case to_mcu_login_tag:
+        from_mcu_obj->which_res = from_mcu_login_tag;
+        err_code = remote_call_service_for_login(&to_mcu_obj->req.login, &from_mcu_obj->res.login);
+        break;
 
-        case to_mcu_logout_tag:
-            from_mcu_obj->which_res = from_mcu_logout_tag;
-            err_code = remote_call_service_for_logout(&to_mcu_obj->req.logout, &from_mcu_obj->res.logout);
-            break;
+    case to_mcu_logout_tag:
+        from_mcu_obj->which_res = from_mcu_logout_tag;
+        err_code = remote_call_service_for_logout(&to_mcu_obj->req.logout, &from_mcu_obj->res.logout);
+        break;
 
-        default:
-            err_code = remote_call_err_code_req_type_err;
-            break;
+    default:
+        err_code = remote_call_err_code_req_type_err;
+        break;
     }
     return err_code;
 }

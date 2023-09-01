@@ -10,7 +10,7 @@
 #include "../host/pb_encode.h"
 #include "../host/remote_message.pb.h"
 #include "../host/uart_io_api.h"
-#include "../host/serial_datagram.h"
+#include "../host/datagram_codec.h"
 #include "ALog.h"
 
 /* Header for class com_huaqin_serialport_SerialPort */

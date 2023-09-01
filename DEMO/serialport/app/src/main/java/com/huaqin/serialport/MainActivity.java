@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, "init uart");
                 boolean bel = SerialPort.initUart();
                 Log.d(TAG, "init uart = " + bel);
+                Toast.makeText(this, "init uart = " + bel, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.button2:
                 Log.d(TAG, "serial Datagram Send ");

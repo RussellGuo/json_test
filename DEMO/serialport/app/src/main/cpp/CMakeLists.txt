@@ -3,7 +3,7 @@
 
 # Sets the minimum version of CMake required to build the native library.
 
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
@@ -35,6 +35,8 @@ add_library( # Sets the name of the library.
         ../host/pb_common.c
         ../host/pb_decode.c
         ../host/pb_encode.c
+        ../host/datagram_codec.c
+        ../host/crc8_soft.c
         ../host/remote_message.pb.c
         ../host/semantic_api.c
         ../host/semantic_api.generated.c)

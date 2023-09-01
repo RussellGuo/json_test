@@ -1,9 +1,3 @@
-//
-// Created by ubuntu on 2023/8/25.
-//
-
-#ifndef SERIALPORT_SEMANTIC_API_GENERATED_H
-#define SERIALPORT_SEMANTIC_API_GENERATED_H
 
 /* 别编辑，自动生成的代码
    生成命令是： gen_pb_rpc_code.py 目标C代码目录 目标Java代码目录
@@ -32,5 +26,3 @@ bool send_remote_res(from_mcu *from_mcu_obj); // 本函数为所有事件函数�
 // 下面是事件函数
 bool send_remote_event_for_key(const key_evt *key); // 发送事件到host的函数，供MCU代码调用。程序会打包一个from_mcu对象发送到host
 bool send_remote_event_for_log(const log_evt *log); // 发送事件到host的函数，供MCU代码调用。程序会打包一个from_mcu对象发送到host
-
-#endif //SERIALPORT_SEMANTIC_API_GENERATED_H

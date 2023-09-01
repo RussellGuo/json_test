@@ -4,12 +4,13 @@
 #include <errno.h>
 
 #include <stdbool.h>
-
 #include "uart_io_api.h"
 #include <stdio.h>
-
+#include <android/log.h>
 #if !defined(_SERIAL_DATAGRAM_DEVICE_NAME)
 #define _SERIAL_DATAGRAM_DEVICE_NAME "/dev/ttyS1"
+#define TAG "JNI-TEST"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);
 #endif
 
 static int device_fd = -1;

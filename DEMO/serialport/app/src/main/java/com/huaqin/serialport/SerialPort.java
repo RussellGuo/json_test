@@ -1,6 +1,8 @@
 package com.huaqin.serialport;
 
+import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SerialPort {
     //加载库文件
@@ -16,7 +18,6 @@ public class SerialPort {
     //供JNI端回调的Java方法
     public void onNativeCallBack(int obj) {
         Log.e( TAG, "onNativeCallBack: " + obj);
-
     }
 
     //初始化串口

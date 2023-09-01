@@ -1,11 +1,10 @@
-//
-// Created by ubuntu on 2023/8/25.
-//
 
 #include "semantic_api.h"
-
-#include "serial_datagram.h"
-
+#include <stdio.h>
+#include "datagram_codec.h"
+#include <android/log.h>
+#define TAG "JNI-TEST"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);
 #define MAX_RESPONSE_SIZE 80
 
 bool send_remote_res(from_mcu *from_mcu_obj) {
@@ -23,6 +22,7 @@ bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
     pb_istream_t in_stream = pb_istream_from_buffer(data_ptr, len);                       // 准备解码
     to_mcu to_mcu_obj = to_mcu_init_zero;                                                 // 解码结果的对象
     bool status = pb_decode(&in_stream, to_mcu_fields, &to_mcu_obj);                      // 解！
+    printf("decode:%s %s\n", to_mcu_obj.req.login.username, to_mcu_obj.req.login.password);
     if (status) {                                                                         // 解码成功，准备响应报文
         from_mcu from_mcu_obj = from_mcu_init_zero;                                       // 解码报文对象准备
         remote_call_err_code err_code = remote_call_service(&to_mcu_obj, &from_mcu_obj);  // 调用服务分发总程序
@@ -34,5 +34,15 @@ bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
 
     // TODO: 统计编解码的个数等事宜
 
+    return status;
+}
+
+bool process_outcoming_datagram(const void *data_ptr, unsigned short len) {
+    pb_istream_t in_stream = pb_istream_from_buffer(data_ptr, len);                       // 准备解码
+    from_mcu from_mcu_obj = from_mcu_init_zero;                                                 // 解码结果的对象
+    bool status = pb_decode(&in_stream, from_mcu_fields, &from_mcu_obj);                      // 解！
+    LOGD("decode-login.status:%s ,err_code:%s\n", from_mcu_obj.res.login.status, from_mcu_obj.err_code);
+    LOGD("decode which_res:%s\n", from_mcu_obj.which_res);
+    LOGD("pb_decode status :%d\n", status);
     return status;
 }
