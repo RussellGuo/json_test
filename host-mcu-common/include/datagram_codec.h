@@ -17,7 +17,9 @@
 
  */
 
-#define MAX_DATAGRAM_LEN 600 //TPDO:数据长度
+#define MAX_DATAGRAM_LEN 600 //TPDO:数据报数据长度
+#define MAX_DATAGRAM_BUF_LEN 1024 //TPDO:数据报编解码数据长度
+
 // 数据报的特殊符号，见上面描述
 #define DATAGRAM_SOT 0xAA
 #define DATAGRAM_EOT 0xAB
@@ -41,13 +43,16 @@ bool encode_to_datagram(void *restrict dst, size_t *dst_size, const void *restri
 */
 bool decode_from_datagram(void *restrict dst, size_t *dst_size, const void *restrict src, size_t src_size);
 
-/*
-报文格式编码完后发送数据报文
+/* 发送编码后的数据报文
+    data_ptr 是编码后的数据报文存放的指针，in
+    len是编码后的数据报文存放的长度的指针，in/out
+    返回true表示成功。失败通常是因为编码失败，以及发送失败
 */
 bool send_datagram(const void *data_ptr, unsigned short len);
 
-/*
-接收数据报文并解码报文格式
+/*该函数将读取UART，获得一个接一个的数据报字符串，
+   将字符串进行数据报文解码得到原始数据，在进行数
+   据报PB解码获得的数据
 */
 void serial_datagram_receive_loop(void *arg);
 #endif

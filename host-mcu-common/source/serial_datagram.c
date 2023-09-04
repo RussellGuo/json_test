@@ -9,6 +9,8 @@
  *  移植到everest的host-mcu上。曹猛在2023-8月初移植的，但这个懒家伙没在这里说明
  *
  *  郭强 2023-8-22日新增了一对"dirty and quick"的调用函数，数据报对语义层接口改成字节对齐的了。未来要单独优化这段。
+ *
+ *  曹猛 2023-8-30日替换数据报层的数据处理, 增加数据报文编解码
  */
 
 #include <stdio.h>
@@ -21,17 +23,13 @@
 
 #include <ctype.h>
 
-// Read a datagram from the UART.
-// Parameters:
-//   [out]raw_datagram, the space to store the datagram
-//   [in]max_size, the max size of the raw_datagram
-//   [out]actual_size_ptr, as its name
-//   [out]skipped_byte_count_ptr, unrecognized byte count at this calling
-// Return value:
-//   true means success, otherwise failure
-// Note: Messages with incorrect format will not return an error flag, but will look
-// for the next message and record the number of characters skipped. The only possibility
-// for error return is that the serial port can no longer be read.
+/*从UART读取数据报，
+  raw_datagram 存储数据报的空间 out
+  max_size raw_datagram的最大大小 in
+  actual_size_pt 作为其名称 out
+  skipped_byte_count_ptr 调用时无法识别的字节计数 out
+  返回true表示成功，否则表示失败
+*/
 static bool get_raw_datagram_from_serial(
     uint8_t *restrict raw_datagram, size_t max_size,
     size_t *restrict actual_size_ptr, size_t *restrict skipped_byte_count_ptr)
@@ -64,7 +62,6 @@ SoT_found:
         if (curr_idx + 1 >= max_size) {
             // no space to store
             (*skipped_byte_count_ptr) += curr_idx;
-            //rpc_log(LOG_ERROR, "too long datagram at '%s'", raw_datagram); //log注释先不用
             goto Top;
         }
 
@@ -80,7 +77,6 @@ SoT_found:
         if (raw_datagram[curr_idx] == DATAGRAM_SOT) {
             (*skipped_byte_count_ptr) += curr_idx;
             raw_datagram[curr_idx] = 0;
-            //rpc_log(LOG_ERROR, "met a SoT in lookup EoT at '%s'", raw_datagram); //log注释先不用
             goto SoT_found;
         }
     }
@@ -89,16 +85,10 @@ SoT_found:
     return true;
 }
 
-
-// This function will read the UART, get the datagram string one after another,
-// and convert the string into the datagram binary format
-// (that is, a 32-bit unsigned integer array, and separate the sequence number,
-// message ID, parameter/return Value sequence and CRC), check CRC.
-// Finally, the message is dispatched by calling the interface of the semantic layer.
-// Note: Messages with incorrect format will not return an error flag, but will look
-// for the next message and record the number of characters skipped. The only possibility
-// for error return is that the serial port can no longer be read. At this time, the
-// entire receiving task will be aborted and returned
+/*该函数将读取UART，获得一个接一个的数据报字符串，
+   将字符串进行数据报文解码得到原始数据，在进行数
+   据报PB解码获得的数据
+*/
 void serial_datagram_receive_loop(void *arg)
 {
     (void)arg;
@@ -106,7 +96,7 @@ void serial_datagram_receive_loop(void *arg)
         // get raw-data
         char datagram_str[MAX_DATAGRAM_LEN];
         size_t datagram_str_size;
-        uint8_t decoded_data[MAX_DATAGRAM_LEN] = {0};
+        uint8_t decoded_data[MAX_DATAGRAM_BUF_LEN];
         size_t decoded_data_len = sizeof decoded_data;
         size_t skipped_count;
 
@@ -119,7 +109,7 @@ void serial_datagram_receive_loop(void *arg)
         ret = decode_from_datagram(decoded_data,&decoded_data_len,datagram_str,datagram_str_size); // <数据报> -> 数据报data
         if(ret)
         {
-            ret = process_incoming_datagram(decoded_data, decoded_data_len);
+            ret = process_incoming_datagram(decoded_data, decoded_data_len);//进入PB解码流程，获取原始数据
         }else{
             return;
         }
@@ -132,12 +122,17 @@ __attribute__((weak)) bool process_incoming_datagram(const void *data_ptr, unsig
     return false;
 }
 
+/* 发送编码后的数据报文
+    data_ptr 是编码后的数据报文存放的指针，in
+    len是编码后的数据报文存放的长度的指针，in/out
+    返回true表示成功。失败通常是因为编码失败，以及发送失败
+*/
 bool send_datagram(const void *data_ptr, unsigned short len) {
     bool ret;
     if (len == 0) {
         return false;
     }
-    uint8_t data_gram_buf[MAX_DATAGRAM_LEN] = {0};
+    uint8_t data_gram_buf[MAX_DATAGRAM_BUF_LEN] = {0};
     size_t datagram_len = sizeof data_gram_buf;
     ret = encode_to_datagram(data_gram_buf, &datagram_len, data_ptr, len);
     if (ret) {
