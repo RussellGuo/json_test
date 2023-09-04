@@ -6,3 +6,4 @@
 !**/mdk/**/*.uvprojx
 /Objects/
 /Listings/
+*.uvguix.*
