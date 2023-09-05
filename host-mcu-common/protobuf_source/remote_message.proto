@@ -17,6 +17,26 @@ enum remote_call_err_code {
     comm_err       =  8;   // 通讯错
 }
 
+enum res_err_code {
+    ret_ok =  0;
+//psam
+    ret_sc_vccerr = 1;       //电压模式错误
+    ret_sc_sloterr = 2;      //卡通道错误
+    ret_sc_parerr = 3;       //奇偶错误
+    ret_sc_paraerr = 4;      //参数错误
+    ret_sc_protocalerr = 5;  //协议错误
+    ret_sc_datalenerr = 6;   //数据长度错误
+    ret_sc_cardout = 7;      //卡拔出
+    ret_sc_noreset = 8;      //没有初始化
+    ret_sc_timeout = 9;      //卡通讯超时
+    ret_sc_ppserr = 10;      //PPS 错误
+    ret_sc_atrerr = 11;      //ATR 错误
+    ret_sc_apduerr = 12;     //卡通讯失败
+//printer
+    ret_err_paper = 13;      //缺纸
+    ret_err_overheat = 14;   //打印头过热
+}
+
 // 三态真假值
 enum boolean_t {
     failed = 0;
@@ -57,12 +77,138 @@ message log_evt {
     string msg = 2;
 }
 
+//版本号
+message get_version_info_req {
+    int32 dummy = 1;
+}
+
+message get_version_info_res {
+    int32 version_info = 1;//获取的版本号
+}
+
+//psam功能
+message psam_slot_req {
+    int32 slot = 1; //选择卡槽 1:psam1 2:psam2
+}
+
+message psam_slot_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+message psam_reset_req {
+    int32 dummy = 1;
+}
+
+message psam_reset_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 psam_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空
+}
+
+message psam_apdu_req {
+    int32 send_apdu_data = 1;//终端发送到卡片的apdu数据
+}
+
+message psam_apdu_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 recv_apdu_data = 2;//终端接收到卡片的apdu数据
+}
+
+message psam_close_req {
+    int32 dummy = 1;
+}
+
+message psam_close_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//IC卡功能
+message icc_init_req {
+    int32 dummy = 1;
+}
+
+message icc_init_res {
+    res_err_code res_code = 1;//响应码 卡在位为00 其他值为错误码
+}
+
+message icc_detect_req {
+    int32 dummy = 1;
+}
+
+message icc_detect_res {
+    res_err_code res_code = 1;//响应码 卡在位为00 其他值为错误码
+}
+
+message icc_reset_req {
+    int32 dummy = 1;
+}
+
+message icc_reset_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 psam_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空
+}
+
+message icc_apdu_req {
+    int32 send_apdu_data = 1;//终端发送到卡片的apdu数据
+}
+
+message icc_apdu_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 recv_apdu_data = 2;//终端接收到卡片的apdu数据
+}
+
+message icc_close_req {
+    int32 dummy = 1;
+}
+
+message icc_close_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//打印机功能
+message printer_check_req {
+    int32 dummy = 1;
+}
+
+message printer_check_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 printer_status = 2; //打印头温度与打印纸状态等
+}
+
+message printer_parameter_req {
+    int32 set_parameter = 1;//设置加热点数，加热时间，马达步进速率，打印结束到下电的延时时间
+}
+
+message printer_parameter_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+message printer_content_req {
+    int32 send_printer_data = 1;//发送需要打印的点行
+}
+
+message printer_content_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
 // 从host发往mcu的消息的总类型
 message to_mcu {
     int32 seq = 1;
     oneof req {
         login_req login = 3;
         logout_req logout = 4;
+        get_version_info_req get_version_info = 5;
+        psam_slot_req psam_slot = 6;
+        psam_reset_req psam_reset = 7;
+        psam_apdu_req psam_apdu = 8;
+        psam_close_req psam_close = 9;
+        icc_init_req icc_init = 10;
+        icc_detect_req icc_detect = 11;
+        icc_reset_req icc_reset = 12;
+        icc_apdu_req icc_apdu = 13;
+        icc_close_req icc_close = 14;
+        printer_check_req printer_check = 15;
+        printer_parameter_req printer_parameter = 16;
+        printer_content_req printer_content = 17;
     }
 }
 
@@ -73,6 +219,19 @@ message from_mcu {
     oneof res {
         login_res login = 3;
         logout_res logout = 4;
+        get_version_info_res get_version_info = 5;
+        psam_slot_res psam_slot = 6;
+        psam_reset_res psam_reset = 7;
+        psam_apdu_res psam_apdu = 8;
+        psam_close_res psam_close = 9;
+        icc_init_res icc_init = 10;
+        icc_detect_res icc_detect = 11;
+        icc_reset_res icc_reset = 12;
+        icc_apdu_res icc_apd = 13;
+        icc_close_res icc_close = 14;
+        printer_check_res printer_check = 15;
+        printer_parameter_res printer_parameter = 16;
+        printer_content_res printer_content = 17;
 
         key_evt key = 201;
         log_evt log = 202;
