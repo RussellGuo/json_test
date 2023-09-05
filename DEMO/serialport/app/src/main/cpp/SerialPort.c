@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "../host/pb_decode.h"
-#include "../host/pb_encode.h"
-#include "../host/remote_message.pb.h"
-#include "../host/uart_io_api.h"
-#include "../host/datagram_codec.h"
+#include "pb_decode.h"
+#include "pb_encode.h"
+#include "remote_message.pb.h"
+//#include "../mcu/mcu-driver/include/mcu-hw-common.h"
+#include "datagram_codec.h"
 #include "ALog.h"
+#include "uart_io_API.h"
 
 /* Header for class com_huaqin_serialport_SerialPort */
 
@@ -79,6 +80,9 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramS
 
     bool status = pb_encode(&out_stream, to_mcu_fields, &to_mcu_obj);
     printf("outstream:%x %x %x %x %x %x %x %x %x %x %x %x %x %x\n", login_req_buf[0], login_req_buf[1], login_req_buf[2], login_req_buf[3], login_req_buf[4], login_req_buf[5],
+           login_req_buf[6], login_req_buf[7], login_req_buf[8], login_req_buf[9], login_req_buf[10], login_req_buf[11], login_req_buf[12], login_req_buf[13]);
+
+    LOGD("outstream:%x %x %x %x %x %x %x %x %x %x %x %x %x %x\n", login_req_buf[0], login_req_buf[1], login_req_buf[2], login_req_buf[3], login_req_buf[4], login_req_buf[5],
            login_req_buf[6], login_req_buf[7], login_req_buf[8], login_req_buf[9], login_req_buf[10], login_req_buf[11], login_req_buf[12], login_req_buf[13]);
 
     bet = send_datagram(login_req_buf, out_stream.bytes_written);

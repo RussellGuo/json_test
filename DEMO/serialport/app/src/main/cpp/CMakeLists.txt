@@ -30,17 +30,23 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         SerialPort.c
-        ../host/serial_datagram.c
-        ../host/uart_io_api.c
-        ../host/pb_common.c
-        ../host/pb_decode.c
-        ../host/pb_encode.c
-        ../host/datagram_codec.c
-        ../host/crc8_soft.c
-        ../host/remote_message.pb.c
-        ../host/semantic_api.c
-        ../host/semantic_api.generated.c)
+        ../mcu/host-mcu-common/source/serial_datagram.c
+        ../mcu/mcu-driver/source/uart_io_API.c
+        ../mcu/pb_intermediate/src/pb_common.c
+        ../mcu/pb_intermediate/src/pb_decode.c
+        ../mcu/pb_intermediate/src/pb_encode.c
+        ../mcu/host-mcu-common/source/datagram_codec.c
+        ../mcu/host-mcu-common/source/crc8_soft.c
+        ../mcu/pb_intermediate/src/remote_message.pb.c
+        ../mcu/semantic_api/semantic_api.c
+        ../mcu/pb_intermediate/src/semantic_api.generated.c)
 
+include_directories("../mcu/MH2101_SDK/Libraries/Device/MegaHunt/mhscpu/Include")
+include_directories("../mcu/driver/include")
+include_directories("../mcu/host-mcu-common/include")
+include_directories("../mcu/pb_intermediate/include")
+include_directories("../mcu/semantic_api")
+include_directories("../mcu/MH2101_SDK/Libraries/CMSIS/Include")
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
