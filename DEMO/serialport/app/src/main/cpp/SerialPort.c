@@ -12,7 +12,8 @@
 //#include "../mcu/mcu-driver/include/mcu-hw-common.h"
 #include "datagram_codec.h"
 #include "ALog.h"
-#include "uart_io_API.h"
+#include "uart_io_api.h"
+#include "semantic_api.h"
 
 /* Header for class com_huaqin_serialport_SerialPort */
 
@@ -103,9 +104,25 @@ void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramReceiveLoop
 
 }
 
-void receive_loop_result(const void *data_ptr, unsigned short len){
-    LOGD(" result = %d" ,data_ptr);
+// 处理来自host的报文
+bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
+    LOGD("process_incoming_datagram");
     java_call_back(data_ptr);
+    pb_istream_t in_stream = pb_istream_from_buffer(data_ptr, len);                       // 准备解码
+    to_mcu to_mcu_obj = to_mcu_init_zero;                                                 // 解码结果的对象
+    bool status = pb_decode(&in_stream, to_mcu_fields, &to_mcu_obj);                      // 解！
+    if (status) {                                                                         // 解码成功，准备响应报文
+        from_mcu from_mcu_obj = from_mcu_init_zero;                                       // 解码报文对象准备
+        remote_call_err_code err_code = remote_call_service(&to_mcu_obj, &from_mcu_obj);  // 调用服务分发总程序
+        // TODO: 检查 in_stream.bytes_left
+        from_mcu_obj.seq = to_mcu_obj.seq;                                                // 序号和请求的一致
+        from_mcu_obj.err_code = err_code;                                                 // 错误码存放
+        status = send_remote_res(&from_mcu_obj);                                          // 结果发送回去
+    }
+
+    // TODO: 统计编解码的个数等事宜
+
+    return status;
 }
 
 #ifdef __cplusplus
