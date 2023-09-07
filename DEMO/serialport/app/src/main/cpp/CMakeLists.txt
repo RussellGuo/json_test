@@ -39,7 +39,7 @@ add_library( # Sets the name of the library.
         ../mcu/host-mcu-common/source/crc8_soft.c
         ../mcu/pb_intermediate/src/remote_message.pb.c
         ../mcu/semantic_api/semantic_api.c
-        ../mcu/pb_intermediate/src/semantic_api.generated.c
+#        ../mcu/pb_intermediate/src/semantic_api.generated.c
         ../mcu/pb_intermediate/src/uart_io_api.c)
 
 include_directories("../mcu/MH2101_SDK/Libraries/Device/MegaHunt/mhscpu/Include")
