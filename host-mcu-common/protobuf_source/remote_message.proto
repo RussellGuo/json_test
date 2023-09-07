@@ -35,6 +35,205 @@ enum res_err_code {
 //printer
     ret_err_paper = 13;      //缺纸
     ret_err_overheat = 14;   //打印头过热
+//MSR
+    ret_err_msr_noswiped = 15;  //磁条模块未读到磁卡
+    ret_err_msr_openerr = 16;   //磁条模块打开失败
+    ret_err_msr_error = 17;	    //磁条卡读卡失败
+//Key
+    ret_ped_ret_err_no_key = 18;               //密钥不存在
+    ret_ped_ret_err_keyidx_err = 19;         //密钥索引错，参数索引不在范围内
+    ret_ped_ret_err_derive_err = 20;          //密钥写入时，源密钥类型错或层次比目的密钥低
+    ret_ped_ret_err_check_key_fail = 21;       //密钥验证失败
+    ret_ped_ret_err_no_pin_input = 22;         //没输入PIN
+    ret_ped_ret_err_input_cancel = 23;         //用户取消输入PIN
+    ret_ped_ret_err_wait_interval = 24;        //函数调用小于最小间隔时间
+    ret_ped_ret_err_check_mode_err = 25;       //KCV模式错，不支持
+    ret_ped_ret_err_no_right_use = 26;         //无权使用该密钥，PED当前密钥标签值和要使用的密钥标签值不相等
+    ret_ped_ret_err_key_type_err = 27;         //密钥类型错
+    ret_ped_ret_err_explen_err = 28;           //期望PIN的长度字符串错
+    ret_ped_ret_err_dstkey_idx_err = 29;       //目的密钥索引错，不在范围内
+    ret_ped_ret_err_srckey_idx_err = 30;       //源密钥索引错，不在范围内或者写入密钥时，源密钥类型的值大于目的密钥类型，都会返回该密钥
+    ret_ped_ret_err_key_len_err =31;          //密钥长度错
+    ret_ped_ret_err_input_timeout =32;       //输入PIN超时
+    ret_ped_ret_err_no_icc = 33;               //IC卡不存在
+    ret_ped_ret_err_icc_no_init = 34;          //IC卡未初始化
+    ret_ped_ret_err_group_idx_err = 35;        //DUKPT组索引号错
+    ret_ped_ret_err_param_ptr_null = 36;       //指针参数非法为空
+    ret_ped_ret_err_tampered = 37;             //PED已受攻击
+    ret_ped_ret_error = 38;                    //PED通用错误
+    ret_ped_ret_err_nomore_buf = 39;           //没有空闲的缓冲
+    ret_ped_ret_err_need_admin = 40;           //需要取得高级权限
+    ret_ped_ret_err_dukpt_overflow = 41;       //DUKPT已经溢出
+    ret_ped_ret_err_kcv_check_fail = 42;       //KCV 校验失败
+    ret_ped_ret_err_srckey_type_err = 43;      //写入密钥时，源密钥id的密钥类型和源密钥类型不匹配
+    ret_ped_ret_err_unspt_cmd = 44;            //命令不支持
+    ret_ped_ret_err_comm_err = 45;             //通讯错误
+    ret_ped_ret_err_no_uapuk = 46;             //没有用户认证公钥
+    ret_ped_ret_err_admin_err = 47;            //取系统敏感服务失败
+    ret_ped_ret_err_download_inactive = 48;    //PED处于下载非激活状态
+    ret_ped_ret_err_kcv_odd_check_fail = 49;   //KCV 奇校验失败
+    ret_ped_ret_err_ped_data_rw_fail =50;     //读取PED数据失败
+    ret_ped_ret_err_icc_cmd_err = 51;          //IC卡操作错误(脱机明文、密文密码验证)
+    ret_ped_ret_err_key_value_invalid = 52;    //写入的密钥全零或者，有组分相等，16/24字节密钥存在两个组分相等的情况
+    ret_ped_ret_err_key_value_exist =53;      //已存在相同的密钥值的密钥
+    ret_ped_ret_err_uart_param_invalid = 54;   //串口参数不支持
+    ret_ped_ret_err_key_index_not_select_or_not_match = 55;  //密钥索引没有选择或者和选择的密钥索引不相等
+    ret_ped_ret_err_input_clear = 56;          //用户按CLEAR键退出输入PIN
+    ret_ped_ret_err_load_trk_fail = 57;        //加载TRK失败
+    ret_ped_ret_err_trk_verify_fail = 58;      //TRK验证失败
+    ret_ped_ret_err_msr_status_invalid = 59;   //无效的磁道状态
+    ret_ped_ret_err_no_free_flash = 60;        //没有空闲的flash
+    ret_ped_ret_err_dukpt_need_inc_ksnukpt = 61;  //KSN需要先加1
+    ret_ped_ret_err_kcv_mode_errkcv = 62;      //MODE错误
+    ret_ped_ret_err_dukpt_no_kcv = 63;         //没有 KCV
+    ret_ped_ret_err_pin_bypass_byfunkey = 64;  //按FN/ATM4键取消PIN输入
+    ret_ped_ret_err_mac_err = 65;              //数据MAC校验错
+    ret_ped_ret_err_crc_err = 66;              //数据CRC校验错
+    ret_ped_ret_err_alg_err = 67;              //算法错误
+    ret_ped_ret_err_state = 68;                //PED状态错误
+    ret_ped_ret_err_pwd = 69;                  //密码错误
+    ret_ped_ret_err_newpwd = 70;               //密码需要重设置
+    ret_ped_ret_err_pwdoverrun = 71;           //错误次数超出
+    ret_ped_ret_err_req_ssa = 72;              //需要请求敏感服务
+    ret_ped_ret_err_unlock_timeout = 73;       //远程解锁超时
+    ret_ped_ret_err_unlock_param = 74;         //远程解锁参数错误
+    ret_ped_ret_err_unlock_no = 75;            //远程解锁AP未请求过解锁
+    ret_ped_ret_err_unlock_check = 76;         //远程解锁校验错
+    ret_ped_ret_err_need_reset = 77;           //SP需要重启
+    ret_ped_ret_err_rng = 78;                  //产生随机数错误
+    ret_ped_ret_err_need_rmt_auth = 79;        //需要远程授权
+    ret_ped_ret_err_key_kcv_tab_null = 80;     //KCV表为空
+    ret_ped_ret_err_ped_cfg_rw_fail = 81;      //读写PED配置数据失败
+    ret_ped_ret_err_pinblock_fmt = 82;         //PINBLOCK格式错误
+    ret_ped_ret_err_pin_len = 83;              //PIN长度不对
+    ret_ped_ret_err_pan_len = 84;              //PAN长度不对
+    ret_ped_ret_err_data_len = 85;             //数据长度没对齐，如进行密码计算时数据长度必须为块长度的整数倍
+    ret_ped_ret_err_key_len = 86;              //密钥长度错误
+    ret_ped_ret_err_cmac = 87;                 //CMAC计算失败
+    ret_ped_ret_err_read_cfg = 88;             //配置文件读取错误
+    ret_ped_ret_err_key_strength = 89;         //密钥强度错误
+    ret_ped_ret_err_param = 90;                //参数错误
+    ret_ped_ret_err_work_mode = 91;            //工作模式错误
+    ret_ped_ret_err_key_index = 92;            //密钥索引错误
+    ret_ped_ret_err_keyblock_ver = 93;         //TR31 Keyblock版本错误
+    ret_ped_ret_err_forbidden = 94;            //禁止此操作
+    ret_ped_ret_err_invalid_sign = 95;         //验签失败
+    ret_ped_ret_err_invalid_use = 96;          //密钥使用非法
+}
+
+enum sourcekey_type{
+    sourcekey_tlk = 0;
+    sourcekey_tmk = 1;
+}
+
+enum targetkey_type{
+    tlk_key = 0; //TLK - 只支持1 组，其索引范围是[1,1]
+    tmk_key = 1; //TMK - 支持64 组，其索引范围是[1, 64]
+    tpk_key = 2; //TPK - 支持64 组，其索引范围是[1, 64]
+    tak_key = 3; //TAK - 支持64 组，其索引范围是[1, 64]
+    tdk_key = 4; //TDK - 支持64 组，其索引范围是[1, 64]
+    tek_key = 5; //TEK - 支持64 组，其索引范围是[1, 64]
+    ttk_key = 6; //TTK - 支持64 组，其索引范围是[1, 64]
+}
+
+enum targetkey_algorithm_type{
+    alg_tdes = 0;//TDES加密算法
+    alg_aes = 1;//AES加密算法
+    alg_sm4 = 2;//SM4加密算法
+}
+
+enum encdec_type{
+    ecb_dec_tdes = 0;//TDES ECB 解密
+    ecb_enc_tdes = 1;//TDES ECB 加密
+    cbc_dec_tdes = 2;//TDES CBC 解密
+    cbc_enc_tdes = 3;//TDES CBC 加密
+    ecb_dec_des = 4;//DES ECB 解密(单DES)
+    ecb_enc_des = 5;//DES ECB 加密(单DES)
+    cbc_dec_des = 6;//DES CBC 解密(单DES)
+    cbc_enc_des = 7;//DES CBC 加密(单DES)
+}
+
+enum kcv_checkmode_type{
+    none_verify = 0; //无验证
+    normal_verify = 1;//使用Key 加密一个块长度的全0数据，密文的前4 个字节即为KCV。
+    odd_verify = 2;//密钥奇校验，然后按模式1 进行校验
+    even_verify = 3;//密钥偶校验，然后按模式1 进行校验
+    icbc_verify = 4;//工商银行模式（仅K21 平台支持），用源密钥对校验数据（目标密钥密文+工行索引，不是8字节倍数补足到8 字节倍数）进行x9.19 的mac 运算
+    cmac_verify = 5;//CMAC模式校验
+    tr31_verify = 6;//TR31模式校验
+}
+
+enum select_pinblock_format{
+    iso9564_farmat0 = 0;//ISO9564 格式0
+    iso9564_farmat1 = 1;//ISO9564 格式1
+    iso9564_farmat3 = 2;//ISO9564 格式3
+    iso9564_farmat_hkeps = 3;//HK EPS 专用格式
+    iso9564_farmat4 = 4;//ISO9564 格式4
+    //以下只有操作模式（operate_type）选择02时选择
+    iso9564_farmat0_addksn = 5;//ISO9564 格式0 KSN 自动加1
+    iso9564_farmat1_addksn = 6;//ISO9564 格式1 KSN 自动加1
+    iso9564_farmat2_addksn = 7;//ISO9564 格式2 KSN 自动加1
+    iso9564_farmat_hkeps_addksn = 8;//HK EPS 格式KSN 自动加1
+    iso9564_farmat0_notaddksn = 9;//ISO9564 格式0 KSN 不自动加1
+    iso9564_farmat1_notaddksn = 10;//ISO9564 格式1 KSN 不自动加1
+    iso9564_farmat2_notaddksn = 11;//ISO9564 格式2 KSN 不自动加1
+    iso9564_farmat_hkeps_notaddksn = 12;//HK EPS 格式KSN 不自动加1
+}
+
+enum mac_count_mode{
+    cbc_mac_mode = 0; //以MAC Key作为加密密钥，对消息做CBC 加密，将最后一个BLOCK的密文作为MAC输出。
+    ecb_mac_mode = 1;//将消息逐块进行XOR，将最后的XOR 结果使用MAC Key 进行ECB 加密，加密结果作为MAC 输出。
+    x919_mac_mode = 2;
+    //仅适用于TDES 算法密钥，使用MAC Key 的左侧作为DES密钥，对消息的前(N-1)个块进行DES-CBC 加密，以此加密结果作为初始向量，以完整的MAC Key //作为密钥，对最后一个消息块做一次ECB加密，加密结果作为MAC 输出
+    x99_mac_mode = 3;//仅适用于TDES 算法密钥，以MAC Key 的左侧作为DES 密钥，对消息做CBC-DES 加密，最后一个块的加密结果作为MAC 输出
+
+    upts_mac_mode = 4;
+    //仅适用于TDES 算法密钥，将消息逐块进行XOR，将最后的结果（8Byte）转换为HEX 编码（16Byte），以MAC Key 作为密钥对HEX 编码做ECB
+    //加密，得到16字节的密文，将密文的前8B 和后8B进行XOR，将结果（8 字节）使用MAC Key 的左半部分进行单DES 的ECB 加密，得到的密文（8 字节）转换为HEX 编码（16 //字节），取出HEX编码的前8 字节作为MAC 输出
+}
+
+enum mac_control_mode{
+    cbc_mac_mode_addksn = 0; //KSN 自动加1 以MAC Key作为加密密钥，对消息做CBC 加密，将最后一个BLOCK的密文作为MAC输出。
+    ecb_mac_mode_addksn = 1;//KSN 自动加1将消息逐块进行XOR，将最后的XOR 结果使用MAC Key 进行ECB 加密，加密结果作为MAC 输出。
+    x919_mac_mode_addksn = 2;
+    //KSN 自动加1 仅适用于TDES 算法密钥，使用MAC Key 的左侧作为DES密钥，对消息的前(N-1)个块进行DES-CBC 加密，以此加密结果作为初始向量，以完整的MAC Key //作为密钥，对最后一个消息块做一次ECB加密，加密结果作为MAC 输出
+    x99_mac_mode_addksn = 3;//KSN 自动加1 仅适用于TDES 算法密钥，以MAC Key 的左侧作为DES 密钥，对消息做CBC-DES 加密，最后一个块的加密结果作为MAC 输出
+    cbc_mac_mode_notaddksn = 4; //KSN 不自动加1 以MAC Key作为加密密钥，对消息做CBC 加密，将最后一个BLOCK的密文作为MAC输出。
+    ecb_mac_mode_notaddksn = 5;//KSN 不自动加1 将消息逐块进行XOR，将最后的XOR 结果使用MAC Key 进行ECB 加密，加密结果作为MAC 输出。
+    x919_mac_mode_notaddksn = 6;
+    //KSN 不自动加1 仅适用于TDES 算法密钥，使用MAC Key 的左侧作为DES密钥，对消息的前(N-1)个块进行DES-CBC 加密，以此加密结果作为初始向量，以完整的MAC Key //作为密钥，对最后一个消息块做一次ECB加密，加密结果作为MAC 输出
+    x99_mac_mode_notaddksn = 7;//KSN 不自动加1 仅适用于TDES 算法密钥，以MAC Key 的左侧作为DES 密钥，对消息做CBC-DES 加密，最后一个块的加密结果作为MAC 输出
+}
+
+enum key_type{
+    key_tlk = 0;
+    key_tmk = 1;
+    key_tpk = 2;
+    key_tak = 3;
+    key_tdk = 4;
+    key_tek = 5;
+    key_tik = 6;
+    key_dukpt_pin = 7;
+    key_dukpt_mac_req = 8;
+    key_dukpt_mac_both = 9;
+    key_dukpt_mac_rsp = 10;
+    key_dukpt_data_req = 11;
+    key_dukpt_data_both = 12;
+    key_dukpt_data_rsp = 13;
+}
+
+enum dukpt_key_type{
+    key_mac_req_both = 0;//MAC Requese or BOTH 密钥
+    key_data_req = 1;//DATA Request 密钥
+    key_data_res = 2;//DATA Response 密钥
+    key_pin_enc = 3;//PIN Encryption 密钥
+}
+
+enum dukpt_encdec_type{
+    ecb_dec_dukpt = 0;//ECB 解密
+    ecb_enc_dukpt = 1;//ECB 加密
+    cbc_dec_dukpt = 2;//CBC 解密
+    cbc_enc_dukpt = 3;//CBC 加密
 }
 
 // 三态真假值
@@ -190,6 +389,231 @@ message printer_content_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
 }
 
+//Key Management
+//使用密钥进行数据加解密
+message mksk_data_encdec_req {
+    int32 index = 1;//加解密密钥得索引 TWK中的TDK TEK
+    encdec_type encdec = 2;//1-4为TDES算法加解密，5-8为强制单DES加密
+    int32 encdec_data_len = 3;//加解密数据长度
+    int32 encdec_data = 4;//加解密数据 对于DES/TDES 密钥，数据长度必须为8 的整数倍，对于AES/SM4 密钥，数据长度必须为16 的整数倍
+}
+
+message mksk_data_encdec_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 after_encdec_data_len = 2;//加解密过后的数据长度
+    int32 after_encdec_data = 3;//加解密过后的数据
+}
+
+//MKSK密钥注入
+message mksk_key_inject_req {
+    sourcekey_type sourcekey_type = 1;//源密钥类型
+    int32 sourcekey_index = 2;//源密钥索引
+    targetkey_type targetkey_type = 3;//目标密钥类型
+    int32 targetkey_index = 4;//目标密钥索引
+    targetkey_algorithm_type targetkey_algorithm_type = 5;//目标密钥算法类型
+    int32 targetkey_len = 6;//目标密钥长度
+    int32 targetkey = 7;//目标密钥
+    kcv_checkmode_type kcv_checkmode_type = 8;//KCV 验证模式CheckMode
+    int32 kcv_verify_data = 9;//kcv校验数据
+}
+
+message mksk_key_inject_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//DUKPT 注入TIK
+message dukpt_inject_tik_req {
+    int32 dukptkey_index = 1;//dukpt密钥索引
+    int32 tlkkey_type = 2;//TLK密钥索引
+    int32 tik_len = 3;//TIK 的长度n,现DUKPT 算法支持8/16 字节长度的密钥
+    int32 til_encdata = 4;//TIK 的密文数据
+    int32 init_ksn = 5;//初始化KSN
+    kcv_checkmode_type kcv_checkmode_type = 6;//KCV 验证模式CheckMode
+    int32 kcv_verify_data = 7;//kcv校验数据
+}
+
+message dukpt_inject_tik_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//获取PINBLOCK密文
+message get_pinblock_encdata_req {
+    int32 operate_type = 1;//01:使用TPK 获取PINBLOCK 02:使用DUKPT 的PIN 密钥获取PINBLOCK
+    int32 key_index = 2;//当操作类型为01：TPK 的索引 当操作类型为02：DUKPT的索引
+    select_pinblock_format select_pinblock_format = 3;//选择PIN BLOCK 的格式
+    int32 timeout_time = 4;//超时时间(ms)，0:表示没有超时时间，PED 不做超时控制
+    int32 pan_data = 5;//输入pan主账号 根据不同的format规则输入
+    int32 pinblock_transaction_domain = 6;//参与PinBlock 格式化的8字节数据(根据ISO9564 的规范,该数据可以是随机数、交易流水号或时间戳等,但是每个字节的高4 位和低4 位,均必须在0xA~0xF之间
+    int32 pin_len = 7;//PIN 码长度指示字串的长度n
+    int32 user_input_pin_len = 8;//枚举允许用户输入的密码长度
+}
+
+message get_pinblock_encdata_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 pinblock_len = 2;//PINBLOCK 长度
+    int32 pinblock_encdata = 3;//PINBLOCK密文数据
+    int32 ksn_len = 4;//KSN 长度
+    int32 ksn = 5;//KSN数据
+}
+
+//运算MAC（通过MK/SK-TAK）
+message mksk_count_mac_req {
+    int32 tak_index = 1;//TAK (MAC Key) 的索引
+    mac_count_mode mac_count_mode = 2;//MAC 运算模式
+    int32 input_mac_len = 3;//输入数据的长度n (单位：字节)，n <=2048，长度不为8 字节整除,则自动补“\x00”
+    int32 mac_data = 4;//需进行MAC 运算的数据包
+}
+
+message mksk_count_mac_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 mac_encdata = 2;//运算后的mac数据
+}
+
+//运算MAC（通过DUKPT）
+message dukpt_count_mac_req {
+    int32 dukpt_index = 1;//DUKPT 的索引
+    mac_control_mode mac_control_mode = 2;//MAC 控制字
+    int32 input_mac_len = 3;//需要计算MAC 的数据长度n， n<1024
+    int32 mac_data = 4;//需要计算MAC 的数据内容
+}
+
+message dukpt_count_mac_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 mac_len = 2;//MAC 长度
+    int32 count_mac_data = 3;//运算后的MAC数据
+    int32 ksn_len = 4;//KSN 长度
+    int32 ksn = 5;//KSN数据
+}
+
+//脱机明文PIN 校验
+message verify_plain_pin_req {
+    int32 slot_index = 1;//00:ICC 01:NFC
+    int32 mode = 2;//默认00
+    int32 timeout_time = 3;//超时时间
+    int32 input_pin_len = 4;//可输入PIN 码长度指示字串的长度n
+    int32 input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
+}
+
+message verify_plain_pin_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 card_res_data = 2;//卡片对命令的响应数据
+}
+
+//脱机密文PIN 校验
+message verify_cipher_pin_req {
+    int32 slot_index = 1;//00:ICC 01:NFC
+    int32 mode = 2;//默认00
+    int32 timeout_time = 3;//超时时间
+    int32 input_pin_len = 4;//可输入PIN 码长度指示字串的长度n
+    int32 input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
+    int32 rsa_modulus_len = 6;//RSA加密公钥模数长度
+    int32 rsa_modulus = 7;//RSA加密公钥模数
+    int32 rsa_exponential_len = 8;//RSA加密公钥指数长度
+    int32 rsa_exponential = 9;//RSA加密公钥指数
+    int32 random_number_len = 10;//从卡片获取的随机数长度
+    int32 random_number = 11;//从卡片获取的随机数
+}
+
+message verify_cipher_pin_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 card_res_data = 2;//卡片对命令的响应数据
+}
+
+//获取密钥的KCV
+message get_key_kcv_req {
+    key_type key_type = 1;//密钥类型
+    int32 key_index = 2;//TLK - [1,100]TMK - [1,64]TPK/TAK/TDK/TEK- [1,200] TIK - [1,100]
+    int32 conut_mode = 3;//计算模式00H - 标准KCV 算法（密钥对全0 做ECB 加密）其他- 不支持
+}
+
+message get_key_kcv_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 kcv_len = 2;//KCV 长度
+    int32 kcv_data = 3;//KCV 数据
+}
+
+//清除所有密钥
+message erase_all_key_req {
+    int32 dummy = 1;//不带参数 也无返回值
+}
+
+message erase_all_key_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//写入RSA密钥
+message write_rsa_key_req {
+    int32 key_index = 1;//密钥索引号[1,4]
+    int32 rsa_modulus_len = 2;//模长度
+    int32 rsa_modulus = 3;//模内容
+    int32 rsa_exponential_len = 4;//指数长度
+    int32 rsa_exponential = 5;//指数内容
+}
+
+message write_rsa_key_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//使用RSA 密钥进行计算
+message rsa_key_count_req {
+    int32 key_index = 1;//密钥索引号[1,4]
+    int32 input_data_len = 2;//输入数据长度
+    int32 input_data = 3;//输入数据内容
+}
+
+message rsa_key_count_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 outpu_data_len = 2;//输出数据长度
+    int32 outpu_data = 3;//输出数据内容
+}
+
+//DUKPT 数据加解密运算
+message dukpt_encdec_data_req {
+    int32 key_index = 1;//密钥索引号
+    dukpt_key_type dukpt_key_type = 2;//DUKPT 密钥选择
+    int32 init_iv = 3;//8字节初始向量，CBC模式加解密时需要，如果传入NULL，将默认用00 00 0000 00 00 00 00 作为初始向量
+    dukpt_encdec_type dukpt_encDec_type = 4;//运算模式
+    int32 input_data_len = 5;//输入数据长度
+    int32 input_data = 6;//输入数据内容
+}
+
+message dukpt_encdec_data_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 output_ksn = 2;//输出KSN
+    int32 outpu_data_len = 3;//输出数据长度
+    int32 outpu_data = 4;//输出数据内容
+}
+
+//读取DUKPT 当前KSN
+message get_dukpt_ksn_req {
+    int32 key_index = 1;//密钥索引号[1,4]
+}
+
+message get_dukpt_ksn_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 outpu_ksn = 2;//输出KSN
+}
+
+//DUKPT KSN 加1
+message dukpt_ksn_increase_req {
+    int32 key_index = 1;//密钥索引号[1,4]
+}
+
+message dukpt_ksn_increase_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+}
+
+//获取随机数
+message get_random_number_req {
+    int32 random_number_len = 1;//随机数长度，最大1024 字节 如：04 00表示取1024 字节的随机数
+}
+
+message get_random_number_res {
+    res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
+    int32 outpu_data_len = 2;//输出数据长度
+    int32 outpu_data = 3;//输出数据内容
+}
+
 // 从host发往mcu的消息的总类型
 message to_mcu {
     int32 seq = 1;
@@ -209,6 +633,22 @@ message to_mcu {
         printer_check_req printer_check = 15;
         printer_parameter_req printer_parameter = 16;
         printer_content_req printer_content = 17;
+        mksk_data_encdec_req mksk_data_encdec = 18;
+        mksk_key_inject_req mksk_key_inject = 19;
+        dukpt_inject_tik_req dukpt_inject_tik = 20;
+        get_pinblock_encdata_req get_pinblock_encdata = 21;
+        mksk_count_mac_req mksk_count_mac = 22;
+        dukpt_count_mac_req dukpt_count_mac = 23;
+        verify_plain_pin_req verify_plain_pin = 24;
+        verify_cipher_pin_req verify_cipher_pin = 25;
+        get_key_kcv_req get_key_kcv = 26;
+        erase_all_key_req erase_all_key = 27;
+        write_rsa_key_req write_rsa_key = 28;
+        rsa_key_count_req rsa_key_count = 29;
+        dukpt_encdec_data_req dukpt_encdec_data = 30;
+        get_dukpt_ksn_req get_dukpt_ksn = 31;
+        dukpt_ksn_increase_req dukpt_ksn_increase = 32;
+        get_random_number_req get_random_number = 33;
     }
 }
 
@@ -232,6 +672,22 @@ message from_mcu {
         printer_check_res printer_check = 15;
         printer_parameter_res printer_parameter = 16;
         printer_content_res printer_content = 17;
+        mksk_data_encdec_res mksk_data_encdec = 18;
+        mksk_key_inject_res mksk_key_inject = 19;
+        dukpt_inject_tik_res dukpt_inject_tik = 20;
+        get_pinblock_encdata_res get_pinblock_encdata = 21;
+        mksk_count_mac_res mksk_count_mac = 22;
+        dukpt_count_mac_res dukpt_count_ma = 23;
+        verify_plain_pin_res verify_plain_pin = 24;
+        verify_cipher_pin_res verify_cipher_pin = 25;
+        get_key_kcv_res get_key_kcv = 26;
+        erase_all_key_res erase_all_key = 27;
+        write_rsa_key_res write_rsa_key = 28;
+        rsa_key_count_res rsa_key_count = 29;
+        dukpt_encdec_data_res dukpt_encdec_data = 30;
+        get_dukpt_ksn_res get_dukpt_ksn = 31;
+        dukpt_ksn_increase_res dukpt_ksn_increase = 32;
+        get_random_number_res get_random_number = 33;
 
         key_evt key = 201;
         log_evt log = 202;

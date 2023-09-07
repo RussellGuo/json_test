@@ -109,9 +109,9 @@ void serial_datagram_receive_loop(void *arg)
         ret = decode_from_datagram(decoded_data,&decoded_data_len,datagram_str,datagram_str_size); // <数据报> -> 数据报data
         if(ret)
         {
-            ret = process_incoming_datagram(decoded_data, decoded_data_len);//进入PB解码流程，获取原始数据
+            ret = process_incoming_datagram(decoded_data, decoded_data_len);//已经还原了发送端意图发给本端的数据，调用语义层处理函数完成随后处理
         }else{
-            return;
+            // TODO: 错误报文数登记或产生日志
         }
     } // for each datagram
 }
