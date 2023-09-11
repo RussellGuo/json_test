@@ -71,21 +71,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }.start();
                 boolean rel;
-                rel =  SerialPort.serialDatagramSend();
+                byte[]  to_mcu_buf = {0x07, 0x63, 0x61, 0x6F, 0x6D, 0x65, 0x6E, 0x67, 0x12, 0x06, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
+                rel =  SerialPort.serialDatagramSend(to_mcu_buf);
                 Log.d(TAG,"rel = " + rel);
 
-               /* try {
-                    Thread.sleep(5000);
-                    thread.stop();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }*/
                 break;
         }
     }
 
     public void onResultCallBack(int obj) {
         Log.e( TAG, "onResultCallBack: " + obj);
-        thread.stop();
+       // thread.stop();
     }
 }

@@ -1,18 +1,23 @@
-package com.example.protobufdemo.remotemessage;
+package com.huaqin.posservices.remotemessage;
 
-import static com.example.protobufdemo.remotemessage.RemoteMessageConstants.TO_MCU_LOGIN_TAG;
-import static com.example.protobufdemo.remotemessage.RemoteMessageConstants.TO_MCU_LOGOUT_TAG;
+
+import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.READ_CARD_CALL_BACK_TAG;
+import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.TO_MCU_LOGIN_TAG;
+import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.TO_MCU_LOGOUT_TAG;
 
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.util.Log;
-
 import com.example.protobufdemo.RemoteMessage;
+import com.huaqin.posservices.IReadCardCallback;
+import com.huaqin.posservices.PosCardService;
+import java.util.HashMap;
 
 public class RemoteMessageApi {
     private String TAG = "RemoteMessageApi";
     ///private HashMap<IBinder, ServiceBinderListener> mListenersMap;
     RemoteMessage.to_mcu.Builder mcuInfo ;
-
+    private HashMap<IBinder, Object> mListenersMap;
     /**
      * 调用jni发送报文给mcu
      * @param req
@@ -52,8 +57,9 @@ public class RemoteMessageApi {
     }
 
 
-    public RemoteMessage.remote_call_err_code remoteCllService(Object obj){
+    public RemoteMessage.remote_call_err_code remoteCllService(Object obj, HashMap<IBinder, Object> callBackList){
         RemoteMessage.remote_call_err_code err_code;
+        mListenersMap = callBackList;
         Log.d(TAG,"obj.getClass() = " + obj.getClass().getSimpleName());
         switch (obj.getClass().getSimpleName()){
             case TO_MCU_LOGIN_TAG:
@@ -69,7 +75,33 @@ public class RemoteMessageApi {
         return err_code;
     }
 
+    public void fotMCUServices (byte[] obj, RemoteCallbackList<IReadCardCallback> callback){
+        PosCardService posservice = new PosCardService();
+        posservice.startCallback(callback);
+        /*if(obj != null && obj.length > 0){
+            try {
+                RemoteMessage.from_mcu forMcu = RemoteMessage.from_mcu.parseFrom(obj);
+                Set set = mListenersMap.entrySet();
+                Iterator i = set.iterator();
 
+                while (i.hasNext()) {
+                    Map.Entry entry = (Map.Entry)i.next();
+                    switch (entry.getValue().getClass().getTypeName()){
+                        case  READ_CARD_CALL_BACK_TAG :
+                            PosCardService posservice = new PosCardService();
+                            posservice.startCallback();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (InvalidProtocolBufferException e) {
+                throw new RuntimeException(e);
+            }
+        }*/
+
+
+    }
 
 
 }

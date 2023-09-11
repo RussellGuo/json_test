@@ -1,8 +1,29 @@
 syntax = "proto3";
 option java_package = "com.example.protobufdemo";
+
 // 郭强，2023-7-25
 // protobuf的示例，示例的目的是在C++为代表的主机端，和nanopb/C为代表的MCU端，
 // 显示他们的消息格式是否一致
+
+// 远程调用的错误码
+enum remote_call_err_code {
+    ok             =  0;
+    crc_err        =  1;   // CRC错
+    req_type_err   =  2;   // 不支持的请求类型
+    fmt_err        =  3;   // 报文格式错（解码失败）
+    no_impl        =  4;   // 服务未实现（MCU的服务函数只有通用原型，没有实现代码）
+    srv_not_ready  =  5;   // 服务未启动，例如thread没启动起来
+    parm_err       =  6;   // 服务参数错
+    timeout        =  7;   // 服务端超时
+    comm_err       =  8;   // 通讯错
+}
+
+// 三态真假值
+enum boolean_t {
+    failed = 0;
+    succeeded = 1;
+    unknown = 2;
+}
 
 // 在主机端-MCU端，模仿了登录流程，登录的消息结构如下
 message login_req {
@@ -10,11 +31,6 @@ message login_req {
     string password = 2;
 }
 
-enum boolean_t {
-    failed = 0;
-    succeeded = 1;
-    unknown = 2;
-}
 // 返回值的消息结构如下
 message login_res {
     boolean_t status = 1;
@@ -30,13 +46,13 @@ message logout_res {
     boolean_t status = 1;
 }
 
-// 事件示例1
+// 事件示例1，按键
 message key_evt {
     int32 key_code = 1;
     bool key_action = 2;
 }
 
-// 事件示例1
+// 事件示例2，日志（日志归入事件是可以的，后者属于通用机制）
 message log_evt {
     int32 level = 1;
     string msg = 2;
@@ -49,18 +65,18 @@ message to_mcu {
         login_req login = 3;
         logout_req logout = 4;
     }
-    fixed32 crc = 2;
 }
 
 // 从mcu发到host的数据的总类型，包括req的响应，event和log。log目前算作一种event。
 message from_mcu {
     int32 seq = 1;
+    remote_call_err_code err_code = 2;
     oneof res {
         login_res login = 3;
         logout_res logout = 4;
+
         key_evt key = 201;
         log_evt log = 202;
     }
-    fixed32 crc = 2;
 }
 

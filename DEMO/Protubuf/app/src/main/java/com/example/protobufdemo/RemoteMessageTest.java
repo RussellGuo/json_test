@@ -25,6 +25,7 @@ public class RemoteMessageTest {
         mcuInfo.setSeq(1);
         mcuInfo.setLogin(loginInfo.setUsername("Russell"));
         mcuInfo.setLogin(loginInfo.setPassword("12345"));
+        mcuInfo.build();
         Log.d(TAG,"toMcu = " + mcuInfo.toString());
 
 

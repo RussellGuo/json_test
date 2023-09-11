@@ -15,6 +15,249 @@ public final class RemoteMessage {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   /**
+   * <pre>
+   * 远程调用的错误码
+   * </pre>
+   *
+   * Protobuf enum {@code remote_call_err_code}
+   */
+  public enum remote_call_err_code
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>ok = 0;</code>
+     */
+    ok(0),
+    /**
+     * <pre>
+     * CRC错
+     * </pre>
+     *
+     * <code>crc_err = 1;</code>
+     */
+    crc_err(1),
+    /**
+     * <pre>
+     * 不支持的请求类型
+     * </pre>
+     *
+     * <code>req_type_err = 2;</code>
+     */
+    req_type_err(2),
+    /**
+     * <pre>
+     * 报文格式错（解码失败）
+     * </pre>
+     *
+     * <code>fmt_err = 3;</code>
+     */
+    fmt_err(3),
+    /**
+     * <pre>
+     * 服务未实现（MCU的服务函数只有通用原型，没有实现代码）
+     * </pre>
+     *
+     * <code>no_impl = 4;</code>
+     */
+    no_impl(4),
+    /**
+     * <pre>
+     * 服务未启动，例如thread没启动起来
+     * </pre>
+     *
+     * <code>srv_not_ready = 5;</code>
+     */
+    srv_not_ready(5),
+    /**
+     * <pre>
+     * 服务参数错
+     * </pre>
+     *
+     * <code>parm_err = 6;</code>
+     */
+    parm_err(6),
+    /**
+     * <pre>
+     * 服务端超时
+     * </pre>
+     *
+     * <code>timeout = 7;</code>
+     */
+    timeout(7),
+    /**
+     * <pre>
+     * 通讯错
+     * </pre>
+     *
+     * <code>comm_err = 8;</code>
+     */
+    comm_err(8),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>ok = 0;</code>
+     */
+    public static final int ok_VALUE = 0;
+    /**
+     * <pre>
+     * CRC错
+     * </pre>
+     *
+     * <code>crc_err = 1;</code>
+     */
+    public static final int crc_err_VALUE = 1;
+    /**
+     * <pre>
+     * 不支持的请求类型
+     * </pre>
+     *
+     * <code>req_type_err = 2;</code>
+     */
+    public static final int req_type_err_VALUE = 2;
+    /**
+     * <pre>
+     * 报文格式错（解码失败）
+     * </pre>
+     *
+     * <code>fmt_err = 3;</code>
+     */
+    public static final int fmt_err_VALUE = 3;
+    /**
+     * <pre>
+     * 服务未实现（MCU的服务函数只有通用原型，没有实现代码）
+     * </pre>
+     *
+     * <code>no_impl = 4;</code>
+     */
+    public static final int no_impl_VALUE = 4;
+    /**
+     * <pre>
+     * 服务未启动，例如thread没启动起来
+     * </pre>
+     *
+     * <code>srv_not_ready = 5;</code>
+     */
+    public static final int srv_not_ready_VALUE = 5;
+    /**
+     * <pre>
+     * 服务参数错
+     * </pre>
+     *
+     * <code>parm_err = 6;</code>
+     */
+    public static final int parm_err_VALUE = 6;
+    /**
+     * <pre>
+     * 服务端超时
+     * </pre>
+     *
+     * <code>timeout = 7;</code>
+     */
+    public static final int timeout_VALUE = 7;
+    /**
+     * <pre>
+     * 通讯错
+     * </pre>
+     *
+     * <code>comm_err = 8;</code>
+     */
+    public static final int comm_err_VALUE = 8;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static remote_call_err_code valueOf(int value) {
+      return forNumber(value);
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     */
+    public static remote_call_err_code forNumber(int value) {
+      switch (value) {
+        case 0: return ok;
+        case 1: return crc_err;
+        case 2: return req_type_err;
+        case 3: return fmt_err;
+        case 4: return no_impl;
+        case 5: return srv_not_ready;
+        case 6: return parm_err;
+        case 7: return timeout;
+        case 8: return comm_err;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<remote_call_err_code>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        remote_call_err_code> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<remote_call_err_code>() {
+            public remote_call_err_code findValueByNumber(int number) {
+              return remote_call_err_code.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalStateException(
+            "Can't get the descriptor of an unrecognized enum value.");
+      }
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return com.example.protobufdemo.RemoteMessage.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final remote_call_err_code[] VALUES = values();
+
+    public static remote_call_err_code valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private remote_call_err_code(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:remote_call_err_code)
+  }
+
+  /**
+   * <pre>
+   * 三态真假值
+   * </pre>
+   *
    * Protobuf enum {@code boolean_t}
    */
   public enum boolean_t
@@ -105,7 +348,7 @@ public final class RemoteMessage {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return com.example.protobufdemo.RemoteMessage.getDescriptor().getEnumTypes().get(0);
+      return com.example.protobufdemo.RemoteMessage.getDescriptor().getEnumTypes().get(1);
     }
 
     private static final boolean_t[] VALUES = values();
@@ -2361,7 +2604,7 @@ public final class RemoteMessage {
   }
   /**
    * <pre>
-   * 事件示例1
+   * 事件示例1，按键
    * </pre>
    *
    * Protobuf type {@code key_evt}
@@ -2594,7 +2837,7 @@ public final class RemoteMessage {
     }
     /**
      * <pre>
-     * 事件示例1
+     * 事件示例1，按键
      * </pre>
      *
      * Protobuf type {@code key_evt}
@@ -2916,7 +3159,7 @@ public final class RemoteMessage {
   }
   /**
    * <pre>
-   * 事件示例1
+   * 事件示例2，日志（日志归入事件是可以的，后者属于通用机制）
    * </pre>
    *
    * Protobuf type {@code log_evt}
@@ -3175,7 +3418,7 @@ public final class RemoteMessage {
     }
     /**
      * <pre>
-     * 事件示例1
+     * 事件示例2，日志（日志归入事件是可以的，后者属于通用机制）
      * </pre>
      *
      * Protobuf type {@code log_evt}
@@ -3559,12 +3802,6 @@ public final class RemoteMessage {
      */
     com.example.protobufdemo.RemoteMessage.logout_reqOrBuilder getLogoutOrBuilder();
 
-    /**
-     * <code>fixed32 crc = 2;</code>
-     * @return The crc.
-     */
-    int getCrc();
-
     public com.example.protobufdemo.RemoteMessage.to_mcu.ReqCase getReqCase();
   }
   /**
@@ -3725,17 +3962,6 @@ public final class RemoteMessage {
       return com.example.protobufdemo.RemoteMessage.logout_req.getDefaultInstance();
     }
 
-    public static final int CRC_FIELD_NUMBER = 2;
-    private int crc_;
-    /**
-     * <code>fixed32 crc = 2;</code>
-     * @return The crc.
-     */
-    @java.lang.Override
-    public int getCrc() {
-      return crc_;
-    }
-
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -3752,9 +3978,6 @@ public final class RemoteMessage {
                         throws java.io.IOException {
       if (seq_ != 0) {
         output.writeInt32(1, seq_);
-      }
-      if (crc_ != 0) {
-        output.writeFixed32(2, crc_);
       }
       if (reqCase_ == 3) {
         output.writeMessage(3, (com.example.protobufdemo.RemoteMessage.login_req) req_);
@@ -3774,10 +3997,6 @@ public final class RemoteMessage {
       if (seq_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, seq_);
-      }
-      if (crc_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(2, crc_);
       }
       if (reqCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
@@ -3804,8 +4023,6 @@ public final class RemoteMessage {
 
       if (getSeq()
           != other.getSeq()) return false;
-      if (getCrc()
-          != other.getCrc()) return false;
       if (!getReqCase().equals(other.getReqCase())) return false;
       switch (reqCase_) {
         case 3:
@@ -3832,8 +4049,6 @@ public final class RemoteMessage {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + SEQ_FIELD_NUMBER;
       hash = (53 * hash) + getSeq();
-      hash = (37 * hash) + CRC_FIELD_NUMBER;
-      hash = (53 * hash) + getCrc();
       switch (reqCase_) {
         case 3:
           hash = (37 * hash) + LOGIN_FIELD_NUMBER;
@@ -3986,8 +4201,6 @@ public final class RemoteMessage {
         if (logoutBuilder_ != null) {
           logoutBuilder_.clear();
         }
-        crc_ = 0;
-
         reqCase_ = 0;
         req_ = null;
         return this;
@@ -4031,7 +4244,6 @@ public final class RemoteMessage {
             result.req_ = logoutBuilder_.build();
           }
         }
-        result.crc_ = crc_;
         result.reqCase_ = reqCase_;
         onBuilt();
         return result;
@@ -4084,9 +4296,6 @@ public final class RemoteMessage {
         if (other.getSeq() != 0) {
           setSeq(other.getSeq());
         }
-        if (other.getCrc() != 0) {
-          setCrc(other.getCrc());
-        }
         switch (other.getReqCase()) {
           case LOGIN: {
             mergeLogin(other.getLogin());
@@ -4131,11 +4340,6 @@ public final class RemoteMessage {
 
                 break;
               } // case 8
-              case 21: {
-                crc_ = input.readFixed32();
-
-                break;
-              } // case 21
               case 26: {
                 input.readMessage(
                     getLoginFieldBuilder().getBuilder(),
@@ -4495,37 +4699,6 @@ public final class RemoteMessage {
         onChanged();;
         return logoutBuilder_;
       }
-
-      private int crc_ ;
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @return The crc.
-       */
-      @java.lang.Override
-      public int getCrc() {
-        return crc_;
-      }
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @param value The crc to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCrc(int value) {
-        
-        crc_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCrc() {
-        
-        crc_ = 0;
-        onChanged();
-        return this;
-      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -4601,6 +4774,17 @@ public final class RemoteMessage {
     int getSeq();
 
     /**
+     * <code>.remote_call_err_code err_code = 2;</code>
+     * @return The enum numeric value on the wire for errCode.
+     */
+    int getErrCodeValue();
+    /**
+     * <code>.remote_call_err_code err_code = 2;</code>
+     * @return The errCode.
+     */
+    com.example.protobufdemo.RemoteMessage.remote_call_err_code getErrCode();
+
+    /**
      * <code>.login_res login = 3;</code>
      * @return Whether the login field is set.
      */
@@ -4660,12 +4844,6 @@ public final class RemoteMessage {
      */
     com.example.protobufdemo.RemoteMessage.log_evtOrBuilder getLogOrBuilder();
 
-    /**
-     * <code>fixed32 crc = 2;</code>
-     * @return The crc.
-     */
-    int getCrc();
-
     public com.example.protobufdemo.RemoteMessage.from_mcu.ResCase getResCase();
   }
   /**
@@ -4685,6 +4863,7 @@ public final class RemoteMessage {
       super(builder);
     }
     private from_mcu() {
+      errCode_ = 0;
     }
 
     @java.lang.Override
@@ -4766,6 +4945,25 @@ public final class RemoteMessage {
     @java.lang.Override
     public int getSeq() {
       return seq_;
+    }
+
+    public static final int ERR_CODE_FIELD_NUMBER = 2;
+    private int errCode_;
+    /**
+     * <code>.remote_call_err_code err_code = 2;</code>
+     * @return The enum numeric value on the wire for errCode.
+     */
+    @java.lang.Override public int getErrCodeValue() {
+      return errCode_;
+    }
+    /**
+     * <code>.remote_call_err_code err_code = 2;</code>
+     * @return The errCode.
+     */
+    @java.lang.Override public com.example.protobufdemo.RemoteMessage.remote_call_err_code getErrCode() {
+      @SuppressWarnings("deprecation")
+      com.example.protobufdemo.RemoteMessage.remote_call_err_code result = com.example.protobufdemo.RemoteMessage.remote_call_err_code.valueOf(errCode_);
+      return result == null ? com.example.protobufdemo.RemoteMessage.remote_call_err_code.UNRECOGNIZED : result;
     }
 
     public static final int LOGIN_FIELD_NUMBER = 3;
@@ -4892,17 +5090,6 @@ public final class RemoteMessage {
       return com.example.protobufdemo.RemoteMessage.log_evt.getDefaultInstance();
     }
 
-    public static final int CRC_FIELD_NUMBER = 2;
-    private int crc_;
-    /**
-     * <code>fixed32 crc = 2;</code>
-     * @return The crc.
-     */
-    @java.lang.Override
-    public int getCrc() {
-      return crc_;
-    }
-
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -4920,8 +5107,8 @@ public final class RemoteMessage {
       if (seq_ != 0) {
         output.writeInt32(1, seq_);
       }
-      if (crc_ != 0) {
-        output.writeFixed32(2, crc_);
+      if (errCode_ != com.example.protobufdemo.RemoteMessage.remote_call_err_code.ok.getNumber()) {
+        output.writeEnum(2, errCode_);
       }
       if (resCase_ == 3) {
         output.writeMessage(3, (com.example.protobufdemo.RemoteMessage.login_res) res_);
@@ -4948,9 +5135,9 @@ public final class RemoteMessage {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, seq_);
       }
-      if (crc_ != 0) {
+      if (errCode_ != com.example.protobufdemo.RemoteMessage.remote_call_err_code.ok.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(2, crc_);
+          .computeEnumSize(2, errCode_);
       }
       if (resCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
@@ -4985,8 +5172,7 @@ public final class RemoteMessage {
 
       if (getSeq()
           != other.getSeq()) return false;
-      if (getCrc()
-          != other.getCrc()) return false;
+      if (errCode_ != other.errCode_) return false;
       if (!getResCase().equals(other.getResCase())) return false;
       switch (resCase_) {
         case 3:
@@ -5021,8 +5207,8 @@ public final class RemoteMessage {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + SEQ_FIELD_NUMBER;
       hash = (53 * hash) + getSeq();
-      hash = (37 * hash) + CRC_FIELD_NUMBER;
-      hash = (53 * hash) + getCrc();
+      hash = (37 * hash) + ERR_CODE_FIELD_NUMBER;
+      hash = (53 * hash) + errCode_;
       switch (resCase_) {
         case 3:
           hash = (37 * hash) + LOGIN_FIELD_NUMBER;
@@ -5177,6 +5363,8 @@ public final class RemoteMessage {
         super.clear();
         seq_ = 0;
 
+        errCode_ = 0;
+
         if (loginBuilder_ != null) {
           loginBuilder_.clear();
         }
@@ -5189,8 +5377,6 @@ public final class RemoteMessage {
         if (logBuilder_ != null) {
           logBuilder_.clear();
         }
-        crc_ = 0;
-
         resCase_ = 0;
         res_ = null;
         return this;
@@ -5220,6 +5406,7 @@ public final class RemoteMessage {
       public com.example.protobufdemo.RemoteMessage.from_mcu buildPartial() {
         com.example.protobufdemo.RemoteMessage.from_mcu result = new com.example.protobufdemo.RemoteMessage.from_mcu(this);
         result.seq_ = seq_;
+        result.errCode_ = errCode_;
         if (resCase_ == 3) {
           if (loginBuilder_ == null) {
             result.res_ = res_;
@@ -5248,7 +5435,6 @@ public final class RemoteMessage {
             result.res_ = logBuilder_.build();
           }
         }
-        result.crc_ = crc_;
         result.resCase_ = resCase_;
         onBuilt();
         return result;
@@ -5301,8 +5487,8 @@ public final class RemoteMessage {
         if (other.getSeq() != 0) {
           setSeq(other.getSeq());
         }
-        if (other.getCrc() != 0) {
-          setCrc(other.getCrc());
+        if (other.errCode_ != 0) {
+          setErrCodeValue(other.getErrCodeValue());
         }
         switch (other.getResCase()) {
           case LOGIN: {
@@ -5356,11 +5542,11 @@ public final class RemoteMessage {
 
                 break;
               } // case 8
-              case 21: {
-                crc_ = input.readFixed32();
+              case 16: {
+                errCode_ = input.readEnum();
 
                 break;
-              } // case 21
+              } // case 16
               case 26: {
                 input.readMessage(
                     getLoginFieldBuilder().getBuilder(),
@@ -5447,6 +5633,60 @@ public final class RemoteMessage {
       public Builder clearSeq() {
         
         seq_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int errCode_ = 0;
+      /**
+       * <code>.remote_call_err_code err_code = 2;</code>
+       * @return The enum numeric value on the wire for errCode.
+       */
+      @java.lang.Override public int getErrCodeValue() {
+        return errCode_;
+      }
+      /**
+       * <code>.remote_call_err_code err_code = 2;</code>
+       * @param value The enum numeric value on the wire for errCode to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrCodeValue(int value) {
+        
+        errCode_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.remote_call_err_code err_code = 2;</code>
+       * @return The errCode.
+       */
+      @java.lang.Override
+      public com.example.protobufdemo.RemoteMessage.remote_call_err_code getErrCode() {
+        @SuppressWarnings("deprecation")
+        com.example.protobufdemo.RemoteMessage.remote_call_err_code result = com.example.protobufdemo.RemoteMessage.remote_call_err_code.valueOf(errCode_);
+        return result == null ? com.example.protobufdemo.RemoteMessage.remote_call_err_code.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>.remote_call_err_code err_code = 2;</code>
+       * @param value The errCode to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrCode(com.example.protobufdemo.RemoteMessage.remote_call_err_code value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        errCode_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.remote_call_err_code err_code = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearErrCode() {
+        
+        errCode_ = 0;
         onChanged();
         return this;
       }
@@ -6018,37 +6258,6 @@ public final class RemoteMessage {
         onChanged();;
         return logBuilder_;
       }
-
-      private int crc_ ;
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @return The crc.
-       */
-      @java.lang.Override
-      public int getCrc() {
-        return crc_;
-      }
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @param value The crc to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCrc(int value) {
-        
-        crc_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>fixed32 crc = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCrc() {
-        
-        crc_ = 0;
-        onChanged();
-        return this;
-      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -6168,16 +6377,20 @@ public final class RemoteMessage {
       "ut_req\022\r\n\005dummy\030\001 \001(\005\"(\n\nlogout_res\022\032\n\006s" +
       "tatus\030\001 \001(\0162\n.boolean_t\"/\n\007key_evt\022\020\n\010ke" +
       "y_code\030\001 \001(\005\022\022\n\nkey_action\030\002 \001(\010\"%\n\007log_" +
-      "evt\022\r\n\005level\030\001 \001(\005\022\013\n\003msg\030\002 \001(\t\"e\n\006to_mc" +
+      "evt\022\r\n\005level\030\001 \001(\005\022\013\n\003msg\030\002 \001(\t\"X\n\006to_mc" +
       "u\022\013\n\003seq\030\001 \001(\005\022\033\n\005login\030\003 \001(\0132\n.login_re" +
-      "qH\000\022\035\n\006logout\030\004 \001(\0132\013.logout_reqH\000\022\013\n\003cr" +
-      "c\030\002 \001(\007B\005\n\003req\"\233\001\n\010from_mcu\022\013\n\003seq\030\001 \001(\005" +
-      "\022\033\n\005login\030\003 \001(\0132\n.login_resH\000\022\035\n\006logout\030" +
-      "\004 \001(\0132\013.logout_resH\000\022\030\n\003key\030\311\001 \001(\0132\010.key" +
-      "_evtH\000\022\030\n\003log\030\312\001 \001(\0132\010.log_evtH\000\022\013\n\003crc\030" +
-      "\002 \001(\007B\005\n\003res*3\n\tboolean_t\022\n\n\006failed\020\000\022\r\n" +
-      "\tsucceeded\020\001\022\013\n\007unknown\020\002B\032\n\030com.example" +
-      ".protobufdemob\006proto3"
+      "qH\000\022\035\n\006logout\030\004 \001(\0132\013.logout_reqH\000B\005\n\003re" +
+      "q\"\267\001\n\010from_mcu\022\013\n\003seq\030\001 \001(\005\022\'\n\010err_code\030" +
+      "\002 \001(\0162\025.remote_call_err_code\022\033\n\005login\030\003 " +
+      "\001(\0132\n.login_resH\000\022\035\n\006logout\030\004 \001(\0132\013.logo" +
+      "ut_resH\000\022\030\n\003key\030\311\001 \001(\0132\010.key_evtH\000\022\030\n\003lo" +
+      "g\030\312\001 \001(\0132\010.log_evtH\000B\005\n\003res*\223\001\n\024remote_c" +
+      "all_err_code\022\006\n\002ok\020\000\022\013\n\007crc_err\020\001\022\020\n\014req" +
+      "_type_err\020\002\022\013\n\007fmt_err\020\003\022\013\n\007no_impl\020\004\022\021\n" +
+      "\rsrv_not_ready\020\005\022\014\n\010parm_err\020\006\022\013\n\007timeou" +
+      "t\020\007\022\014\n\010comm_err\020\010*3\n\tboolean_t\022\n\n\006failed" +
+      "\020\000\022\r\n\tsucceeded\020\001\022\013\n\007unknown\020\002B\032\n\030com.ex" +
+      "ample.protobufdemob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -6224,13 +6437,13 @@ public final class RemoteMessage {
     internal_static_to_mcu_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_to_mcu_descriptor,
-        new java.lang.String[] { "Seq", "Login", "Logout", "Crc", "Req", });
+        new java.lang.String[] { "Seq", "Login", "Logout", "Req", });
     internal_static_from_mcu_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_from_mcu_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_from_mcu_descriptor,
-        new java.lang.String[] { "Seq", "Login", "Logout", "Key", "Log", "Crc", "Res", });
+        new java.lang.String[] { "Seq", "ErrCode", "Login", "Logout", "Key", "Log", "Res", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

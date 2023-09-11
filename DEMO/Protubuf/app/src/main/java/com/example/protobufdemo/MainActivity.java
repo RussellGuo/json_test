@@ -51,9 +51,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         RemoteMessageApi api = new RemoteMessageApi();
         RemoteMessage.login_req.Builder loginInfo = RemoteMessage.login_req.newBuilder();
-        loginInfo.setUsername("Russell");
-        loginInfo.setPassword("12345");
-
+        loginInfo.setUsername("caomeng");
+        loginInfo.setPassword("123456");
+        Log.d(TAG,"loginInfo = " + loginInfo.build().toByteArray());
+        byte[] atr = loginInfo.build().toByteArray();
+        for (byte str:
+        atr) {
+            Log.d(TAG,"loginInfo = " + str);
+        }
+        byte[]  to_mcu_buf = {0x07, 0x63, 0x61, 0x6F, 0x6D, 0x65, 0x6E, 0x67, 0x12, 0x06, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
+        for (byte str:
+                to_mcu_buf) {
+            Log.d(TAG,"loginInfo22 = " + str);
+        }
         RemoteMessage.logout_req.Builder logOUTInfo = RemoteMessage.logout_req.newBuilder();
         logOUTInfo.setDummy(1);
         api.remoteCllService(loginInfo.build());

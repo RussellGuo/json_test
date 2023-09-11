@@ -14,6 +14,12 @@ import android.util.Log;
 import com.example.protobufdemo.RemoteMessage;
 import com.example.protobufdemo.Test;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.huaqin.posservices.remotemessage.RemoteMessageApi;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 public class PosCardService extends Service {
@@ -23,7 +29,10 @@ public class PosCardService extends Service {
     private byte[] mByte;
     private byte[] mLoginByte;
     private byte[] mLoginResult;
+
+    private HashMap<IBinder, IReadCardCallback> mListenersMap;
     public PosCardService() {
+        mListenersMap = new HashMap<IBinder, IReadCardCallback>();
     }
 
     final RemoteCallbackList<IReadCardCallback> mCallbacks = new RemoteCallbackList<IReadCardCallback>();
@@ -115,12 +124,17 @@ public class PosCardService extends Service {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            startCallback();
+            byte[]  to_mcu_buf = {0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
+            new RemoteMessageApi().fotMCUServices(to_mcu_buf,mCallbacks);
+           // startCallback();
         }
 
         @Override
         public void registerCallback(IReadCardCallback cb) throws RemoteException {
             if (cb != null) {
+                synchronized (mListenersMap) {
+                    mListenersMap.put(cb.asBinder(), cb);
+                }
                 mCallbacks.register(cb);
                 //startCallback();
             }
@@ -128,6 +142,9 @@ public class PosCardService extends Service {
 
         @Override
         public void unregisterCallback(IReadCardCallback cb) throws RemoteException {
+            synchronized (mListenersMap) {
+                mListenersMap.remove(cb.asBinder());
+            }
             if (cb != null) {
                 mCallbacks.unregister(cb);
             }
@@ -167,15 +184,13 @@ public class PosCardService extends Service {
                 //设置返回结果－登录成功
                 result.setSeq(1)
                         .setLogin(RemoteMessage.login_res.newBuilder()
-                                .setStatus(succeeded))
-                        .setCrc(2);
+                                .setStatus(succeeded));
                 Log.d(TAG,"login pass = " + result.toString());
             }else{
                 //设置返回结果－登录失败
                 result.setSeq(2)
                         .setLogin(RemoteMessage.login_res.newBuilder()
-                                .setStatus(failed))
-                        .setCrc(3);
+                                .setStatus(failed));
                 Log.d(TAG,"login fail = " + result.toString());
             }
             //将结果对象序列化
@@ -189,9 +204,9 @@ public class PosCardService extends Service {
     /**
      * 启动回调方法
      */
-    void startCallback() {
+   public void startCallback(RemoteCallbackList<IReadCardCallback> mCallbacks) {
         final int N = mCallbacks.beginBroadcast();
-        Log.d(TAG, "------------------ callback hello world 123");
+        Log.d(TAG, "------------------ callback hello world 123  N = " + N);
         for (int i = 0; i < N; i++) {
             try {
                 Log.d(TAG, "callback hello world 123");
