@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>PB_NO_STATIC_ASSERT=1 USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Include;..\MH2101_SDK\Libraries\MHSCPU_Driver\inc;..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include;.\;..\..\nanopb;..\pb_intermediate;..\semantic_api;..\mcu-services-hw\psam\include;..\mcu-services-hw\hw-hal</IncludePath>
+              <IncludePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Include;..\MH2101_SDK\Libraries\MHSCPU_Driver\inc;..\host-mcu-common\include;..\mcu-driver\include;..\mcu-services\include;.\;..\..\nanopb;..\pb_intermediate;..\semantic_api;..\mcu-services-hw\psam\include;..\mcu-services-hw\hw-hal;..\mcu-services-hw\beep</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -485,6 +485,11 @@
               <FileName>hal_system.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu-services-hw\hw-hal\hal_system.c</FilePath>
+            </File>
+            <File>
+              <FileName>beep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu-services-hw\beep\beep.c</FilePath>
             </File>
           </Files>
         </Group>
