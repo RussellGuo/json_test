@@ -5,19 +5,21 @@ import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.READ_C
 import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.TO_MCU_LOGIN_TAG;
 import static com.huaqin.posservices.remotemessage.RemoteMessageConstants.TO_MCU_LOGOUT_TAG;
 
-import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.util.Log;
 import com.example.protobufdemo.RemoteMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.IReadCardCallback;
 import com.huaqin.posservices.PosCardService;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class RemoteMessageApi {
     private String TAG = "RemoteMessageApi";
-    ///private HashMap<IBinder, ServiceBinderListener> mListenersMap;
     RemoteMessage.to_mcu.Builder mcuInfo ;
-    private HashMap<IBinder, Object> mListenersMap;
+    private HashMap<String, Object> mListenersMap;
     /**
      * 调用jni发送报文给mcu
      * @param req
@@ -56,11 +58,18 @@ public class RemoteMessageApi {
         return sendRemoteRequestToMcu(mcuInfo.build());
     }
 
-
-    public RemoteMessage.remote_call_err_code remoteCllService(Object obj, HashMap<IBinder, Object> callBackList){
+    /**
+     * 发送报文总入口
+     * @param obj
+     * @param callBackList
+     * @return
+     */
+    public RemoteMessage.remote_call_err_code remoteCllService(Object obj, HashMap<String, Object> callBackList){
         RemoteMessage.remote_call_err_code err_code;
         mListenersMap = callBackList;
+        byte[]  to_mcu_buf = {0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
         Log.d(TAG,"obj.getClass() = " + obj.getClass().getSimpleName());
+        forMcuServices(to_mcu_buf);
         switch (obj.getClass().getSimpleName()){
             case TO_MCU_LOGIN_TAG:
                 err_code = remoteCllServiceForLogin((RemoteMessage.login_req) obj);
@@ -75,35 +84,44 @@ public class RemoteMessageApi {
         return err_code;
     }
 
-    public void fotMCUServices (byte[] obj, RemoteCallbackList<IReadCardCallback> callback){
-        PosCardService posservice = new PosCardService();
-        posservice.startCallback(callback);
-        /*if(obj != null && obj.length > 0){
-            try {
-                RemoteMessage.from_mcu forMcu = RemoteMessage.from_mcu.parseFrom(obj);
-                Set set = mListenersMap.entrySet();
-                Iterator i = set.iterator();
 
-                while (i.hasNext()) {
-                    Map.Entry entry = (Map.Entry)i.next();
-                    switch (entry.getValue().getClass().getTypeName()){
-                        case  READ_CARD_CALL_BACK_TAG :
-                            PosCardService posservice = new PosCardService();
-                            posservice.startCallback();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            } catch (InvalidProtocolBufferException e) {
-                throw new RuntimeException(e);
-            }
-        }*/
-
-
+    /**
+     * 解码mcu报文
+     * @param obj
+     * @return
+     */
+    private RemoteMessage.from_mcu forMcuUnpack(byte[] obj) {
+        RemoteMessage.from_mcu forMcu;
+        try {
+            forMcu = RemoteMessage.from_mcu.parseFrom(obj);
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
+        return forMcu;
     }
 
-
+    /**
+     * 接收来自jni的报文总入口
+     * @param obj
+     */
+    public void forMcuServices (byte[] obj){
+        RemoteMessage.from_mcu forMcu = forMcuUnpack(obj);
+        if(obj != null && obj.length > 0){
+            Set set = mListenersMap.entrySet();
+            Iterator i = set.iterator();
+            while (i.hasNext()) {
+                Map.Entry entry = (Map.Entry)i.next();
+                switch (entry.getKey().toString()){//根据注册回调启动回调函数
+                    case  READ_CARD_CALL_BACK_TAG :
+                        //启动回调
+                        new PosCardService().startCallback((RemoteCallbackList<IReadCardCallback>) entry.getValue(), forMcu);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 }
 
 

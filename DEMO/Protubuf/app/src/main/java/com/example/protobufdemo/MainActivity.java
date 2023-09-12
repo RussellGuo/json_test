@@ -97,17 +97,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RemoteMessage.to_mcu.Builder build = RemoteMessage.to_mcu.newBuilder();
         //账号密码proto数据对象
         RemoteMessage.login_req.Builder buildLogin = RemoteMessage.login_req.newBuilder();
-        build.setSeq(1)
-                .setLogin(buildLogin.setUsername("admin")
-                        .setPassword("admin"));
+        build.setLogin(buildLogin.setUsername("caomeng")
+                        .setPassword("123456"));
                 //.setCrc(2);
         Log.d(TAG,"buildLogin = " + build.build());
+        byte[] ss=build.build().toByteArray();
+        for (byte s:
+        ss) {
+            Log.d(TAG,"buildLogin = " + s);
+        }
+        try {
+            RemoteMessage.to_mcu toMcu = RemoteMessage.to_mcu.parseFrom(ss);
+            Log.d(TAG,"buildLogin = " + toMcu.toString());
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
         return build.build().toByteArray();
     }
 
 
     private void test1(){
-        byte[]  to_mcu_buf = {0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
+        byte[]  to_mcu_buf = {0x1A, 0x11, 0x0A, 0x07, 0x63, 0x61, 0x6F, 0x6D, 0x65, 0x6E, 0x67, 0x12, 0x06, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
         byte[] expected_from_mcu_binary = {0x08, 0x02, 0x10, 0x04, 0x1a, 0x02, 0x08, 0x02};
         try {
             RemoteMessage.to_mcu toMcu=   RemoteMessage.to_mcu.parseFrom(to_mcu_buf);

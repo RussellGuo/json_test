@@ -17,9 +17,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.remotemessage.RemoteMessageApi;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 
 public class PosCardService extends Service {
@@ -30,9 +27,9 @@ public class PosCardService extends Service {
     private byte[] mLoginByte;
     private byte[] mLoginResult;
 
-    private HashMap<IBinder, IReadCardCallback> mListenersMap;
+    private HashMap<String, Object> mListenersMap;
     public PosCardService() {
-        mListenersMap = new HashMap<IBinder, IReadCardCallback>();
+        mListenersMap = new HashMap<String, Object>();
     }
 
     final RemoteCallbackList<IReadCardCallback> mCallbacks = new RemoteCallbackList<IReadCardCallback>();
@@ -125,17 +122,18 @@ public class PosCardService extends Service {
                 throw new RuntimeException(e);
             }
             byte[]  to_mcu_buf = {0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
-            new RemoteMessageApi().fotMCUServices(to_mcu_buf,mCallbacks);
+            new RemoteMessageApi().remoteCllService(to_mcu_buf,mListenersMap);
            // startCallback();
         }
 
         @Override
         public void registerCallback(IReadCardCallback cb) throws RemoteException {
             if (cb != null) {
-                synchronized (mListenersMap) {
-                    mListenersMap.put(cb.asBinder(), cb);
-                }
                 mCallbacks.register(cb);
+                synchronized (mListenersMap) {
+                    mListenersMap.put("IReadCardCallback", mCallbacks);
+                }
+                Log.d(TAG,"ZHAGNWENCAI = " + mCallbacks.getRegisteredCallbackItem(0).getClass());
                 //startCallback();
             }
         }
@@ -143,7 +141,7 @@ public class PosCardService extends Service {
         @Override
         public void unregisterCallback(IReadCardCallback cb) throws RemoteException {
             synchronized (mListenersMap) {
-                mListenersMap.remove(cb.asBinder());
+                mListenersMap.remove("IReadCardCallback");
             }
             if (cb != null) {
                 mCallbacks.unregister(cb);
@@ -204,9 +202,9 @@ public class PosCardService extends Service {
     /**
      * 启动回调方法
      */
-   public void startCallback(RemoteCallbackList<IReadCardCallback> mCallbacks) {
+   public void startCallback(RemoteCallbackList<IReadCardCallback> mCallbacks, RemoteMessage.from_mcu forMcu) {
         final int N = mCallbacks.beginBroadcast();
-        Log.d(TAG, "------------------ callback hello world 123  N = " + N);
+        Log.d(TAG, "------------------ callback hello world 123  N = " + forMcu.toBuilder().toString());
         for (int i = 0; i < N; i++) {
             try {
                 Log.d(TAG, "callback hello world 123");
