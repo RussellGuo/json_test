@@ -4,7 +4,71 @@
 # 最大的用途是使用最大尺寸选项而不是任意尺寸选项。这样会简化C程序的访问
 # 主机端的protobuf跟本文件无关
 
+# 曹猛，2023-9-13
+# 添加一些数据的最大尺寸
+
 login_req.username max_size:25
 login_req.password max_size:12
+
+psam_reset_res.psam_atr_data max_size:32
+psam_apdu_req.send_apdu_data max_size:256
+psam_apdu_res.recv_apdu_data max_size:256
+
+icc_reset_res.icc_atr_data max_size:32
+icc_apdu_req.send_apdu_data max_size:256
+icc_apdu_res.recv_apdu_data max_size:256
+
+printer_content_req.send_printer_data max_size:1024
+
+mksk_data_encdec_req.encdec_data max_size:2048
+mksk_data_encdec_res.after_encdec_data max_size:2048
+
+mksk_key_inject_req.targetkey max_size:32
+mksk_key_inject_req.kcv_verify_data max_size:8
+
+dukpt_inject_tik_req.til_encdata max_size:32
+dukpt_inject_tik_req.init_ksn max_size:10
+dukpt_inject_tik_req.kcv_verify_data max_size:8
+
+get_pinblock_encdata_req.pan_data max_size:16
+get_pinblock_encdata_req.pinblock_transaction_domain max_size:8
+get_pinblock_encdata_req.user_input_pin_len max_size:8
+get_pinblock_encdata_res.pinblock_encdata max_size:16
+get_pinblock_encdata_res.ksn max_size:16
+
+mksk_count_mac_req.mac_data max_size:2048
+mksk_count_mac_res.mac_encdata max_size:2048
+
+dukpt_count_mac_req.mac_data max_size:1024
+dukpt_count_mac_res.count_mac_data max_size:1024
+dukpt_count_mac_res.ksn max_size:16
+
+verify_plain_pin_req.timeout_time max_size:4
+verify_plain_pin_req.input_data max_size:8
+verify_plain_pin_res.card_res_data max_size:256
+
+verify_cipher_pin_req.timeout_time max_size:4
+verify_cipher_pin_req.input_data max_size:8
+verify_cipher_pin_req.rsa_modulus max_size:32
+verify_cipher_pin_req.rsa_exponential max_size:32
+verify_cipher_pin_req.random_number max_size:32
+verify_cipher_pin_res.card_res_data max_size:256
+
+get_key_kcv_res.kcv_data max_size:8
+
+write_rsa_key_req.rsa_modulus max_size:32
+write_rsa_key_req.rsa_exponential max_size:32
+
+rsa_key_count_req.input_data max_size:32
+rsa_key_count_res.output_data max_size:32
+
+dukpt_encdec_data_req.init_iv max_size:8
+dukpt_encdec_data_req.input_data max_size:32
+dukpt_encdec_data_res.output_ksn max_size:10
+dukpt_encdec_data_res.output_data max_size:32
+
+get_dukpt_ksn_res.output_ksn max_size:10
+
+get_random_number_res.output_data max_size:1024
 
 log_evt.msg max_size:80

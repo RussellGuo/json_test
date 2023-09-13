@@ -4,6 +4,18 @@ syntax = "proto3";
 // protobuf的示例，示例的目的是在C++为代表的主机端，和nanopb/C为代表的MCU端，
 // 显示他们的消息格式是否一致
 
+// 曹猛，2023-9-05
+// 添加部分功能业务的消息格式(版本号 psam ic卡 printer)
+
+// 曹猛，2023-9-07
+// 添加安全部分业务的消息格式
+
+// 曹猛，2023-9-12
+// 修改部分消息格式中的数据类型为bytes
+
+// 曹猛，2023-9-13
+// 优化printer部分的消息格式
+
 // 远程调用的错误码
 enum remote_call_err_code {
     ok             =  0;
@@ -236,6 +248,17 @@ enum dukpt_encdec_type{
     cbc_enc_dukpt = 3;//CBC 加密
 }
 
+enum printer_status{
+    temperature = 0;//打印头温度
+    paper_status = 1;//打印纸状态
+}
+
+enum set_parameter{
+    heattime = 0;//加热时间
+	steptime = 1;//马达步进延时
+	powerofftime = 2;//打印结束到下电的延时时间
+}
+
 // 三态真假值
 enum boolean_t {
     failed = 0;
@@ -343,7 +366,7 @@ message icc_reset_req {
 
 message icc_reset_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes psam_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
+    bytes icc_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
 }
 
 message icc_apdu_req {
@@ -370,11 +393,11 @@ message printer_check_req {
 
 message printer_check_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes printer_status = 2; //打印头温度与打印纸状态等 最大长度12字节
+    printer_status status = 2; //打印头温度与打印纸状态等 最大长度12字节
 }
 
 message printer_parameter_req {
-    bytes set_parameter = 1;//设置加热点数，加热时间，马达步进速率，打印结束到下电的延时时间 长度无限制
+    set_parameter parameter = 1;
 }
 
 message printer_parameter_res {
@@ -382,7 +405,7 @@ message printer_parameter_res {
 }
 
 message printer_content_req {
-    bytes send_printer_data = 1;//发送需要打印的点行 长度无限制
+    bytes send_printer_data = 1;//发送需要打印的点行
 }
 
 message printer_content_res {
@@ -429,7 +452,7 @@ message dukpt_inject_tik_req {
     bytes til_encdata = 4;//TIK 的密文数据 最大32字节
     bytes init_ksn = 5;//初始化KSN 最大10字节
     kcv_checkmode_type kcv_checkmode_type = 6;//KCV 验证模式CheckMode
-    bytes kcv_verify_data = 7;//kcv校验数据 最大5字节
+    bytes kcv_verify_data = 7;//kcv校验数据
 }
 
 message dukpt_inject_tik_res {
@@ -445,7 +468,7 @@ message get_pinblock_encdata_req {
     bytes pan_data = 5;//输入pan主账号 根据不同的format规则输入 最大16字节
     bytes pinblock_transaction_domain = 6;//最大8字节 参与PinBlock 格式化的8字节数据(根据ISO9564 的规范,该数据可以是随机数、交易流水号或时间戳等,但是每个字节的高4 位和低4 位,均必须在0xA~0xF之间
     int32 pin_len = 7;//PIN 码长度指示字串的长度n
-    bytes user_input_pin_len = 8;//枚举允许用户输入的密码长度 无限制
+    bytes user_input_pin_len = 8;//枚举允许用户输入的密码长度
 }
 
 message get_pinblock_encdata_res {
@@ -503,7 +526,7 @@ message verify_plain_pin_res {
 message verify_cipher_pin_req {
     int32 slot_index = 1;//00:ICC 01:NFC
     int32 mode = 2;//默认00
-    int32 timeout_time = 3;//超时时间
+    bytes timeout_time = 3;//超时时间
     int32 input_pin_len = 4;//可输入PIN 码长度指示字串的长度n
     bytes input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
     int32 rsa_modulus_len = 6;//RSA加密公钥模数长度
@@ -563,8 +586,8 @@ message rsa_key_count_req {
 
 message rsa_key_count_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    int32 outpu_data_len = 2;//输出数据长度
-    bytes outpu_data = 3;//输出数据内容
+    int32 output_data_len = 2;//输出数据长度
+    bytes output_data = 3;//输出数据内容
 }
 
 //DUKPT 数据加解密运算
@@ -580,8 +603,8 @@ message dukpt_encdec_data_req {
 message dukpt_encdec_data_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     bytes output_ksn = 2;//输出KSN
-    int32 outpu_data_len = 3;//输出数据长度
-    bytes outpu_data = 4;//输出数据内容
+    int32 output_data_len = 3;//输出数据长度
+    bytes output_data = 4;//输出数据内容
 }
 
 //读取DUKPT 当前KSN
@@ -591,7 +614,7 @@ message get_dukpt_ksn_req {
 
 message get_dukpt_ksn_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes outpu_ksn = 2;//输出KSN
+    bytes output_ksn = 2;//输出KSN
 }
 
 //DUKPT KSN 加1
@@ -610,8 +633,8 @@ message get_random_number_req {
 
 message get_random_number_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    int32 outpu_data_len = 2;//输出数据长度
-    bytes outpu_data = 3;//输出数据内容
+    int32 output_data_len = 2;//输出数据长度
+    bytes output_data = 3;//输出数据内容
 }
 
 // 从host发往mcu的消息的总类型
