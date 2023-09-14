@@ -7,10 +7,10 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/media/ubuntu/1bab4b0e-f817-4fef-b22d-ad9816bbaa5e/POS3/mcu/DEMO/Protubuf/keystore/P5/platform.keystore')
-            storePassword 'android'
+            storeFile file('/media/ubuntu/1bab4b0e-f817-4fef-b22d-ad9816bbaa5e/POS3/mcu/DEMO/Protubuf/keystore/platform.jks')
+            storePassword '123456'
             keyAlias 'platform'
-            keyPassword 'android'
+            keyPassword '123456'
         }
     }
     compileSdk 30
@@ -40,6 +40,13 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    //设置打包格式
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName  ="ProtoDufDemo.apk"
+        }
     }
 }
 protobuf {
