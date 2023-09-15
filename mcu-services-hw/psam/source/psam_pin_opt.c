@@ -1,8 +1,6 @@
 #include "psam_pin_opt.h"
 #include "psam_hw_abstractor.h"
 
-static unsigned char gucSciMode;
-
 MOD_LOCAL void sc_pinopt_channel_select(int slot)
 {
 #ifdef SC_SIMU_ENABLE
@@ -38,29 +36,29 @@ MOD_LOCAL void sc_simu_pinopt_init(void)
     gpio_conf.GPIO_Pin = BIT(SIMU_VCC_PIN);
     GPIO_Init(SIMU_VCC_DEV, &gpio_conf);
 
-#if 1//def SIMU1_RST_DEV
+#ifdef SIMU1_RST_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU1_RST_PIN);
     GPIO_Init(SIMU1_RST_DEV, &gpio_conf);
 #endif
-#if 1//def SIMU2_RST_DEV
+#ifdef SIMU2_RST_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU2_RST_PIN);
     GPIO_Init(SIMU2_RST_DEV, &gpio_conf);
 #endif
 
-#if 1//def SIMU1_IO_DEV
+#ifdef SIMU1_IO_DEV
     gpio_conf.GPIO_Mode = GPIO_Mode_Out_OD_PU;
     gpio_conf.GPIO_Remap = GPIO_Remap_1;
     gpio_conf.GPIO_Pin = BIT(SIMU1_IO_PIN);
     GPIO_Init(SIMU1_IO_DEV, &gpio_conf);
 #endif
-#if 1//def SIMU2_IO_DEV
+#ifdef SIMU2_IO_DEV
     gpio_conf.GPIO_Mode = GPIO_Mode_Out_OD_PU;
     gpio_conf.GPIO_Remap = GPIO_Remap_1;
     gpio_conf.GPIO_Pin = BIT(SIMU2_IO_PIN);
     GPIO_Init(SIMU2_IO_DEV, &gpio_conf);
 #endif
 
-    gpio_conf.GPIO_Remap = GPIO_Remap_2;
+    gpio_conf.GPIO_Remap = GPIO_Remap_0;
     gpio_conf.GPIO_Pin = BIT(SIMU1_CLK_PIN);
     GPIO_Init(SIMU1_CLK_DEV, &gpio_conf);
     GPIO_PullUpCmd(SIMU1_CLK_DEV, BIT(SIMU1_CLK_PIN), DISABLE);
@@ -71,7 +69,7 @@ MOD_LOCAL void sc_simu_pinopt_init(void)
     GPIO_PullUpCmd(SIMU2_CLK_DEV, BIT(SIMU2_CLK_PIN), DISABLE);
 
 #ifdef SIMU_SLOT_DEV
-    GPIO_WriteBit(SIMU_SLOT_DEV, BIT(SIMU_SLOT_PIN));
+    GPIO_ResetBits(SIMU_SLOT_DEV, BIT(SIMU_SLOT_PIN));
 #endif
 #if defined(SIMU_VCCSEL0_DEV) && defined(SIMU_VCCSEL1_DEV)
     GPIO_ResetBits(SIMU_VCCSEL0_DEV, BIT(SIMU_VCCSEL0_PIN));
@@ -82,16 +80,16 @@ MOD_LOCAL void sc_simu_pinopt_init(void)
 #endif
 
     GPIO_ResetBits(SIMU_VCC_DEV, BIT(SIMU_VCC_PIN));
-#if 1//def SIMU1_RST_DEV
+#ifdef SIMU1_RST_DEV
     GPIO_ResetBits(SIMU1_RST_DEV, BIT(SIMU1_RST_PIN));
 #endif
-#if 1//def SIMU2_RST_DEV
+#ifdef SIMU2_RST_DEV
     GPIO_ResetBits(SIMU2_RST_DEV, BIT(SIMU2_RST_PIN));
 #endif
-#if 1 //def SIMU1_IO_DEV
+#ifdef SIMU1_IO_DEV
     GPIO_ResetBits(SIMU1_IO_DEV, BIT(SIMU1_IO_PIN));
 #endif
-#if 1//def SIMU2_IO_DEV
+#ifdef SIMU2_IO_DEV
     GPIO_ResetBits(SIMU2_IO_DEV, BIT(SIMU2_IO_PIN));
 #endif
 }
@@ -129,7 +127,7 @@ MOD_LOCAL void sc_simu_pinopt_power_setting(int val)
 MOD_LOCAL void sc_simu_pinopt_rst_setting(unsigned int terminal, int val)
 {
     if (terminal==SIMU1) {
-#if 1//def SIMU1_RST_DEV
+#ifdef SIMU1_RST_DEV
         if(val)
         {
             GPIO_SetBits(SIMU1_RST_DEV, BIT(SIMU1_RST_PIN));
@@ -138,7 +136,7 @@ MOD_LOCAL void sc_simu_pinopt_rst_setting(unsigned int terminal, int val)
         }
 #endif
     } else {
-#if 1//def SIMU2_RST_DEV
+#ifdef SIMU2_RST_DEV
         if(val)
         {
             GPIO_SetBits(SIMU2_RST_DEV, BIT(SIMU2_RST_PIN));
@@ -152,7 +150,7 @@ MOD_LOCAL void sc_simu_pinopt_rst_setting(unsigned int terminal, int val)
 MOD_LOCAL void sc_simu_pinopt_io_trigger(unsigned int terminal, GPIO_CallBackType func, int enable)
 {
     if (terminal==SIMU1) {
-#if 1//def SIMU1_IO_PORT
+#ifdef SIMU1_IO_PORT
         if (enable) {
             if (func != NULL) {
                 gpio_isr_install(SIMU1_IO_PORT, SIMU1_IO_PIN, func);
@@ -164,7 +162,7 @@ MOD_LOCAL void sc_simu_pinopt_io_trigger(unsigned int terminal, GPIO_CallBackTyp
         }
 #endif
     } else {
-#if 1//def SIMU2_IO_PORT
+#ifdef SIMU2_IO_PORT
         if (enable) {
             if (func != NULL) {
                 gpio_isr_install(SIMU2_IO_PORT, SIMU2_IO_PIN, func);
@@ -181,7 +179,7 @@ MOD_LOCAL void sc_simu_pinopt_io_trigger(unsigned int terminal, GPIO_CallBackTyp
 MOD_LOCAL void sc_simu_pinopt_io_setting(unsigned int terminal, int val)
 {
     if (terminal==SIMU1) {
-#if 1//def SIMU1_IO_DEV
+#ifdef SIMU1_IO_DEV
         if(val)
         {
             GPIO_SetBits(SIMU1_IO_DEV, BIT(SIMU1_IO_PIN));
@@ -190,7 +188,7 @@ MOD_LOCAL void sc_simu_pinopt_io_setting(unsigned int terminal, int val)
         }
 #endif
     } else {
-#if 1//def SIMU2_IO_DEV
+#ifdef SIMU2_IO_DEV
         if(val)
         {
             GPIO_SetBits(SIMU2_IO_DEV, BIT(SIMU2_IO_PIN));
@@ -204,13 +202,13 @@ MOD_LOCAL void sc_simu_pinopt_io_setting(unsigned int terminal, int val)
 MOD_LOCAL int sc_simu_pinopt_io_val(unsigned int terminal)
 {
     if (terminal==SIMU1) {
-#if 1//def SIMU1_IO_DEV
+#ifdef SIMU1_IO_DEV
         return GPIO_ReadInputDataBit(SIMU1_IO_DEV, BIT(SIMU1_IO_PIN));
 #else
         return 1;
 #endif
     } else {
-#if 1//def SIMU2_IO_DEV
+#ifdef SIMU2_IO_DEV
         return GPIO_ReadInputDataBit(SIMU2_IO_DEV, BIT(SIMU2_IO_PIN));
 #else
         return 1;
@@ -247,12 +245,12 @@ MOD_LOCAL void sc_simu_pinopt_deinit(void)
 #endif
 
 
-#if 1//def SIMU1_RST_DEV
+#ifdef SIMU1_RST_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU1_RST_PIN);
     GPIO_Init(SIMU1_RST_DEV, &gpio_conf);
     GPIO_ResetBits(SIMU1_RST_DEV, BIT(SIMU1_RST_PIN));
 #endif
-#if 1//def SIMU2_RST_DEV
+#ifdef SIMU2_RST_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU2_RST_PIN);
     GPIO_Init(SIMU2_RST_DEV, &gpio_conf);
     GPIO_ResetBits(SIMU2_RST_DEV, BIT(SIMU2_RST_PIN));
@@ -266,12 +264,12 @@ MOD_LOCAL void sc_simu_pinopt_deinit(void)
     GPIO_Init(SIMU2_CLK_DEV, &gpio_conf);
     GPIO_ResetBits(SIMU1_CLK_DEV, BIT(SIMU2_CLK_PIN));
 
-#if 1//def SIMU1_IO_DEV
+#ifdef SIMU1_IO_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU1_IO_PIN);
     GPIO_Init(SIMU1_IO_DEV, &gpio_conf);
     GPIO_ResetBits(SIMU1_IO_DEV, BIT(SIMU1_IO_PIN));
 #endif
-#if 1//def SIMU2_IO_DEV
+#ifdef SIMU2_IO_DEV
     gpio_conf.GPIO_Pin = BIT(SIMU2_IO_PIN);
     GPIO_Init(SIMU2_IO_DEV, &gpio_conf);
     GPIO_ResetBits(SIMU2_IO_DEV, BIT(SIMU2_IO_PIN));

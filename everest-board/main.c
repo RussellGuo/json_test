@@ -65,8 +65,8 @@ int main (void) {
     SYSCTRL_HCLKConfig(SYSCTRL_HCLK_Div_None);
     SYSCTRL_PCLKConfig(SYSCTRL_PCLK_Div2);
 
-    SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_UART3 | SYSCTRL_APBPeriph_GPIO, ENABLE);
-    SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_UART3, ENABLE);
+    SYSCTRL_APBPeriphClockCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_TIMM0 | SYSCTRL_APBPeriph_UART3 | SYSCTRL_APBPeriph_SCI2 | SYSCTRL_APBPeriph_GPIO, ENABLE);
+    SYSCTRL_APBPeriphResetCmd(SYSCTRL_APBPeriph_UART0 | SYSCTRL_APBPeriph_TIMM0 | SYSCTRL_APBPeriph_UART3 | SYSCTRL_APBPeriph_SCI2, ENABLE);
 
     osKernelInitialize();                 // Initialize CMSIS-RTOS
     init_uart_io_api();

@@ -44,6 +44,7 @@ extern unsigned char g_curslot;
 extern sc_hw_abs_t g_sc_abs[SC_TERMINAL_NUM];
 static volatile unsigned char g_psam_slot = SIMU1;
 static volatile unsigned char g_gp_user = GP_USE_DIS;
+static SCI_TypeDef *pSCI = (SCI_TypeDef *)SCI2_BASE;
 
 MOD_LOCAL unsigned char sc_byte_format_convert(unsigned char byte)
 {
@@ -100,14 +101,15 @@ static void sc_hw_simu_clock_init(sc_hw_abs_t *abs)
     unsigned int pwm_low;
     unsigned int pwm_high;
     unsigned long apb_freq;
+    unsigned int sci2_clkOut;
 
-      TIM_PWMInitTypeDef tmr_config;
+    TIM_PWMInitTypeDef tmr_config;
 
     (void) abs;
     if (s_sc_simu_clk_sta & SIMU_CLK_INIT_MASK) {
         return ;
     }
-
+    //psam2 clkout init
     apb_freq = get_apb_frequency();
     tmr_config.TIMx = SIMU_CLK_TMR_DEV;
     pwm_high = ((apb_freq/SIMU_CLK_HZ)/2 - 1);
@@ -117,13 +119,22 @@ static void sc_hw_simu_clock_init(sc_hw_abs_t *abs)
     TIM_PWMInit(TIMM0, &tmr_config);
     TIM_ModeConfig(TIMM0, SIMU_CLK_TMR_DEV, TIM_Mode_PWM);
     TIM_SetPWMPeriod(TIMM0, SIMU_CLK_TMR_DEV, pwm_low, pwm_high);
+    //psam1 clkout init
+    sci2_clkOut = apb_freq / ((SIMU_CLK_HZ + 1) * 2);
+    pSCI->SCI_CLKICC = sci2_clkOut;
+
     s_sc_simu_clk_sta |= SIMU_CLK_INIT_MASK;
 }
 
 static void sc_hw_simu_clock_start(sc_hw_abs_t *abs)
 {
     if (!(s_sc_simu_clk_sta & (SIMU1_CLK_RUNING_MASK | SIMU2_CLK_RUNING_MASK))) {
-        TIM_Cmd(TIMM0, SIMU_CLK_TMR_DEV, ENABLE);
+       if(abs->status->terminal == SIMU1)
+       {
+           pSCI->SCI_CR2 = (1 << 0);
+       }else{
+           TIM_Cmd(TIMM0, SIMU_CLK_TMR_DEV, ENABLE);
+       }
     }
 
     if (abs->status->terminal == SIMU1) {
@@ -144,7 +155,12 @@ static void sc_hw_simu_clock_stop(sc_hw_abs_t *abs)
     abs->status->clkstop = ICC_CLK_STOP;
 
     if (!(s_sc_simu_clk_sta & (SIMU1_CLK_RUNING_MASK | SIMU2_CLK_RUNING_MASK))) {
-        TIM_Cmd(TIMM0, SIMU_CLK_TMR_DEV, DISABLE);
+        if(abs->status->terminal == SIMU1)
+        {
+            pSCI->SCI_CR2 = (1 << 1);
+        }else{
+            TIM_Cmd(TIMM0, SIMU_CLK_TMR_DEV, DISABLE);
+        }
     }
 }
 
@@ -494,12 +510,12 @@ static void sc_hw_simu_byte_transmit(sc_hw_abs_t *abs)
     }
 }
 
+
 static void sc_hw_simu_byte_receive(sc_hw_abs_t *abs)
 {
     int errno = SC_ERR_NONE;
     unsigned char ch = 0;
     sc_hw_simu_t *simu = abs->simu;
-
     if ((simu->byte_step >= ICC_BYTE_STEP_DATA_FIRST_BIT)
         && (simu->byte_step <= ICC_BYTE_STEP_DATA_LAST_BIT)) {
         ch = sc_hw_abs_pin_read(abs, PIN_IO);

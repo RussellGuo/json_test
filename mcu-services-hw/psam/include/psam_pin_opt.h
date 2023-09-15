@@ -7,8 +7,8 @@
 #define SC_SIMU_ENABLE
 
 #ifdef SC_SIMU_ENABLE
-#define SIMU_VCC_DEV        GPIOE   //PSAM_EN
-#define SIMU_VCC_PIN        0
+#define SIMU_VCC_DEV         GPIOE   //PSAM_EN
+#define SIMU_VCC_PIN         0
 
 #define SIMU1_CLK_DEV        GPIOE   //PSAM1_CLK
 #define SIMU1_CLK_PIN        10

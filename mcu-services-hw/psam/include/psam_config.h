@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #define	SC_DEBUG
-//#undef SC_DEBUG
+#undef SC_DEBUG
 
 #ifdef SC_DEBUG
 #define sc_debug     printf
@@ -14,7 +14,7 @@
 #endif
 
 #define	SC_ERR_INFO
-//#undef SC_ERR_INFO
+#undef SC_ERR_INFO
 
 #ifdef SC_ERR_INFO
 #define sc_errinfo    printf
