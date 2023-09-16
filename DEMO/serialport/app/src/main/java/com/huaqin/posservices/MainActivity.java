@@ -1,4 +1,4 @@
-package com.huaqin.serialport;
+package com.huaqin.posservices;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.huaqin.serialport.R;
 import com.huaqin.serialport.databinding.ActivityMainBinding;
 
 
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * A native method that is implemented by the 'serialport' native library,
      * which is packaged with this application.
      */
-    public native String stringFromJNI();
+   // public native String stringFromJNI();
 
     Thread thread = new Thread() {
         @Override

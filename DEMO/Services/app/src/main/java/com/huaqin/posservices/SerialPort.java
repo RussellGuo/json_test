@@ -1,4 +1,4 @@
-package com.huaqin.posservices.serialport;
+package com.huaqin.posservices;
 
 import android.util.Log;
 

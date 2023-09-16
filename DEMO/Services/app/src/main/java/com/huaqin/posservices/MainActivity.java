@@ -10,8 +10,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.huaqin.posservices.serialport.SerialPort;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String TAG = "JNI-TEST";

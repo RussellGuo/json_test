@@ -48,7 +48,7 @@ void java_call_back(const void *data_ptr, int len) {
     //copy buffer to jcharArray
     (*java_env)->SetCharArrayRegion(java_env, array, 0, len, pArray);//复制pArray的jchar数据元素到jcharArray
     //invoke java callback method
-    jclass jSdkClass =(*java_env)->FindClass(java_env,"com/huaqin/serialport/SerialPort");
+    jclass jSdkClass =(*java_env)->FindClass(java_env,"com/huaqin/posservices/SerialPort");
     if (jSdkClass == 0) {
         LOGD("Unable to find class");
         return;
@@ -71,7 +71,7 @@ void java_call_back(const void *data_ptr, int len) {
  * Signature: ()Z
  */
 
-JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_initUart
+JNIEXPORT jboolean JNICALL Java_com_huaqin_posservices_SerialPort_initUart
         (JNIEnv *, jobject){
     bool ret;
     ret = init_uart_io_api();
@@ -83,7 +83,7 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_initUart
  * Method:    serialDatagramSend
  * Signature: ()Z
  */
-JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramSend
+JNIEXPORT jboolean JNICALL Java_com_huaqin_posservices_SerialPort_serialDatagramSend
         (JNIEnv *env, jclass, jbyteArray data){
     bool bet;
     LOGD("outstream:%x\n",data );
@@ -106,7 +106,7 @@ JNIEXPORT jboolean JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramS
  * Method:    serialDatagramReceiveLoop
  * Signature: ()Z
  */
-void JNICALL Java_com_huaqin_serialport_SerialPort_serialDatagramReceiveLoop
+void JNICALL Java_com_huaqin_posservices_SerialPort_serialDatagramReceiveLoop
         (JNIEnv *env, jobject object){
     LOGD("Java_serialDatagramReceiveLoop");
     java_env = env;

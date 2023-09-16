@@ -1,4 +1,4 @@
-package com.huaqin.serialport;
+package com.huaqin.posservices;
 
 import android.content.Context;
 
