@@ -1,8 +1,10 @@
 package com.huaqin.posservices.remotemessage;
 
 public class RemoteMessageConstants {
-    public static final String TO_MCU_LOGIN_TAG = "login_req";
-    public static final String TO_MCU_LOGOUT_TAG = "logout_req";
 
-    public static final String READ_CARD_CALL_BACK_TAG = "IReadCardCallback";
+    public static final String FORM_MCU_LOGIN = "LOGIN";
+    public static final String FORM_MCU_LOGOUT = "LOGOUT";
+    public static final String FORM_MCU_GET_VERSION_INFO = "GET_VERSION_INFO";
+    public static final String FORM_MCU_KEY = "KEY";
+    public static final String FORM_MCU_LOG = "LOG";
 }

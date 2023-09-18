@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".PosCardService"
+        <service android:name=".PosService"
             android:exported="true"
             android:enabled="true">
         </service>

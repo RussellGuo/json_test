@@ -14,13 +14,12 @@ import android.util.Log;
 import com.example.protobufdemo.RemoteMessage;
 import com.example.protobufdemo.Test;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.huaqin.posservices.remotemessage.RemoteMessageApi;
 
 import java.util.HashMap;
 
 
-public class PosCardService extends Service {
-    private String TAG = "AIDL-PosCardService";
+public class PosService extends Service {
+    private String TAG = "AIDL-PosService";
     private String mStrData;
     private Boolean mSetServicesRuning = false;
     private byte[] mByte;
@@ -28,7 +27,7 @@ public class PosCardService extends Service {
     private byte[] mLoginResult;
 
     private HashMap<String, Object> mListenersMap;
-    public PosCardService() {
+    public PosService() {
         mListenersMap = new HashMap<String, Object>();
     }
 
@@ -122,7 +121,7 @@ public class PosCardService extends Service {
                 throw new RuntimeException(e);
             }
             byte[]  to_mcu_buf = {0x08, 0x01, 0x1a, 0x10, 0x0a, 0x07, 0x52, 0x75, 0x73, 0x73, 0x65, 0x6c, 0x6c, 0x12, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35};
-            new RemoteMessageApi().remoteCllService(to_mcu_buf,mListenersMap);
+           // new RemoteMessageApi().remoteCllService(to_mcu_buf,mListenersMap);
            // startCallback();
         }
 
@@ -202,9 +201,9 @@ public class PosCardService extends Service {
     /**
      * 启动回调方法
      */
-   public void startCallback(RemoteCallbackList<IReadCardCallback> mCallbacks, RemoteMessage.from_mcu forMcu) {
+   public void startCallback(byte[] obj) {
         final int N = mCallbacks.beginBroadcast();
-        Log.d(TAG, "------------------ callback hello world 123  N = " + forMcu.toBuilder().toString());
+        Log.d(TAG, "------------------ callback hello world 123  N = ");
         for (int i = 0; i < N; i++) {
             try {
                 Log.d(TAG, "callback hello world 123");
@@ -212,7 +211,6 @@ public class PosCardService extends Service {
             } catch (RemoteException e){
                 e.printStackTrace();
             }
-
         }
         mCallbacks.finishBroadcast();
     }
