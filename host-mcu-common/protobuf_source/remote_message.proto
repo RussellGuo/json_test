@@ -323,16 +323,16 @@ message psam_reset_req {
 
 message psam_reset_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes psam_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
+    int32 psam_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
 }
 
 message psam_apdu_req {
-    bytes send_apdu_data = 1;//终端发送到卡片的apdu数据
+    int32 send_apdu_data = 1;//终端发送到卡片的apdu数据
 }
 
 message psam_apdu_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes recv_apdu_data = 2;//终端接收到卡片的apdu数据
+    int32 recv_apdu_data = 2;//终端接收到卡片的apdu数据
 }
 
 message psam_close_req {
@@ -366,16 +366,16 @@ message icc_reset_req {
 
 message icc_reset_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes icc_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
+    int32 icc_atr_data = 2;//复位成功，此字段为卡片ATR 复位失败，此字段为空 最大32字节
 }
 
 message icc_apdu_req {
-    bytes send_apdu_data = 1;//终端发送到卡片的apdu数据 长度无限制
+    int32 send_apdu_data = 1;//终端发送到卡片的apdu数据 长度无限制
 }
 
 message icc_apdu_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes recv_apdu_data = 2;//终端接收到卡片的apdu数据
+    int32 recv_apdu_data = 2;//终端接收到卡片的apdu数据
 }
 
 message icc_close_req {
@@ -405,7 +405,7 @@ message printer_parameter_res {
 }
 
 message printer_content_req {
-    bytes send_printer_data = 1;//发送需要打印的点行
+    int32 send_printer_data = 1;//发送需要打印的点行
 }
 
 message printer_content_res {
@@ -418,13 +418,13 @@ message mksk_data_encdec_req {
     int32 index = 1;//加解密密钥得索引 TWK中的TDK TEK
     encdec_type encdec = 2;//1-4为TDES算法加解密，5-8为强制单DES加密
     int32 encdec_data_len = 3;//加解密数据长度
-    bytes encdec_data = 4;//加解密数据 对于DES/TDES 密钥，数据长度必须为8 的整数倍，对于AES/SM4 密钥，数据长度必须为16 的整数倍 最大长度2048
+    int32 encdec_data = 4;//加解密数据 对于DES/TDES 密钥，数据长度必须为8 的整数倍，对于AES/SM4 密钥，数据长度必须为16 的整数倍 最大长度2048
 }
 
 message mksk_data_encdec_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 after_encdec_data_len = 2;//加解密过后的数据长度
-    bytes after_encdec_data = 3;//加解密过后的数据
+    int32 after_encdec_data = 3;//加解密过后的数据
 }
 
 //MKSK密钥注入
@@ -435,9 +435,9 @@ message mksk_key_inject_req {
     int32 targetkey_index = 4;//目标密钥索引
     targetkey_algorithm_type targetkey_algorithm_type = 5;//目标密钥算法类型
     int32 targetkey_len = 6;//目标密钥长度
-    bytes targetkey = 7;//目标密钥 最大长度32字节
+    int32 targetkey = 7;//目标密钥 最大长度32字节
     kcv_checkmode_type kcv_checkmode_type = 8;//KCV 验证模式CheckMode
-    bytes kcv_verify_data = 9;//kcv校验数据
+    int32 kcv_verify_data = 9;//kcv校验数据
 }
 
 message mksk_key_inject_res {
@@ -449,10 +449,10 @@ message dukpt_inject_tik_req {
     int32 dukptkey_index = 1;//dukpt密钥索引
     int32 tlkkey_type = 2;//TLK密钥索引
     int32 tik_len = 3;//TIK 的长度n,现DUKPT 算法支持8/16 字节长度的密钥
-    bytes til_encdata = 4;//TIK 的密文数据 最大32字节
-    bytes init_ksn = 5;//初始化KSN 最大10字节
+    int32 til_encdata = 4;//TIK 的密文数据 最大32字节
+    int32 init_ksn = 5;//初始化KSN 最大10字节
     kcv_checkmode_type kcv_checkmode_type = 6;//KCV 验证模式CheckMode
-    bytes kcv_verify_data = 7;//kcv校验数据
+    int32 kcv_verify_data = 7;//kcv校验数据
 }
 
 message dukpt_inject_tik_res {
@@ -465,18 +465,18 @@ message get_pinblock_encdata_req {
     int32 key_index = 2;//当操作类型为01：TPK 的索引 当操作类型为02：DUKPT的索引
     select_pinblock_format select_pinblock_format = 3;//选择PIN BLOCK 的格式
     int32 timeout_time = 4;//超时时间(ms)，0:表示没有超时时间，PED 不做超时控制
-    bytes pan_data = 5;//输入pan主账号 根据不同的format规则输入 最大16字节
-    bytes pinblock_transaction_domain = 6;//最大8字节 参与PinBlock 格式化的8字节数据(根据ISO9564 的规范,该数据可以是随机数、交易流水号或时间戳等,但是每个字节的高4 位和低4 位,均必须在0xA~0xF之间
+    int32 pan_data = 5;//输入pan主账号 根据不同的format规则输入 最大16字节
+    int32 pinblock_transaction_domain = 6;//最大8字节 参与PinBlock 格式化的8字节数据(根据ISO9564 的规范,该数据可以是随机数、交易流水号或时间戳等,但是每个字节的高4 位和低4 位,均必须在0xA~0xF之间
     int32 pin_len = 7;//PIN 码长度指示字串的长度n
-    bytes user_input_pin_len = 8;//枚举允许用户输入的密码长度
+    int32 user_input_pin_len = 8;//枚举允许用户输入的密码长度
 }
 
 message get_pinblock_encdata_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 pinblock_len = 2;//PINBLOCK 长度
-    bytes pinblock_encdata = 3;//PINBLOCK密文数据
+    int32 pinblock_encdata = 3;//PINBLOCK密文数据
     int32 ksn_len = 4;//KSN 长度
-    bytes ksn = 5;//KSN数据
+    int32 ksn = 5;//KSN数据
 }
 
 //运算MAC（通过MK/SK-TAK）
@@ -484,12 +484,12 @@ message mksk_count_mac_req {
     int32 tak_index = 1;//TAK (MAC Key) 的索引
     mac_count_mode mac_count_mode = 2;//MAC 运算模式
     int32 input_mac_len = 3;//输入数据的长度n (单位：字节)，n <=2048，长度不为8 字节整除,则自动补“\x00”
-    bytes mac_data = 4;//需进行MAC 运算的数据包 最大2048字节
+    int32 mac_data = 4;//需进行MAC 运算的数据包 最大2048字节
 }
 
 message mksk_count_mac_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes mac_encdata = 2;//运算后的mac数据
+    int32 mac_encdata = 2;//运算后的mac数据
 }
 
 //运算MAC（通过DUKPT）
@@ -497,49 +497,49 @@ message dukpt_count_mac_req {
     int32 dukpt_index = 1;//DUKPT 的索引
     mac_control_mode mac_control_mode = 2;//MAC 控制字
     int32 input_mac_len = 3;//需要计算MAC 的数据长度n， n<1024
-    bytes mac_data = 4;//需要计算MAC 的数据内容 最大1024字节
+    int32 mac_data = 4;//需要计算MAC 的数据内容 最大1024字节
 }
 
 message dukpt_count_mac_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 mac_len = 2;//MAC 长度
-    bytes count_mac_data = 3;//运算后的MAC数据
+    int32 count_mac_data = 3;//运算后的MAC数据
     int32 ksn_len = 4;//KSN 长度
-    bytes ksn = 5;//KSN数据
+    int32 ksn = 5;//KSN数据
 }
 
 //脱机明文PIN 校验
 message verify_plain_pin_req {
     int32 slot_index = 1;//00:ICC 01:NFC
     int32 mode = 2;//默认00
-    bytes timeout_time = 3;//超时时间 最大4个字节
+    int32 timeout_time = 3;//超时时间 最大4个字节
     int32 input_pin_len = 4;//可输入PIN 码长度指示字串的长度n
-    bytes input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
+    int32 input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
 }
 
 message verify_plain_pin_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes card_res_data = 2;//卡片对命令的响应数据
+    int32 card_res_data = 2;//卡片对命令的响应数据
 }
 
 //脱机密文PIN 校验
 message verify_cipher_pin_req {
     int32 slot_index = 1;//00:ICC 01:NFC
     int32 mode = 2;//默认00
-    bytes timeout_time = 3;//超时时间
+    int32 timeout_time = 3;//超时时间
     int32 input_pin_len = 4;//可输入PIN 码长度指示字串的长度n
-    bytes input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
+    int32 input_data = 5;//枚举允许用户输入的密码长度：例如3 个字节，第一个字节为0，说明允许用户直接按确认第二个字节为4，说明允许客户输入4              个字节的密码第三个字节为6，说明允许客户输入6 个字节的密码
     int32 rsa_modulus_len = 6;//RSA加密公钥模数长度
-    bytes rsa_modulus = 7;//RSA加密公钥模数
+    int32 rsa_modulus = 7;//RSA加密公钥模数
     int32 rsa_exponential_len = 8;//RSA加密公钥指数长度
-    bytes rsa_exponential = 9;//RSA加密公钥指数
+    int32 rsa_exponential = 9;//RSA加密公钥指数
     int32 random_number_len = 10;//从卡片获取的随机数长度
-    bytes random_number = 11;//从卡片获取的随机数
+    int32 random_number = 11;//从卡片获取的随机数
 }
 
 message verify_cipher_pin_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes card_res_data = 2;//卡片对命令的响应数据
+    int32 card_res_data = 2;//卡片对命令的响应数据
 }
 
 //获取密钥的KCV
@@ -552,7 +552,7 @@ message get_key_kcv_req {
 message get_key_kcv_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 kcv_len = 2;//KCV 长度
-    bytes kcv_data = 3;//KCV 数据
+    int32 kcv_data = 3;//KCV 数据
 }
 
 //清除所有密钥
@@ -568,9 +568,9 @@ message erase_all_key_res {
 message write_rsa_key_req {
     int32 key_index = 1;//密钥索引号[1,4]
     int32 rsa_modulus_len = 2;//模长度
-    bytes rsa_modulus = 3;//模内容
+    int32 rsa_modulus = 3;//模内容
     int32 rsa_exponential_len = 4;//指数长度
-    bytes rsa_exponential = 5;//指数内容
+    int32 rsa_exponential = 5;//指数内容
 }
 
 message write_rsa_key_res {
@@ -581,30 +581,30 @@ message write_rsa_key_res {
 message rsa_key_count_req {
     int32 key_index = 1;//密钥索引号[1,4]
     int32 input_data_len = 2;//输入数据长度
-    bytes input_data = 3;//输入数据内容
+    int32 input_data = 3;//输入数据内容
 }
 
 message rsa_key_count_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 output_data_len = 2;//输出数据长度
-    bytes output_data = 3;//输出数据内容
+    int32 output_data = 3;//输出数据内容
 }
 
 //DUKPT 数据加解密运算
 message dukpt_encdec_data_req {
     int32 key_index = 1;//密钥索引号
     dukpt_key_type dukpt_key_type = 2;//DUKPT 密钥选择
-    bytes init_iv = 3;//8字节初始向量，CBC模式加解密时需要，如果传入NULL，将默认用00 00 0000 00 00 00 00 作为初始向量
+    int32 init_iv = 3;//8字节初始向量，CBC模式加解密时需要，如果传入NULL，将默认用00 00 0000 00 00 00 00 作为初始向量
     dukpt_encdec_type dukpt_encDec_type = 4;//运算模式
     int32 input_data_len = 5;//输入数据长度
-    bytes input_data = 6;//输入数据内容
+    int32 input_data = 6;//输入数据内容
 }
 
 message dukpt_encdec_data_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes output_ksn = 2;//输出KSN
+    int32 output_ksn = 2;//输出KSN
     int32 output_data_len = 3;//输出数据长度
-    bytes output_data = 4;//输出数据内容
+    int32 output_data = 4;//输出数据内容
 }
 
 //读取DUKPT 当前KSN
@@ -614,7 +614,7 @@ message get_dukpt_ksn_req {
 
 message get_dukpt_ksn_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
-    bytes output_ksn = 2;//输出KSN
+    int32 output_ksn = 2;//输出KSN
 }
 
 //DUKPT KSN 加1
@@ -634,7 +634,7 @@ message get_random_number_req {
 message get_random_number_res {
     res_err_code res_code = 1;//响应码 成功为00 其他值为错误码
     int32 output_data_len = 2;//输出数据长度
-    bytes output_data = 3;//输出数据内容
+    int32 output_data = 3;//输出数据内容
 }
 
 // 从host发往mcu的消息的总类型
@@ -690,7 +690,7 @@ message from_mcu {
         icc_init_res icc_init = 10;
         icc_detect_res icc_detect = 11;
         icc_reset_res icc_reset = 12;
-        icc_apdu_res icc_apd = 13;
+        icc_apdu_res icc_apdu = 13;
         icc_close_res icc_close = 14;
         printer_check_res printer_check = 15;
         printer_parameter_res printer_parameter = 16;
