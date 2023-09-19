@@ -1,5 +1,5 @@
 syntax = "proto3";
-option java_package = "com.example.protobufdemo";
+option java_package = "com.huaqin.posservices";
 
 // 郭强，2023-7-25
 // protobuf的示例，示例的目的是在C++为代表的主机端，和nanopb/C为代表的MCU端，

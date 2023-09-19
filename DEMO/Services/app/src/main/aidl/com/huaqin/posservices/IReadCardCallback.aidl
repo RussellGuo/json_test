@@ -1,8 +1,8 @@
-// IPosCardCallback.aidl
+// IReadCardCallback.aidl
 package com.huaqin.posservices;
 
 // Declare any non-default types here with import statements
 
-interface IPosCardCallback {
+interface IReadCardCallback {
     void serverReport(String value);
 }

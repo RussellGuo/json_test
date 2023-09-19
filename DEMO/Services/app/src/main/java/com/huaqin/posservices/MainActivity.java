@@ -3,6 +3,7 @@ package com.huaqin.posservices;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDatagramSendButton = findViewById(R.id.button2);
         mInitUartButton.setOnClickListener(this);
         mDatagramSendButton.setOnClickListener(this);
+        mContext.startService(new Intent(mContext, PosServiceManagerService.class));
+        PosServiceManagerService.init();
         //tv.setText(? "true" : "false");
     }
 

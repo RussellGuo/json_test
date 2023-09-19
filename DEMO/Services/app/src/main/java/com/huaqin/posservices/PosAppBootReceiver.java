@@ -15,7 +15,8 @@ public class PosAppBootReceiver extends BroadcastReceiver {
         Log.d(TAG, "abc onReceive action=" + action);
 
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-            context.startService(new Intent(context, PosService.class));
+            context.startService(new Intent(context, PosServiceManagerService.class));
+            PosServiceManagerService.init();
         }
     }
 }

@@ -1,25 +1,25 @@
 package com.huaqin.posservices.remotemessage;
 
-
+import android.os.RemoteCallbackList;
 import android.util.Log;
-import com.example.protobufdemo.RemoteMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.huaqin.posservices.IPosCallback;
+import com.huaqin.posservices.PosService;
+import com.huaqin.posservices.PosServiceManagerService;
+import com.huaqin.posservices.RemoteMessage;
 import com.huaqin.posservices.SerialPort;
 
-import java.util.HashMap;
 
 public class RemoteMessageApi {
     private String TAG = "RemoteMessageApi";
-    RemoteMessage.to_mcu.Builder mcuInfo ;
 
     /**
      * login
      * @param req
      * @return
      */
-    private Boolean remoteCllService(RemoteMessage.login_req req){
-        mcuInfo = RemoteMessage.to_mcu.newBuilder();
-        mcuInfo.setSeq(1);
+    public Boolean remoteCallService(RemoteMessage.login_req req){
+        RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogin(req);
         //调用jni方法给mcu发送指令
         return SerialPort.serialDatagramSend(mcuInfo.build().toByteArray());
@@ -30,9 +30,8 @@ public class RemoteMessageApi {
      * @param req
      * @return
      */
-    private Boolean remoteCllService(RemoteMessage.logout_req req){
-        mcuInfo = RemoteMessage.to_mcu.newBuilder();
-        mcuInfo.setSeq(2);
+    public Boolean remoteCallService(RemoteMessage.logout_req req){
+        RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogout(req);
         //调用jni方法给mcu发送指令
         return SerialPort.serialDatagramSend(mcuInfo.build().toByteArray());
@@ -43,24 +42,37 @@ public class RemoteMessageApi {
      * @param obj
      * @return
      */
-    public void remoteCllService(byte[] obj){
+    public void remoteCallbackService(byte[] obj){
         RemoteMessage.from_mcu forMcu = forMcuUnpack(obj);
-        if(forMcu != null){
-            String resCase = forMcu.getResCase().toString();
-            Log.d(TAG,"forMcu.getResCase() = " + resCase);
-            switch (resCase){
-                case RemoteMessageConstants.FORM_MCU_LOGIN:
-                    break;
-                case RemoteMessageConstants.FORM_MCU_LOGOUT:
-                    break;
-                case RemoteMessageConstants.FORM_MCU_GET_VERSION_INFO:
-                    break;
-                case RemoteMessageConstants.FORM_MCU_KEY:
-                    break;
-                case RemoteMessageConstants.FORM_MCU_LOG:
-                    break;
-                default:
-                    break;
+        RemoteCallbackList<IPosCallback> mCallbacks = PosServiceManagerService.init().getPosService().getmCallbacks();
+        final int N = mCallbacks.beginBroadcast();
+        for (int i = 0; i < N; i++) {
+            if(forMcu != null){
+                try {
+                Log.d(TAG,"forMcu.getResCase() = " + forMcu.getResCase());
+                switch (forMcu.getResCase()){
+                    case LOGIN:
+                        mCallbacks.getBroadcastItem(i).onLoginRes(obj);
+                        break;
+                    case LOGOUT:
+                        mCallbacks.getBroadcastItem(i).onLogoutRes(obj);
+                        break;
+                    case GET_VERSION_INFO:
+                        mCallbacks.getBroadcastItem(i).onVersionInfoRes(obj);
+                        break;
+                    case KEY:
+                        mCallbacks.getBroadcastItem(i).onKeyRes(obj);
+                        break;
+                    case LOG:
+                        mCallbacks.getBroadcastItem(i).onLogRes(obj);
+                        break;
+                    default:
+                        mCallbacks.getBroadcastItem(i).onErrorRes(obj);
+                        break;
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -79,6 +91,7 @@ public class RemoteMessageApi {
         }
         return forMcu;
     }
+
 
 }
 
