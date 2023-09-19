@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }.start();
                 boolean rel;
                 byte[]  to_mcu_buf = {0x07, 0x63, 0x61, 0x6F, 0x6D, 0x65, 0x6E, 0x67, 0x12, 0x06, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
-                rel =  SerialPort.serialDatagramSend(to_mcu_buf);
+                rel =  SerialPort.serialDatagramSend(to_mcu_buf,to_mcu_buf.length);
                 Log.d(TAG,"rel = " + rel);
 
                 break;

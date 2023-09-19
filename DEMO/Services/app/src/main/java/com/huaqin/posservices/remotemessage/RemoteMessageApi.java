@@ -21,8 +21,9 @@ public class RemoteMessageApi {
     public Boolean remoteCallService(RemoteMessage.login_req req){
         RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogin(req);
+        byte[] toMcuByte = mcuInfo.build().toByteArray();
         //调用jni方法给mcu发送指令
-        return SerialPort.serialDatagramSend(mcuInfo.build().toByteArray());
+        return SerialPort.serialDatagramSend(toMcuByte,toMcuByte.length);
     }
 
     /**
@@ -33,8 +34,9 @@ public class RemoteMessageApi {
     public Boolean remoteCallService(RemoteMessage.logout_req req){
         RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogout(req);
+        byte[] toMcuByte = mcuInfo.build().toByteArray();
         //调用jni方法给mcu发送指令
-        return SerialPort.serialDatagramSend(mcuInfo.build().toByteArray());
+        return SerialPort.serialDatagramSend(toMcuByte,toMcuByte.length);
     }
 
     /**
@@ -91,8 +93,6 @@ public class RemoteMessageApi {
         }
         return forMcu;
     }
-
-
 }
 
 
