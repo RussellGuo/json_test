@@ -4,21 +4,20 @@ import android.os.RemoteCallbackList;
 import android.util.Log;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.huaqin.posservices.IPosCallback;
-import com.huaqin.posservices.PosService;
 import com.huaqin.posservices.PosServiceManagerService;
 import com.huaqin.posservices.RemoteMessage;
 import com.huaqin.posservices.SerialPort;
 
 
 public class RemoteMessageApi {
-    private String TAG = "RemoteMessageApi";
+    private static String TAG = "RemoteMessageApi";
 
     /**
      * login
      * @param req
      * @return
      */
-    public Boolean remoteCallService(RemoteMessage.login_req req){
+    public static Boolean remoteCallService(RemoteMessage.login_req req){
         RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogin(req);
         byte[] toMcuByte = mcuInfo.build().toByteArray();
@@ -31,7 +30,7 @@ public class RemoteMessageApi {
      * @param req
      * @return
      */
-    public Boolean remoteCallService(RemoteMessage.logout_req req){
+    public static Boolean remoteCallService(RemoteMessage.logout_req req){
         RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
         mcuInfo.setLogout(req);
         byte[] toMcuByte = mcuInfo.build().toByteArray();
@@ -44,7 +43,7 @@ public class RemoteMessageApi {
      * @param obj
      * @return
      */
-    public void remoteCallbackService(byte[] obj){
+    public static void remoteCallbackService(byte[] obj){
         RemoteMessage.from_mcu forMcu = forMcuUnpack(obj);
         RemoteCallbackList<IPosCallback> mCallbacks = PosServiceManagerService.init().getPosService().getmCallbacks();
         final int N = mCallbacks.beginBroadcast();
@@ -60,7 +59,7 @@ public class RemoteMessageApi {
                         mCallbacks.getBroadcastItem(i).onLogoutRes(obj);
                         break;
                     case GET_VERSION_INFO:
-                        mCallbacks.getBroadcastItem(i).onVersionInfoRes(obj);
+                        mCallbacks.getBroadcastItem(i).onGetVersionInfoRes(obj);
                         break;
                     case KEY:
                         mCallbacks.getBroadcastItem(i).onKeyRes(obj);
@@ -84,7 +83,7 @@ public class RemoteMessageApi {
      * @param obj
      * @return
      */
-    private RemoteMessage.from_mcu forMcuUnpack(byte[] obj) {
+    private static RemoteMessage.from_mcu forMcuUnpack(byte[] obj) {
         RemoteMessage.from_mcu forMcu;
         try {
             forMcu = RemoteMessage.from_mcu.parseFrom(obj);
