@@ -1,0 +1,54 @@
+package com.huaqin.posservices.remotemessage;
+
+import android.os.RemoteCallbackList;
+import android.util.Log;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.huaqin.posservices.IPosCallback;
+import com.huaqin.posservices.PosService;
+import com.huaqin.posservices.PosServiceManagerService;
+import com.huaqin.posservices.RemoteMessage;
+import com.huaqin.posservices.SerialPort;
+
+
+public class RemoteMessageApi {
+    private static String TAG = "RemoteMessageApi";
+${remote_call_service_list}
+    /**
+     * 接收mcu报文
+     * @param obj
+     * @return
+     */
+    public static void remoteCallbackService(byte[] obj){
+        RemoteMessage.from_mcu forMcu = forMcuUnpack(obj);
+        RemoteCallbackList<IPosCallback> mCallbacks = PosServiceManagerService.init().getPosService().getmCallbacks();
+        final int N = mCallbacks.beginBroadcast();
+        for (int i = 0; i < N; i++) {
+            if(forMcu != null){
+                try {
+                Log.d(TAG,"forMcu.getResCase() = " + forMcu.getResCase());
+                switch (forMcu.getResCase()){${callback_list}
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 解码mcu报文
+     * @param obj
+     * @return
+     */
+    private static RemoteMessage.from_mcu forMcuUnpack(byte[] obj) {
+        RemoteMessage.from_mcu forMcu;
+        try {
+            forMcu = RemoteMessage.from_mcu.parseFrom(obj);
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
+        return forMcu;
+    }
+
+
+}

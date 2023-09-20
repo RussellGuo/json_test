@@ -40,12 +40,13 @@ def build_all():
     tools_dir = pwd + '/host-mcu-common/tools'
     protobuf_src_dir = pwd + '/host-mcu-common/protobuf_source'
     nanopb_output_dir = pwd + '/pb_intermediate'
-    java_dir = pwd + '/java_intermediate'
+    java_target_dir = pwd + '/java_intermediate'
     nanopb_repo_dir = pwd + '/../nanopb'
+    java_skeleton_dir = pwd + '/host-mcu-common/java'
 
     # 检查一下目录对不对
     os.chdir(nanopb_output_dir)
-    os.chdir(java_dir)
+    os.chdir(java_target_dir)
     os.chdir(nanopb_repo_dir)
 
     os.chdir(protobuf_src_dir)
@@ -56,15 +57,15 @@ def build_all():
     run_cmd("%s %s/generator/protoc  --python_out=%s remote_message.proto" %
             (sys.executable, nanopb_repo_dir, tools_dir))
     # 根据语义定义文件生成语义程序
-    run_cmd("%s %s/gen_pb_rpc_code.py %s %s" %
-            (sys.executable, tools_dir, nanopb_output_dir, java_dir))
+    run_cmd("%s %s/gen_pb_rpc_code.py %s %s %s" %
+            (sys.executable, tools_dir, nanopb_output_dir, java_target_dir, java_skeleton_dir))
 
 
 if __name__ == '__main__':
     try:
         build_all()
         print("MCU/Java code generated ")
-    except e as Exception:
+    except Exception as e:
         print(str(e))
         exit(1)
 

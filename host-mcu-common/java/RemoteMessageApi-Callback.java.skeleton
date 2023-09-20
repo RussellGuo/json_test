@@ -1,0 +1,4 @@
+
+                    case ${upper_res_obj_name}:
+                        mCallbacks.getBroadcastItem(i).on${capitalize_res_obj_name}Res(obj);
+                        break;

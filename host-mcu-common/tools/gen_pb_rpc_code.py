@@ -134,29 +134,88 @@ bool send_remote_event_for_%s(const %s *%s) {
     return
 
 
-def print_android_java_code(dir):
+def camel_case(str):
+    str_list = str.split('_')
+    result = ''
+    for s in str_list:
+        result += s.capitalize()
+    return result
+
+
+def expand_str_with_macro_list(str, macro_list):
+    result = str + ''
+    for macro_name, macro_value in macro_list:
+        result = result.replace('${' + macro_name + '}', macro_value)
+    return result
+
+
+def get_ske_str(name):
+    with open(java_skeleton_dir + "/%s.java.skeleton" % name, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def print_android_java_code(java_target_dir, java_skeleton_dir):
     ''' 根据pb的内容生成Android的Java代码，输出路径在 dir，文件名是约定好的XXX(还不知道叫啥)'''
+
+    remote_message_api_ske = get_ske_str("RemoteMessageApi")
+    remote_message_api_remote_call_ske = get_ske_str("RemoteMessageApi-RemoteCall")
+    remote_message_api_callback_ske = get_ske_str("RemoteMessageApi-Callback")
+
+    remote_call_list_txt = ''
+    callback_list_txt = ''
+    for func in rpc_func_map:
+        req_type_name, req_obj_name, req_number, req_type_is_dummy = rpc_func_map[func][0]
+        res_type_name, res_obj_name, res_number, res_type_is_dummy = rpc_func_map[func][1]
+        macro_list = (
+            ('req_type_name', req_type_name),
+            ('capitalize_req_obj_name', camel_case(req_obj_name))
+        )
+        remote_call_list_txt += expand_str_with_macro_list(
+            remote_message_api_remote_call_ske, macro_list)
+        macro_list = (
+            ('upper_res_obj_name', res_obj_name.upper()),
+            ('capitalize_res_obj_name', camel_case(res_obj_name))
+        )
+        callback_list_txt += expand_str_with_macro_list(remote_message_api_callback_ske, macro_list)
+
+    for evt in evt_map:
+        evt_type_name, evt_obj_name, evt_number, evt_type_is_dummy = evt_map[evt]
+        macro_list = (
+            ('upper_res_obj_name', evt_obj_name.upper()),
+            ('capitalize_res_obj_name', camel_case(evt_obj_name))
+        )
+        callback_list_txt += expand_str_with_macro_list(remote_message_api_callback_ske, macro_list)
+
+    remote_message_api_txt = expand_str_with_macro_list(remote_message_api_ske, 
+        (
+            ('remote_call_service_list', remote_call_list_txt),
+            ('callback_list', callback_list_txt),
+        )
+    )
+
+    with open(java_target_dir + '/RemoteMessageApi.java', 'w', encoding="utf-8") as f:
+        f.write(remote_message_api_txt)
+
     pass
 
 
 def usage():
-    print("用法：不加参数或者加上 '目标C目录名'和'目标Java目录名'")
+    print("用法：参数是 '目标C目录名' '目标Java目录名' 'Java框架文件目录名'")
 
 
 if __name__ == '__main__':
 
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         c_dir = sys.argv[1]
-        java_dir = sys.argv[2]
-    elif len(sys.argv) == 1:
-        c_dir = java_dir = 'src'
+        java_target_dir = sys.argv[2]
+        java_skeleton_dir = sys.argv[3]
     else:
         usage()
         exit(1)
 
     try:
         print_mcu_c_code(c_dir)
-        print_android_java_code(java_dir)
+        print_android_java_code(java_target_dir, java_skeleton_dir)
         exit(0)
     except Exception as e:
         print(str(e))

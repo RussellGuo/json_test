@@ -1,0 +1,13 @@
+
+    /**
+     * ${capitalize_req_obj_name}
+     * @param req
+     * @return
+     */
+    public static Boolean remoteCallService(RemoteMessage.${req_type_name} req){
+        RemoteMessage.to_mcu.Builder mcuInfo = RemoteMessage.to_mcu.newBuilder();
+        mcuInfo.set${capitalize_req_obj_name}(req);
+        byte[] toMcuByte = mcuInfo.build().toByteArray();
+        //调用jni方法给mcu发送指令
+        return SerialPort.serialDatagramSend(toMcuByte, toMcuByte.length);
+    }
