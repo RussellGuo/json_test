@@ -34,7 +34,7 @@ def print_mcu_c_code(dir):
     # 先输出一下头文件。目前还不知道文件名/路径，先打印到终端看看
     print('''
 /* 别编辑，自动生成的代码
-   生成命令是： gen_pb_rpc_code.py 目标C代码目录 目标Java代码目录
+   生成命令是： gen_pb_rpc_code.py 目标C代码目录 目标Java代码目录 Java框架文件目录名
 
    semantic_api.generated.h，本文件包含了：
       1> host端请求/响应的语义层程序的总入口
@@ -155,7 +155,8 @@ def get_ske_str(name):
 
 
 def print_android_java_code(java_target_dir, java_skeleton_dir):
-    ''' 根据pb的内容生成Android的Java代码，输出路径在 dir，文件名是约定好的XXX(还不知道叫啥)'''
+    ''' 根据pb的内容生成Android的Java代码，输出路径在 java_target_dir，
+    文件名是约定好的RemoteMessageApi.java. java_skeleton_dir是相关的框架文件的路径'''
 
     remote_message_api_ske = get_ske_str("RemoteMessageApi")
     remote_message_api_remote_call_ske = get_ske_str("RemoteMessageApi-RemoteCall")
