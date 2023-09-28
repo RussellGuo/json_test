@@ -116,12 +116,6 @@ void serial_datagram_receive_loop(void *arg)
     } // for each datagram
 }
 
-__attribute__((weak)) bool process_incoming_datagram(const void *data_ptr, unsigned short len) {
-    (void)data_ptr;
-    (void)len;
-    return false;
-}
-
 /* 发送编码后的数据报文
     data_ptr 是编码后的数据报文存放的指针，in
     len是编码后的数据报文存放的长度的指针，in/out

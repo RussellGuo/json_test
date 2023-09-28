@@ -36,6 +36,10 @@ int main (void) {
 
     // System Initialization
 
+    {
+        bool test_encoding(void);
+        test_encoding();
+    }
     // ...
     osThreadNew(serial_datagram_receive_loop, NULL, NULL);    // Create application main thread
     if (osKernelGetState() == osKernelReady) {

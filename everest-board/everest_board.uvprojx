@@ -395,19 +395,9 @@
           <GroupName>mcu_driver</GroupName>
           <Files>
             <File>
-              <FileName>mcu-hw-common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-driver\source\mcu-hw-common.c</FilePath>
-            </File>
-            <File>
               <FileName>uart_io_API.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu-driver\source\uart_io_API.c</FilePath>
-            </File>
-            <File>
-              <FileName>mcu-hw-common.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\mcu-driver\include\mcu-hw-common.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -446,53 +436,6 @@
         </Group>
         <Group>
           <GroupName>mcu-services-hw</GroupName>
-          <Files>
-            <File>
-              <FileName>psam_apis.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\psam\source\psam_apis.c</FilePath>
-            </File>
-            <File>
-              <FileName>psam_hw_abstractor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\psam\source\psam_hw_abstractor.c</FilePath>
-            </File>
-            <File>
-              <FileName>psam_pin_opt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\psam\source\psam_pin_opt.c</FilePath>
-            </File>
-            <File>
-              <FileName>psam_protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\psam\source\psam_protocol.c</FilePath>
-            </File>
-            <File>
-              <FileName>psam_queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\psam\source\psam_queue.c</FilePath>
-            </File>
-            <File>
-              <FileName>hal_gpio_int.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\hw-hal\hal_gpio_int.c</FilePath>
-            </File>
-            <File>
-              <FileName>hal_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\hw-hal\hal_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>hal_system.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\hw-hal\hal_system.c</FilePath>
-            </File>
-            <File>
-              <FileName>beep.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu-services-hw\beep\beep.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>pb_intermediate</GroupName>
@@ -558,21 +501,6 @@
           <GroupName>mh2101-sdk</GroupName>
           <Files>
             <File>
-              <FileName>mhscpu_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MH2101_SDK\Libraries\MHSCPU_Driver\src\mhscpu_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>mhscpu_sysctrl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MH2101_SDK\Libraries\MHSCPU_Driver\src\mhscpu_sysctrl.c</FilePath>
-            </File>
-            <File>
-              <FileName>mhscpu_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MH2101_SDK\Libraries\MHSCPU_Driver\src\mhscpu_uart.c</FilePath>
-            </File>
-            <File>
               <FileName>system_mhscpu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Source\system_mhscpu.c</FilePath>
@@ -581,16 +509,6 @@
               <FileName>startup_mhscpu.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\MH2101_SDK\Libraries\Device\MegaHunt\mhscpu\Source\ARM\startup_mhscpu.s</FilePath>
-            </File>
-            <File>
-              <FileName>misc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MH2101_SDK\Libraries\MHSCPU_Driver\src\misc.c</FilePath>
-            </File>
-            <File>
-              <FileName>mhscpu_timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MH2101_SDK\Libraries\MHSCPU_Driver\src\mhscpu_timer.c</FilePath>
             </File>
           </Files>
         </Group>
