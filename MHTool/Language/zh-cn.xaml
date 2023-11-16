@@ -1,0 +1,233 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    <s:String x:Key="Application.Title">MH - 芯片工具</s:String>
+    <s:String x:Key="Application.Title.Debug">调试版</s:String>
+
+    <s:String x:Key="ui.Language.LanguageButton">语言</s:String>
+    <s:String x:Key="Language.System">跟随系统语言</s:String>
+    <s:String x:Key="Language.zh-cn">简体中文</s:String>
+    <s:String x:Key="Language.en-us">英语(美国)</s:String>
+
+    <s:String x:Key="ui.Firmware.Title">固件设置</s:String>
+    <s:String x:Key="ui.Firmware.FirmwareButton">选择固件</s:String>
+    <s:String x:Key="ui.Firmware.EraseAllSector">擦除所有扇区</s:String>
+    <s:String x:Key="ui.Firmware.ExportSignedPackage">导出签名固件</s:String>
+    <s:String x:Key="ui.Firmware.KeyButton">选择私钥</s:String>
+    <s:String x:Key="ui.Firmware.Address">基址</s:String>
+    <s:String x:Key="ui.Firmware.Version">版本</s:String>
+    <s:String x:Key="ui.Firmware.Hash">哈希</s:String>
+    <s:String x:Key="Firmware.Filter.BinFile">二进制固件(*.bin)</s:String>
+    <s:String x:Key="Firmware.Filter.HexFile">十六进制固件(*.hex)</s:String>
+    <s:String x:Key="Firmware.Filter.SigFile">签名固件(*.sig)</s:String>
+    <s:String x:Key="Firmware.Filter.UsigFile">调试固件(*.usig)</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Load">固件下载</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Loading">正在下载...</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Loaded">下载完成</s:String>
+
+    <s:String x:Key="ui.AuthTab">认证设置</s:String>
+
+    <s:String x:Key="ui.SecurityTab.Title">安全</s:String>
+    <s:String x:Key="ui.SecurityTab.Lock.Title">锁定</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Title">保护</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Start">开始</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.End">结束</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Key">密令</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.GenerateKey">生成密令</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.SetReadProtection">设置读报护</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.SetWriteProtection">设置写保护</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.ClearWriteProtection">清除写保护</s:String>
+
+    <s:String x:Key="ui.PatchTab">寄存器补丁</s:String>
+
+    <s:String x:Key="ui.SN.Title">SN格式设置</s:String>
+    <s:String x:Key="ui.SN.SNFormat">SN格式</s:String>
+    <s:String x:Key="ui.SN.SNPreview">SN预览</s:String>
+    <s:String x:Key="ui.SN.Fixed">固定值</s:String>
+    <s:String x:Key="ui.SN.Random">随机数</s:String>
+    <s:String x:Key="ui.SN.Autoincrement">自增量</s:String>
+    <s:String x:Key="ui.SN.Delete">删除</s:String>
+    <s:String x:Key="ui.SN.HelpInfo" xml:space="preserve">SN格式说明：&#xA;F: 固定值，输入Hex值；&#xA;R: 随机数，输入随机数字节长度；&#xA;I: 自增量，输入初始Hex值；</s:String>
+
+    <s:String x:Key="ui.DeviceUpdate.Title">升级设备阶段</s:String>
+    <s:String x:Key="ui.DeviceUpdate.UpdateButton">升级</s:String>
+
+    <s:String x:Key="ui.SecurityUpdate.Title">升级安全阶段</s:String>
+    <s:String x:Key="ui.SecurityUpdate.KeyFile">密钥</s:String>
+    <s:String x:Key="ui.SecurityUpdate.Timeout">超时</s:String>
+    <s:String x:Key="ui.SecurityUpdate.CheckMap">自检</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashEncryption">Flash加密</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashTrueRandom">Flash真随机</s:String>
+    <s:String x:Key="ui.SecurityUpdate.OTPTrueRandom">OTP真随机</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashFix">Flash修复</s:String>
+    <s:String x:Key="ui.SecurityUpdate.UpdateButton">升级</s:String>
+
+    <s:String x:Key="Stage.Unknown">未连接</s:String>
+    <s:String x:Key="Stage.Wafer">晶圆阶段</s:String>
+    <s:String x:Key="Stage.Chip">芯片测试阶段</s:String>
+    <s:String x:Key="Stage.Device">设备调试阶段</s:String>
+    <s:String x:Key="Stage.Secure">安全阶段</s:String>
+
+    <s:String x:Key="ui.Connect.Title">连接</s:String>
+    <s:String x:Key="ui.Connect.PortLabel">端　口</s:String>
+    <s:String x:Key="ui.Connect.BaudrateLabel">波特率</s:String>
+    <s:String x:Key="ui.Connect.UserBootCheckBox">UserBoot</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connect">连接</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connecting">正在连接...</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connected">断开</s:String>
+
+    <s:String x:Key="ui.Flash.Title">Flash</s:String>
+    <s:String x:Key="ui.Flash.Info.Title">Flash信息</s:String>
+    <s:String x:Key="ui.Flash.Info.NameLabel">名称：</s:String>
+    <s:String x:Key="ui.Flash.Info.IDLabel">编码：</s:String>
+    <s:String x:Key="ui.Flash.Info.ManuLabel">厂商：</s:String>
+    <s:String x:Key="ui.Flash.Info.SizeLabel">大小：</s:String>
+    <s:String x:Key="ui.Flash.Info.OTPCheckBox">写入OTP</s:String>
+    <s:String x:Key="ui.Flash.FileSelectButton">重载</s:String>
+
+    <s:String x:Key="ui.Flash.Parameter.Title">Flash参数</s:String>
+    <s:String x:Key="ui.Flash.EditButton.Edit">编辑选项</s:String>
+    <s:String x:Key="ui.Flash.EditButton.Save">保存选项</s:String>
+    <s:String x:Key="ui.Flash.AddButton.Edit">添加选项</s:String>
+    <s:String x:Key="ui.Flash.AddButton.Save">保存选项</s:String>
+    <s:String x:Key="ui.Flash.ReloadButton.Normal">重载配置</s:String>
+    <s:String x:Key="ui.Flash.ReloadButton.Cancel">取消编辑</s:String>
+    <s:String x:Key="ui.Flash.DeleteButton">删除配置</s:String>
+
+    <s:String x:Key="ui.Flash.GroupBox">Flash</s:String>
+
+    <s:String x:Key="ui.SelfCheck.Title">自检</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckAllButton">全选</s:String>
+    <s:String x:Key="ui.SelfCheck.InverseButton">反选</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckButton">执行自检</s:String>
+    <s:String x:Key="ui.SelfCheck.ReadResultButton">读取自检</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckBootButton">BOOT自检</s:String>
+    <s:String x:Key="ui.SelfCheck.ClearResultButton">清除结果</s:String>
+
+    <s:String x:Key="ui.Flash.IDButton">读取ID</s:String>
+    <s:String x:Key="ui.Flash.SetButton">写入参数</s:String>
+
+    <s:String x:Key="ui.AutoTask.Title">自动任务</s:String>
+    <s:String x:Key="ui.AutoTask.Reconnect">连接失败时重连</s:String>
+    
+    <s:String x:Key="ui.AutoTask.DeviceUpdate">设备升级</s:String>
+    <s:String x:Key="ui.AutoTask.LoadFirmware">下载固件</s:String>
+    <s:String x:Key="ui.AutoTask.WaitTimeLabel">等待</s:String>
+    <s:String x:Key="ui.AutoTask.AutoButton.Start">开始自动任务</s:String>
+    <s:String x:Key="ui.AutoTask.AutoButton.Stop">停止自动任务</s:String>
+
+    <s:String x:Key="ui.LogGroupBox">记录输出</s:String>
+    <s:String x:Key="ui.LogClear">双击清除记录</s:String>
+
+    <s:String x:Key="ui.ChipInfo.Title">芯片信息</s:String>
+    <s:String x:Key="ui.ChipInfo.StageLabel">阶段:</s:String>
+    <s:String x:Key="ui.ChipInfo.VersionLabel">版本:</s:String>
+    <s:String x:Key="ui.ChipInfo.ChipSNLabel">芯片序号:</s:String>
+    <s:String x:Key="ui.ChipInfo.DeviceSNLabel">设备序号:</s:String>
+
+    <s:String x:Key="Log(Successfully entered the branch of SM!)">进入国密分支成功！</s:String>
+    <s:String x:Key="Log(Read success. Self check succeeded.)">读取成功 自检成功</s:String>
+    <s:String x:Key="Log(Read success. Self check failed.)">读取成功 自检失败</s:String>
+    <s:String x:Key="Log(Key not found!)">密钥不存在！</s:String>
+    <s:String x:Key="Log(SMKey is not supported!)">不支持国密密钥！</s:String>
+    <s:String x:Key="Log(SN format has not been configured!)">还未配置好SN格式！</s:String>
+    <s:String x:Key="Log(The chip is already in the security stage!)">芯片已处于安全阶段！</s:String>
+    <s:String x:Key="Log(Device updating...)">正在进行设备升级...</s:String>
+    <s:String x:Key="Log(Device updated!)">设备升级成功！</s:String>
+    <s:String x:Key="Log(Authentication succeeded!)">认证成功！</s:String>
+    <s:String x:Key="Log(Successfully patched)">补丁导入成功！</s:String>
+    <s:String x:Key="Log(Chip updating...)">正在进行芯片升级...</s:String>
+    <s:String x:Key="Log(Chip updated!)">芯片升级成功！</s:String>
+    <s:String x:Key="Log(Key imported succeeded!)">密钥导入成功！</s:String>
+    <s:String x:Key="Log(Key imported failed!)">密钥导入失败！</s:String>
+    
+    <s:String x:Key="Log(Device update failed! {0})">设备升级失败！{0}</s:String>
+    <s:String x:Key="Log(The parameters of Flash write {0}!)">Flash参数写入{0}！</s:String>
+    <s:String x:Key="Log(Flash ID read failed!)">Flash ID读取失败！</s:String>
+    <s:String x:Key="Log(Boot check {0}!)">Boot自检{0}！</s:String>
+    <s:String x:Key="Log(Authentication failed! Error Code: {0}.)">认证失败！错误代码 {0} 。</s:String>
+    <s:String x:Key="Log(Failed to enter the branch of SM)">进入国密分支失败！</s:String>
+    <s:String x:Key="Log(Handshake failed, please reconnect the USB port!)">握手失败，请重新连接USB端口！</s:String>
+    <s:String x:Key="Log(UserBoot handshake succeeded!)">UserBoot握手成功！</s:String>
+    <s:String x:Key="Log(Handshake failed due to connection timeout or communication error!)">因连接超时或通讯错误导致握手失败！</s:String>
+    <s:String x:Key="Log(Handshake check failed!)">握手校验失败！</s:String>
+    <s:String x:Key="Log(Error Code: {0})">错误代码：{0}</s:String>
+    <s:String x:Key="Log(Timeout)">超时</s:String>
+    <s:String x:Key="Log(Crypto check failed!)">加密自检失败！</s:String>
+    <s:String x:Key="Log(Read boot check result failed!)">读取Boot自检结果失败！</s:String>
+    <s:String x:Key="Log(failed)">失败</s:String>
+    <s:String x:Key="Log(succeeded)">成功</s:String>
+
+    <s:String x:Key="Log(Chip {0} connected!)">芯片 {0} 连接成功！</s:String>
+    <s:String x:Key="Log(Chip connect failed! {0})">芯片连接失败！{0}</s:String>
+    <s:String x:Key="Log(An exception occurred during disconnection: {0})">断连时发生异常：{0}</s:String>
+    <s:String x:Key="Log(Stop connect chip!)">停止连接芯片！</s:String>
+    <s:String x:Key="Log(Chip disconnected!)">芯片断开连接！</s:String>
+    <s:String x:Key="Log(Chip storage exception, storage matching code {0}{1}, please feedback to FAE engineer.)">芯片存储异常，存储匹配码 {0}{1}，请向FAE工程师反馈。</s:String>
+    <s:String x:Key="Log(All self check items passed the check!)">所有自检项目检查通过！</s:String>
+    <s:String x:Key="Log(Self check item failed!)">自检项目不通过！</s:String>
+    <s:String x:Key="Log(Current chip stage: {0})">当前芯片阶段：{0}</s:String>
+    <s:String x:Key="Log(Generated new SN.)">已生成新的SN。</s:String>
+    <s:String x:Key="Log(Firmware header send succeeded!)">固件头发送成功！</s:String>
+    <s:String x:Key="Log(Firmware header send failed, {0}!)">固件头发送失败，{0}！</s:String>
+    <s:String x:Key="Log(Erasing {0:0.00%})">擦除 {0:0.00%}</s:String>
+    <s:String x:Key="Log(Loading {0:0.00%})">下载 {0:0.00%}</s:String>
+    <s:String x:Key="Log(Flash erase succeeded!)">Flash擦除成功！</s:String>
+    <s:String x:Key="Log(Flash erase failed, {0}!)">Flash擦除失败，{0}！</s:String>
+    <s:String x:Key="Log(Firmware loaded! End package length: {0}.)">下载成功！结束包长度：{0}。</s:String>
+    <s:String x:Key="Log(Download time: {0:0.000} s)">下载用时：{0:0.000} 秒</s:String>
+    <s:String x:Key="Log(Wait for boot ready...)">等待Boot置位...</s:String>
+    <s:String x:Key="Log(Loading address: {0:X08}, Package length {1}.)">正在下载地址：{0:X08}，包长度：{1}。</s:String>
+    <s:String x:Key="Log(Load failed! End package length: {0}, {1}!)">下载失败！结束包长度：{0}，{1}！</s:String>
+    <s:String x:Key="Log(Load interrupted! Interrupt address: {0:X08}, package length {1}, {2}!)">下载中断！中断地址：{0:X08}，包长度：{1}，{2}！</s:String>
+    <s:String x:Key="Log(Connecting, please reset device)">正在连接，请复位设备...</s:String>
+    <s:String x:Key="Log(The connection is base on VCP protcol.)">正在使用VCP串口进行通讯。</s:String>
+    <s:String x:Key="Log(Device type error!)">设备类型错误！</s:String>
+    <s:String x:Key="Log(The serial port disconnected! Chip connection is about to close!)">串口已经断开！芯片连接即将关闭！</s:String>
+    <s:String x:Key="Log(USB data written to 0x{0:X08})">USB数据写入到 0x{0:X08}</s:String>
+    <s:String x:Key="Log(Drive write error.)">驱动器写入错误。</s:String>
+    <s:String x:Key="Log(Failed to open drive device! Please try reconnecting.)">打开驱动器设备失败！请尝试重新连接。</s:String>
+    <s:String x:Key="Log(Parsing error! Chip may not be supported!)">解析错误!可能芯片不被支持!</s:String>
+    <s:String x:Key="Log(The tool doesn't support the current connected chip!)">工具不支持当前连接芯片型号!</s:String>
+    <!--<s:String x:Key="Log()"></s:String>-->
+
+    <s:String x:Key="Log(No flash configuration, please select Flash configuration!)" >没有Flash配置，请选择Flash配置！</s:String>
+
+
+    <s:String x:Key="Log(Manually interrupt load!)">手动中断下载！</s:String>
+    <s:String x:Key="Log(There are {0} port(s) available!)">当前有 {0} 个可用端口！</s:String>
+    <s:String x:Key="Log(DESC: {0}\nMFR: {1})">描述：{0}\n厂商：{1}</s:String>
+    <s:String x:Key="Log(Letter: {0}\nFormat: {1}\nLabel: {2}\nMode: {3})">盘符：{0}\n格式：{1}\n卷标：{2}\n模式：{3}</s:String>
+    <s:String x:Key="Log(Physical disk mode)">物理盘模式</s:String>
+    <s:String x:Key="Log(Logical volume mode)">逻辑卷模式</s:String>
+    <s:String x:Key="Log(The chip is not connected yet, please connect the chip before operation!)">还未连接芯片！请连接芯片后操作</s:String>
+    <s:String x:Key="Log(The task thread is busy!)">任务线程正忙！</s:String>
+    <s:String x:Key="Log(Clear the log?)">是否清除记录？</s:String>
+    <s:String x:Key="Log(Signed firmware not available, load aborted!)">签名固件不可用，下载中止！</s:String>
+    <s:String x:Key="Log(Firmware not available, load aborted!)">固件不可用，下载中止！</s:String>
+    <s:String x:Key="Log(No current flash parameters, please configure and save!)">没有当前Flash参数，请配置并保存！</s:String>
+    <s:String x:Key="Log(Chip storage problem, load aborted!)">芯片存储问题，下载中止！</s:String>
+    <s:String x:Key="Log(Load firmware to: [ 0x{0:X08} ~ 0x{1:X08} ] with a total of {2} bytes.)">下载固件到：[ 0x{0:X08} ~ 0x{1:X08} ] 共 {2} 字节。</s:String>
+    <s:String x:Key="Log(The firmware region [ 0x{0:X08} ~ 0x{1:X08} ] is not in the available {2} firmware region [ 0x{3:X08} ~ 0x{4:X08} ], load aborted!)">固件区域 [ 0x{0:X08} ~ 0x{1:X08} ] 不在可用{2}固件可用区域 [ 0x{3:X08} ~ 0x{4:X08} ] 内，下载中止！</s:String>
+    <s:String x:Key="Log(Erase all sectors.)">擦除所有扇区。</s:String>
+    <s:String x:Key="Log(Erase requires sectors [ 0x{0:X08} ~ 0x{1:X08} ] with a total of {2} sectors.)">擦除需要扇区 [ 0x{0:X08} ~ 0x{1:X08} ] 共 {2} 块。</s:String>
+    <s:String x:Key="Log(The firmware region [ 0x{0:X08} ~ 0x{1:X08} ] is not in RAM or Flash region, load aborted!)">固件区域 [ 0x{0:X08} ~ 0x{1:X08} ] 不在Flash或RAM区域内，下载中止！</s:String>
+    <s:String x:Key="Log(Erase the whole flash?)">是否擦除Flash全片？</s:String>
+    <s:String x:Key="Log(Firmware command list is empty!)">固件命令列表为空！</s:String>
+
+    <s:String x:Key="Log(Firmware updated{0}.)">固件已更新{0}。</s:String>
+    <s:String x:Key="Log((signed))">（已签名）</s:String>
+    <s:String x:Key="Log(The imported key is not a private key. The firmware needs a private key file!)">导入的密钥不是私钥，固件需要私钥文件!</s:String>
+    <s:String x:Key="Log( s)">秒</s:String>
+
+    <s:String x:Key="Log(Connecting chip automatically!)">正在自动连接芯片！</s:String>
+    <s:String x:Key="Log(The chip has been connected, need to disconnect!)">已经连接芯片，需断开连接！</s:String>
+    <s:String x:Key="Log(Connect successfully, go to the next step!)">连接成功，进入下一步！</s:String>
+    <s:String x:Key="Log(Connection failed. Do you want to reconnect?)">连接失败，是否重连？</s:String>
+    <s:String x:Key="Log(Reconnecting...)">正在重新连接...</s:String>
+    <s:String x:Key="Log(Give up reconnection!)">放弃重新连接！</s:String>
+    <s:String x:Key="Log(Auto device update {0}!)">自动设备升级{0}！</s:String>
+    <s:String x:Key="Log(Auto)">自动</s:String>
+    <s:String x:Key="Log(Auto download {0}!)">自动下载{0}！</s:String>
+
+</ResourceDictionary>

@@ -1,0 +1,428 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Class="MHTool.UI.MainWindow"
+    Title="{DynamicResource Application.Title}"
+    Width="800" Height="530"
+    MinWidth="800" MinHeight="530"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    WindowStartupLocation="CenterScreen"
+    Closed="WindowClosed"
+    >
+    <Window.Resources>
+        <Style x:Key="CheckRadioFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="14,0,0,0" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SliderCheckBox" TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="StoryboardIsChecked">
+                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="CheckFlag">
+                                    <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="14"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                            <Storyboard x:Key="StoryboardIsCheckedOff">
+                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="CheckFlag">
+                                    <EasingDoubleKeyFrame KeyTime="0" Value="14"/>
+                                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </ControlTemplate.Resources>
+                        <BulletDecorator Background="Transparent" SnapsToDevicePixels="true">
+                            <BulletDecorator.Bullet>
+                                <Border Name="ForegroundPanel" BorderThickness="1" Width="35" Height="20" CornerRadius="10">
+                                    <Canvas>
+                                        <Border Background="White" Name="CheckFlag" CornerRadius="10" VerticalAlignment="Center" BorderThickness="1" Width="16" Height="16" RenderTransformOrigin="0.5,0.5" Canvas.Top="1" Canvas.Left="1">
+                                            <Border.RenderTransform>
+                                                <TransformGroup>
+                                                    <ScaleTransform/>
+                                                    <SkewTransform/>
+                                                    <RotateTransform/>
+                                                    <TranslateTransform/>
+                                                </TransformGroup>
+                                            </Border.RenderTransform>
+                                            <Border.Effect>
+                                                <DropShadowEffect ShadowDepth="1" Direction="0" />
+                                            </Border.Effect>
+                                        </Border>
+                                    </Canvas>
+                                </Border>
+                            </BulletDecorator.Bullet>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>
+                        </BulletDecorator>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasContent" Value="true">
+                                <Setter Property="FocusVisualStyle" Value="{StaticResource CheckRadioFocusVisual}"/>
+                                <Setter Property="Padding" Value="4,0,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ForegroundPanel" Property="Background" >
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="DeepSkyBlue"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Name="BeginStoryboardCheckedTrue" Storyboard="{StaticResource StoryboardIsChecked}" />
+                                    <RemoveStoryboard BeginStoryboardName="BeginStoryboardCheckedFalse" />
+                                </Trigger.EnterActions>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="ForegroundPanel" Property="Background" Value="Gray" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Name="BeginStoryboardCheckedFalse" Storyboard="{StaticResource StoryboardIsCheckedOff}" />
+                                    <RemoveStoryboard BeginStoryboardName="BeginStoryboardCheckedTrue" />
+                                </Trigger.EnterActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="0">
+        <ComboBox x:Name="LanguageList" Height="25" Width="160" Margin="10,5,0,0" FontSize="12" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" SelectionChanged="LanguageSelectionChanged" HorizontalAlignment="Left" Visibility="Collapsed">
+            <ComboBoxItem Content="{DynamicResource Language.System}"/>
+            <ComboBoxItem Content="{DynamicResource Language.zh-cn}"/>
+            <ComboBoxItem Content="{DynamicResource Language.en-us}"/>
+        </ComboBox>
+        <GroupBox Margin="10,0,0,0" Name="ConnectorGroupBox" Header="{DynamicResource ui.Connect.Title}" HorizontalAlignment="Left" Width="160" Height="262" VerticalAlignment="Top">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Name="PortGrid">
+                    <Label Height="30" Width="60" Margin="5,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Content="{DynamicResource ui.Connect.PortLabel}"/>
+                    <ComboBox Name="PortList" Height="30" Margin="65,5,5,0" FontSize="12" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" DropDownOpened="UpdatePort" SelectionChanged="PortSelectionChanged"/>
+                </Grid>
+                <Grid DockPanel.Dock="Top" Name="BaudrateGrid">
+                    <Label Height="30" Width="60" Margin="5,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Content="{DynamicResource ui.Connect.BaudrateLabel}"/>
+                    <ComboBox  Name="BaudrateList" Height="30" Margin="65,5,5,0" FontSize="12" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsEditable="True" VerticalAlignment="Top" TextBoxBase.TextChanged="BaudrateTextChanged">
+                        <ComboBoxItem Content="512000"/>
+                        <ComboBoxItem Content="460800"/>
+                        <ComboBoxItem Content="256000"/>
+                        <ComboBoxItem Content="115200"/>
+                        <ComboBoxItem Content="57600" />
+                    </ComboBox>
+                </Grid>
+                
+                <Button DockPanel.Dock="Bottom" FontSize="12" Margin="5,5,5,5" Name="ChipConnectButton" Click="ChipConnectButton_Click" Height="30" VerticalAlignment="Top" Padding="0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30">
+                        <Label Name="ChipConnectButtonLabel" Content="{DynamicResource ui.Connect.ConnectButton.Connect}" VerticalContentAlignment="Center" Padding="5,0"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Name="PortInfoTextBlock" Margin="5,5,5,0"  Text="" TextAlignment="Left" Padding="5,5,0,0" TextWrapping="WrapWithOverflow" LineHeight="20" />
+            </DockPanel>
+        </GroupBox>
+        <TabControl Name="SessionTabControl" Margin="177,5,10,0" Background="{x:Null}" BorderBrush="#FFD5DFE5" Height="255" VerticalAlignment="Top">
+            <TabItem Name="FirmwareTab" Background="{x:Null}" BorderBrush="#FFD5DFE5" Header="{DynamicResource ui.Firmware.Title}">
+                <StackPanel>
+                    <Grid VerticalAlignment="Top">
+                        <Label Name="FirmwareLabel" Height="30" Margin="10,10,100,0" VerticalAlignment="Top"   VerticalContentAlignment="Center" Padding="5,5,0,5" BorderThickness="1" BorderBrush="#FFD5DFE5" ToolTip="{Binding FirmwarePath}">
+                            <TextBlock Text="{Binding FirmwareFileName}"/>
+                        </Label>
+                        <Button Name="FirmwareSelectButton" Margin="0,10,10,0" HorizontalAlignment="Right" Width="80" Click="FirmwareSelectButton_Click" Content="{DynamicResource ui.Firmware.FirmwareButton}" Height="30" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Visibility="{Binding IsPartFirmware}">
+                        <Label Name="FirmwareKeyLabel" VerticalAlignment="Top" Margin="10,10,100,0" Height="30" VerticalContentAlignment="Center" Padding="5,5,0,5" BorderThickness="1" BorderBrush="#FFD5DFE5" ToolTip="{Binding KeyPath}">
+                            <TextBlock Text="{Binding KeyFileName}"/>
+                        </Label>
+                        <Button Name="FirmwareKeyButton" Height="30" Margin="0,10,10,0" VerticalAlignment="Top" Click="FirmwareKeySelectButton_Click" HorizontalAlignment="Right" Width="80" Content="{DynamicResource ui.Firmware.KeyButton}"/>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsBinFirmware}">
+                            <Label   Name="BaseAddrLabel"    Height="30" Width="auto" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Content="{DynamicResource ui.Firmware.Address}"/>
+                            <TextBox Name="BaseAddrTextBox"  Height="30" Width="80" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding Address}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsPartFirmware}">
+                            <Label   Name="FirmwareVerLabel"   Height="30" Width="auto" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Content="{DynamicResource ui.Firmware.Version}"/>
+                            <TextBox Name="FirmwareVerTextBox" Height="30" Width="80" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding Version}"/>
+                            <Label   Name="FirmwareHashLabel"  Height="30" Width="auto" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Content="{DynamicResource ui.Firmware.Hash}"/>
+                            <ComboBox Name="FirmwareHashList"  Height="30" Width="80" Margin="15,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" SelectedIndex="{Binding HashOption}">
+                                <ComboBoxItem Content="SHA256" />
+                                <ComboBoxItem Content="SHA512" />
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                    <CheckBox Name="FlashEraserCheckBox"    Style="{DynamicResource SliderCheckBox}" Width="200"  Margin="10,10,0,0" Padding="4,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsEraserFullChip}" Visibility="{Binding IsPartFirmware}" Content="{DynamicResource ui.Firmware.EraseAllSector}"/>
+                    <CheckBox Name="ExportPackageCheckBox"  Style="{DynamicResource SliderCheckBox}" Width="200"  Margin="10,10,0,0" Padding="4,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsExportPackage}"  Content="{DynamicResource ui.Firmware.ExportSignedPackage}"/>
+                    <DockPanel>
+                        
+                        <Button Name="DownloadButton" DockPanel.Dock="Right" Margin="0,10,10,0" Click="DownloadButton_Click" Height="30" HorizontalAlignment="Right" Width="100">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30">
+                                
+                                <Label Name="DownloadButtonLabel" VerticalContentAlignment="Center" Padding="5,0" Content="{DynamicResource ui.Firmware.LoadButton.Load}"/>
+                            </StackPanel>
+                        </Button>
+                    </DockPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Name="FlashOptionTab" Background="{x:Null}" BorderBrush="#FFD5DFE5" Header="{DynamicResource ui.Flash.Title}">
+                <Grid>
+                    <GroupBox Header="{DynamicResource ui.Flash.Parameter.Title}" Margin="212,0,5,5" Name="FlashGroupBox">
+                        <Grid>
+                            <DataGrid 
+                                Name="FlashDataGrid" 
+                                AutoGenerateColumns="False"
+                                Height="156"
+                                VerticalAlignment="Top"
+                                Margin="5,5,5,0"
+                                CanUserSortColumns="False"
+                                RowHeight="16"
+                                CanUserResizeRows="False"
+                                CanUserResizeColumns="False"
+                                CanUserAddRows="False"
+                                LoadingRow="FlashDataGrid_LoadingRow"
+                                BorderThickness="0"
+                                Background="{x:Null}"
+                                HorizontalGridLinesBrush="#FFC3C3C3"
+                                VerticalGridLinesBrush="#FFC3C3C3"
+                                HorizontalScrollBarVisibility="Hidden"
+                            >
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Width="35" Binding="{Binding Id, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="QE" Width="35" Binding="{Binding QE, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="burst" Width="40" Binding="{Binding burst, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="prg" Width="35" Binding="{Binding prg, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="se" Width="35" Binding="{Binding se, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="ce" Width="35" Binding="{Binding ce, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="Wakeup" Width="60" Binding="{Binding Wakeup, Mode=TwoWay}"/>
+                                    <DataGridTextColumn Header="Cache" Width="50" Binding="{Binding Cacheread, Mode=TwoWay}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <Button Name="FlashEditButton"   Height="30" Width="80" Margin="5,0,0,5"   HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="FlashEditButton_Click"   Content="{DynamicResource ui.Flash.EditButton.Edit}"/>
+                            <Button Name="FlashAddButton"    Height="30" Width="80" Margin="90,0,0,5"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="FlashAddButton_Click"    Content="{DynamicResource ui.Flash.AddButton.Edit}"/>
+                            <Button Name="FlashReloadButton" Height="30" Width="80" Margin="260,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="FlashReloadButton_Click" Content="{DynamicResource ui.Flash.ReloadButton.Normal}"/>
+                            <Button Name="FlashDeleteButton" Height="30" Width="80" Margin="175,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="FlashDeleteButton_Click" Content="{DynamicResource ui.Flash.DeleteButton}"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox HorizontalAlignment="Left" Margin="5,0,0,5" Name="FlashInfoGroupBox" Width="202"  Header="{DynamicResource ui.Flash.Info.Title}">
+                        <Grid>
+                            <Label    Name="FlashNameLabel"       Height="25" Width="70" Margin="5,5,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Padding="5,0,0,1" Content="{DynamicResource ui.Flash.Info.NameLabel}"/>
+                            <Label    Name="FlashIDLabel"         Height="25" Width="70" Margin="5,65,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Padding="5,0,0,1" Content="{DynamicResource ui.Flash.Info.IDLabel}"/>
+                            <Label    Name="FlashManuLabel"       Height="25" Width="70" Margin="5,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Padding="5,0,0,1" Content="{DynamicResource ui.Flash.Info.ManuLabel}"/>
+                            <Label    Name="FlashSizeLabel"       Height="25" Width="70" Margin="5,95,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Padding="5,0,0,1" Content="{DynamicResource ui.Flash.Info.SizeLabel}"/>
+                            <ComboBox Name="FlashList"            Height="25" Margin="80,5,10,0"  VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                            <TextBox  Name="FlashManuShowTextBox" Height="25" Margin="80,35,10,0" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" BorderThickness="0" Padding="1" />
+                            <TextBox  Name="FlashIDShowTextBox"   Height="25" Margin="80,65,10,0" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" BorderThickness="0" Padding="1" />
+                            <TextBox  Name="FlashSizeShowTextBox" Height="25" Margin="80,95,10,0" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" BorderThickness="0" Padding="1" />
+                            <CheckBox Name="FlashOTPCheckBox"     Height="15" Width="80" Margin="10,130,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,0,0,0" UseLayoutRounding="False" IsChecked="{Binding IsWriteOTP}" Content="{DynamicResource ui.Flash.Info.OTPCheckBox}"/>
+                            
+                            <Button   Name="FlashSetButton"       Height="30" Width="80" Margin="100,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Click="FlashSetButton_Click" Content="{DynamicResource ui.Flash.SetButton}"/>
+                            <Button   Name="FlashIDButton"        Height="30" Width="80" Margin="10,0,0,10"  HorizontalAlignment="Left" VerticalAlignment="Bottom"  Click="FlashIDButton_Click"  Content="{DynamicResource ui.Flash.IDButton}"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Name="SecurityTab" Background="#FF00B9FF" BorderBrush="#FFD5DFE5" Header="{DynamicResource ui.SecurityTab.Title}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Name="ProtectGroupBox" Header="{DynamicResource ui.SecurityTab.Protection.Title}" Grid.Column="0">
+                        <StackPanel>
+                            <StackPanel Margin="0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label   Height="25" Width="50"   Margin="5,5,0,5"  HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontSize="13" Grid.Column="0" Content="{DynamicResource ui.SecurityTab.Protection.Start}" />
+                                    <TextBox Height="25" Width="auto" Margin="55,5,5,5" VerticalAlignment="Top" VerticalContentAlignment="Center" PreviewTextInput="HexTextBoxPreviewTextInput" InputMethod.IsInputMethodEnabled="False" Grid.Column="0" Text="{Binding ReadProtectionStart}"/>
+                                    <Label   Height="25" Width="50"   Margin="5,5,0,5"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Grid.Column="1" Content="{DynamicResource ui.SecurityTab.Protection.End}"/>
+                                    <TextBox Height="25" Width="auto" Margin="55,5,5,5" VerticalAlignment="Top" VerticalContentAlignment="Center" PreviewTextInput="HexTextBoxPreviewTextInput" InputMethod.IsInputMethodEnabled="False" Grid.Column="1" Text="{Binding ReadProtectionEnd}"/>
+                                </Grid>
+                                <Grid>
+                                    <Button Margin="5,5,5,5" Height="25" VerticalAlignment="Top" Click="ReadProtectionButton_Click" Content="{DynamicResource ui.SecurityTab.Protection.SetReadProtection}"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Margin="0">
+                                <Separator Margin="5,0" Height="5"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label   Height="25" Width="50"   Margin="5,5,0,5"  HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontSize="13" Grid.Column="0" Content="{DynamicResource ui.SecurityTab.Protection.Start}" />
+                                    <TextBox Height="25" Width="auto" Margin="55,5,5,5" VerticalAlignment="Top" VerticalContentAlignment="Center" PreviewTextInput="HexTextBoxPreviewTextInput" InputMethod.IsInputMethodEnabled="False" Grid.Column="0" Text="{Binding WriteProtectionStart}"/>
+                                    <Label   Height="25" Width="50"   Margin="5,5,0,5"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Grid.Column="1" Content="{DynamicResource ui.SecurityTab.Protection.End}"/>
+                                    <TextBox Height="25" Width="auto" Margin="55,5,5,5" VerticalAlignment="Top" VerticalContentAlignment="Center" PreviewTextInput="HexTextBoxPreviewTextInput" InputMethod.IsInputMethodEnabled="False" Grid.Column="1" Text="{Binding WriteProtectionEnd}"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Height="25" Margin="5,5,0,5" Width="50" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontSize="13" Grid.Column="0" Content="{DynamicResource ui.SecurityTab.Protection.Key}" />
+                                    <TextBox Height="25" Margin="55,5,5,5" VerticalContentAlignment="Center" VerticalAlignment="Top" PreviewTextInput="HexTextBoxPreviewTextInput" InputMethod.IsInputMethodEnabled="False" Grid.Column="0" Text="{Binding WriteProtectionKey}"/>
+                                    <Button Margin="5" Height="25" VerticalAlignment="Top" Grid.Column="1" Click="WriteProtectionButton_Click" Content="{DynamicResource ui.SecurityTab.Protection.GenerateKey}"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Margin="5" Height="25" VerticalAlignment="Top" Grid.Column="0" Click="WriteProtectionButton_Click" Content="{DynamicResource ui.SecurityTab.Protection.SetWriteProtection}"/>
+                                    <Button Margin="5" Height="25" VerticalAlignment="Top" Grid.Column="1" Click="WriteProtectionButton_Click" Content="{DynamicResource ui.SecurityTab.Protection.ClearWriteProtection}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    
+                </Grid>
+            </TabItem>
+            
+            <TabItem Name="DeviceStageUpdateTab" Background="{x:Null}" BorderBrush="#FFD5DFE5" Header="{DynamicResource ui.SecurityUpdate.Title}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Grid Name="DeviceSNGrid" Height="40" DataContext="{Binding SNFormat}" Visibility="{Binding VisibilityState}" >
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="30" Margin="5,5,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Click="DeviceSNClick" Content="DeviceSN"/>
+                            <TextBox VerticalAlignment="Top" Height="30" Margin="80,5,5,0" Padding="2" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" FontSize="10" Text="{Binding SNText}"/>
+                        </Grid>
+                        <Grid Height="40">
+                            <Label  Name="DeviceKeyLabel" VerticalAlignment="Top" Margin="80,5,5,0" Height="30" VerticalContentAlignment="Center" Padding="5,5,0,5" BorderThickness="1" BorderBrush="#FFD5DFE5" ToolTip="{Binding KeyPath,Mode=TwoWay}">
+                                <Run Text="{Binding KeyFileName,Mode=OneWay}"/>
+                            </Label>
+                            <Button Name="DeviceKeyButton" Margin="5,5,0,0"  FontSize="12" HorizontalAlignment="Left" Width="70" Click="DeviceKeyButton_Click" Height="30" VerticalAlignment="Top" Content="{DynamicResource ui.SecurityUpdate.KeyFile}"/>
+                        </Grid>
+                        <StackPanel Name="DeviceTimeOutCheckMapGrid" DockPanel.Dock="Left" Height="40" Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left" Margin="5,5,0,0" Name="DeviceTimeoutLable" Width="auto" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Height="30" VerticalAlignment="Top" Content="{DynamicResource ui.SecurityUpdate.Timeout}" />
+                            <TextBox Margin="5,5,0,0" Name="DeviceTimeoutTextBox" Text="{Binding DeviceTimeoutText}" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="55" Height="30" VerticalAlignment="Top" />
+                            <Label Name="DeviceCheckLabel" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="auto" Margin="5,5,0,0" Visibility="{Binding DeviceCheckVisibility}" VerticalContentAlignment="Center" FontSize="13" Content="{DynamicResource ui.SecurityUpdate.CheckMap}"/>
+                            <ComboBox Name="DeviceCheckMap" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="55" Margin="5,5,0,0" Visibility="{Binding DeviceCheckVisibility}" IsEditable="True" IsReadOnly="True" VerticalContentAlignment="Center" Text="{Binding DeviceStageCheckMap}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Click="DeviceCheckCheckBox_Click" Height="30" Width="100" VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding FlashVisibility}">
+                            <CheckBox Name="FlashEncryptCheckBox"    Style="{DynamicResource SliderCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,0,10" Width="140" FontSize="11" IsChecked="{Binding DeviceFlashEncrypt}" Content="{DynamicResource ui.SecurityUpdate.FlashEncryption}"/>
+                            <CheckBox Name="FlashTrueRandomCheckBox" Style="{DynamicResource SliderCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,0,10" Width="140" FontSize="11" IsChecked="{Binding DeviceFlashTrueRandom}" IsEnabled="{Binding FlashEncryptEnable}" Content="{DynamicResource ui.SecurityUpdate.FlashTrueRandom}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox Name="OtpTrueRandomCheckBox"   Style="{DynamicResource SliderCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,0,10" Width="140" FontSize="11" IsChecked="{Binding IsOTPTrueRandom}" Visibility="{Binding OTPKeyVisibility}" Content="{DynamicResource ui.SecurityUpdate.OTPTrueRandom}"/>
+                            <CheckBox Name="FlashFixCheckBox"        Style="{DynamicResource SliderCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,0,10" Width="140" FontSize="11" Content="{DynamicResource ui.SecurityUpdate.FlashFix}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <DockPanel Grid.Column="2">
+                        <Grid Name="FlashKeyGrid" DockPanel.Dock="Top" Height="40" Visibility="{Binding FlashKeyVisibility}" >
+                            <Label Content="Flash Key" Height="30" HorizontalAlignment="Left" Name="FlashKeyLabel" VerticalAlignment="Top" Width="70" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Margin="5,5,0,0" />
+                            <TextBox Margin="80,5,5,0" Name="FlashKeyTextBox" Text="{Binding FlashKey}" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" Height="30" VerticalAlignment="Top" />
+                        </Grid>
+                        <Grid Name="OTPKeyGrid" DockPanel.Dock="Top" Height="40" Visibility="{Binding OTPKeyInputVisibility}">
+                            <Label Name="OTPKeyLabel" Content="OTP Key" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Margin="5,5,0,0" />
+                            <TextBox Name="OTPKeyTextBox" Margin="80,5,5,0" Text="{Binding OTPKey}" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" Height="30" VerticalAlignment="Top" />
+                        </Grid>
+                        <Grid Name="DeviceAuthKeyGrid" DockPanel.Dock="Top" Height="40" Visibility="{Binding AuthKeyVisibility}">
+                            <Label Name="DevicAuthKeyLabel" Height="30" Width="70" Content="Auth Key" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Margin="5,5,0,0" />
+                            <TextBox Name="DevicAuthKeyTextBox" Height="30" Margin="80,5,5,0"  Text="{Binding AuthKey}" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" VerticalAlignment="Top" />
+                        </Grid>
+                        <Grid Name="DevicAuthIVGrid" DockPanel.Dock="Top" Height="40" Visibility="{Binding AuthKeyVisibility}">
+                            <Label Name="DevicAuthIVLabel" Height="30" Content="Auth IV" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13" HorizontalContentAlignment="Left" Margin="5,5,0,0" HorizontalAlignment="Left" Width="70" />
+                            <TextBox Name="DevicAuthIVTextBox" Height="30" Margin="80,5,5,0"  Text="{Binding AuthIV}" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" VerticalAlignment="Top" />
+                        </Grid>
+                        <Button Margin="0,0,5,5" Name="DeviceSNUpdateButton" FontSize="12" Click="DeviceSNUpdateButton_Click" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80" IsEnabled="{Binding IsUpdateEnabled}" Content="{DynamicResource ui.SecurityUpdate.UpdateButton}"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Name="SelfCheckTab" Background="{x:Null}" BorderBrush="#FFD5DFE5" Header="{DynamicResource ui.SelfCheck.Title}">
+                <Grid>
+                    <Button Name="SelfCheckAllButton"     Height="30" Width="80" Margin="0,10,10,0"  VerticalAlignment="Top" HorizontalAlignment="Right"  Click="SelfCheckAllButton_Click" Content="{DynamicResource ui.SelfCheck.CheckAllButton}" />
+                    <Button Name="SelfCheckInverseButton" Height="30" Width="80" Margin="0,50,10,0"  VerticalAlignment="Top" HorizontalAlignment="Right"   Click="SelfCheckInverseButton_Click" Content="{DynamicResource ui.SelfCheck.InverseButton}"/>
+                    <Button Name="SelfCheckButton"        Height="30" Width="80" Margin="0,130,10,0"  VerticalAlignment="Top" HorizontalAlignment="Right"  Click="SelfCheckButton_Click" Content="{DynamicResource ui.SelfCheck.CheckButton}"/>
+                    <Button Name="BootCheckButton"        Height="30" Width="80" Margin="0,170,10,0"  VerticalAlignment="Top" HorizontalAlignment="Right"  Click="BootCheckButton_Click" Content="{DynamicResource ui.SelfCheck.CheckBootButton}"/>
+                    <Button Name="ClearCheckButton"       Height="30" Width="80" Margin="0,90,10,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Click="ClearCheckButton_Click" Content="{DynamicResource ui.SelfCheck.ClearResultButton}"/>
+                    <ItemsControl Name="SelfCheckItemControl" Margin="0,0,120,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Background="{Binding Color}" Margin="5" Height="30">
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Width="100" Margin="5,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Button Content="{DynamicResource ui.Language.LanguageButton}" HorizontalAlignment="Right" Width="40" Margin="0,5,10,0" Height="20" VerticalAlignment="Top" Click="LanguageButton_Click"/>
+        <Grid Margin="10,260,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Name="AutoTaskGrid" Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Name="AutoTaskGroupBox" HorizontalAlignment="Left" Width="160" Margin="0,0,5,0" Header="{DynamicResource ui.AutoTask.Title}">
+                <StackPanel>
+                    <CheckBox x:Name="AutoReconnectCheckBox" Style="{DynamicResource SliderCheckBox}" Margin="10,5,10,0" VerticalAlignment="Top" IsChecked="{Binding AutoReConnect}" Content="{DynamicResource ui.AutoTask.Reconnect}" />
+                    
+                    <CheckBox Name="AutoDeviceCheckBox"   Style="{DynamicResource SliderCheckBox}" Margin="10,5,10,0" VerticalAlignment="Top" IsChecked="{Binding AutoDeviceUpdate}" Content="{DynamicResource ui.AutoTask.DeviceUpdate}"/>
+                    <CheckBox Name="AutoLoadCheckBox" Style="{DynamicResource SliderCheckBox}" Margin="10,5,10,0" VerticalAlignment="Top" IsChecked="{Binding AutoDownload}" Content="{DynamicResource ui.AutoTask.LoadFirmware}" />
+                    <Grid>
+                        <Label Height="25" Width="55" HorizontalAlignment="Left" Margin="10,5,0,0" Name="AutoWaitTimeLabel" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Padding="0,5" Content="{DynamicResource ui.AutoTask.WaitTimeLabel}"/>
+                        <ComboBox Name="AutoWaitTimeComboBox" Height="25" Margin="70,5,10,0" IsEditable="True" IsReadOnly="True" IsTextSearchEnabled="False" VerticalAlignment="Top" HorizontalContentAlignment="Center" SelectedIndex="0" Padding="5" Text="{Binding AutoWaitTime, Mode=OneWay}">
+                            <Grid Width="150" Height="30" Margin="0">
+                                <Slider Name="AutoWaitTimeSlider" HorizontalAlignment="Left" Height="25" Margin="5,5,0,0" VerticalAlignment="Top" Width="130" AutoToolTipPlacement="TopLeft" SmallChange="1" LargeChange="10" Maximum="100" Value="{Binding AutoWaitTimeInt}" Minimum="0"/>
+                            </Grid>
+                        </ComboBox>
+                    </Grid>
+                    <Button Name="AutoTaskButton" Height="25" Margin="10,5,10,0" VerticalAlignment="Bottom" Click="AutoTaskButton_Click" Content="{DynamicResource ui.AutoTask.AutoButton.Start}"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Name="LogGroupBox" Header="{DynamicResource ui.LogGroupBox}"  Grid.Column="1">
+                <DockPanel>
+                    <Grid Name="ActionGrid" DockPanel.Dock="Bottom">
+                        <ProgressBar Name="ActionProgressBar"  Height="20" BorderThickness="1" Value="0" Opacity="0.8" />
+                        <Label Name="ActionLabel" Height="20" FontSize="12" Padding="8,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    </Grid>
+                    <ListBox Name="LogList" SelectionMode="Single" BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Auto" MouseDoubleClick="LogList_MouseDoubleClick" ToolTip="{DynamicResource ui.LogClear}" />
+                </DockPanel>
+            </GroupBox>
+            <GroupBox Name="ChipInfoGroupBox" Header="{DynamicResource ui.ChipInfo.Title}" Grid.Column="2" HorizontalAlignment="Left" Width="160" Margin="5,0,0,0" >
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Name="ChipStageBlock"     Height="25" Width="60"  Margin="0,0,0,0"    HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,5,0,0" Text="{DynamicResource ui.ChipInfo.StageLabel}"/>
+                        <TextBlock Name="ChipStageShowBlock" Height="25" Margin="60,0,0,0"  TextAlignment="Left" VerticalAlignment="Top" Padding="5,5,0,0" Foreground="Gray" Text="芯片调试阶段"/>
+                    </Grid>
+                    
+                    <Grid>
+                        <TextBlock Name="ChipSNBlock"        Height="25" Width="80"  Margin="0,0,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,5,0,0" Text="{DynamicResource ui.ChipInfo.ChipSNLabel}" />
+                        <TextBlock Name="ChipSNShowBlock"    Height="auto" Margin="0,25,0,0" TextAlignment="Left" VerticalAlignment="Top" Padding="5,5,5,5" Foreground="Gray" FontFamily="Consolas" TextWrapping="Wrap" Text="1122334455667788 9900AABBCCDDEEFF"/>
+                    </Grid>
+                    <Grid>
+                        <TextBlock Name="DeviceSNBlock"      Height="25" Width="80"  Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,5,0,0" Text="{DynamicResource ui.ChipInfo.DeviceSNLabel}"/>
+                        <TextBlock Name="DeviceSNShowBlock"  Height="auto" Margin="0,25,0,0" TextAlignment="Left" VerticalAlignment="Top" Padding="5,5,5,5" Foreground="Gray" FontFamily="Consolas" TextWrapping="Wrap" Text="9900AABBCCDDEEFF 1122334455667788"/>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>

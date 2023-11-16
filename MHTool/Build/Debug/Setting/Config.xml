@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Node Name="Config">
+  <Option Name="Language" Value="System" />
+  <Option Name="Port" Value="" />
+  <Option Name="Baudrate" Value="115200" />
+  <Node Name="Firmware">
+    <Option Name="Address" Value="0x01001000" />
+    <Option Name="Version" Value="65535" />
+    <Option Name="HashOption" Value="0" />
+    <Option Name="IsEraserFullChip" Value="False" />
+    <Option Name="IsExportPackage" Value="False" />
+    <Option Name="KeyPath" Value="" />
+    <Option Name="FirmwarePath" Value="" />
+    <Option Name="EraseStartAddress" Value="01000000" />
+    <Option Name="EraseEndAddress" Value="01001000" />
+  </Node>
+  <Node Name="Flash">
+    <Option Name="IsWriteOTP" Value="False" />
+  </Node>
+  <Node Name="AutoTask">
+    <Option Name="AutoReConnect" Value="True" />
+    <Option Name="AutoDeviceUpdate" Value="False" />
+    <Option Name="AutoDownload" Value="True" />
+    <Option Name="AutoWaitTimeInt" Value="10" />
+  </Node>
+</Node>

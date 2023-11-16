@@ -1,0 +1,128 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    <s:String x:Key="Application.Title">MHTool</s:String>
+    <s:String x:Key="Application.Title.Debug">Debug</s:String>
+
+    <s:String x:Key="ui.Language.LanguageButton">Lang</s:String>
+    <s:String x:Key="Language.System">Follow OS Lang</s:String>
+    <s:String x:Key="Language.zh-cn">Chinese(China)</s:String>
+    <s:String x:Key="Language.en-us">English(US)</s:String>
+
+    <s:String x:Key="ui.Firmware.Title">Firmware</s:String>
+    <s:String x:Key="ui.Firmware.FirmwareButton">Firmware</s:String>
+    <s:String x:Key="ui.Firmware.EraseAllSector">Erase All Sectors</s:String>
+    <s:String x:Key="ui.Firmware.ExportSignedPackage">Export Signed Package</s:String>
+    <s:String x:Key="ui.Firmware.KeyButton">Private Key</s:String>
+    <s:String x:Key="ui.Firmware.Address">Address</s:String>
+    <s:String x:Key="ui.Firmware.Version">Version</s:String>
+    <s:String x:Key="ui.Firmware.Hash">Hash</s:String>
+    <s:String x:Key="Firmware.Filter.BinFile">Bin file(*.bin)</s:String>
+    <s:String x:Key="Firmware.Filter.HexFile">Hex file(*.hex)</s:String>
+    <s:String x:Key="Firmware.Filter.SigFile">Signed package(*.sig)</s:String>
+    <s:String x:Key="Firmware.Filter.UsigFile">Debug package(*.usig)</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Load">Load</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Loading">Loading...</s:String>
+    <s:String x:Key="ui.Firmware.LoadButton.Loaded">Loaded</s:String>
+
+    <s:String x:Key="ui.AuthTab">Auth</s:String>
+
+    <s:String x:Key="ui.SecurityTab.Title">Security</s:String>
+    <s:String x:Key="ui.SecurityTab.Lock.Title">Lock</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Title">Protection</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Start">Start</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.End">End</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.Key">Key</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.GenerateKey">Generate Key</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.SetReadProtection">Set read protection</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.SetWriteProtection">Set write protection</s:String>
+    <s:String x:Key="ui.SecurityTab.Protection.ClearWriteProtection">Clear write protection</s:String>
+
+    <s:String x:Key="ui.PatchTab">Patch</s:String>
+
+    <s:String x:Key="ui.SN.Title">SN Format Setting</s:String>
+    <s:String x:Key="ui.SN.SNFormat">SN Format</s:String>
+    <s:String x:Key="ui.SN.SNPreview">SN Preview</s:String>
+    <s:String x:Key="ui.SN.Fixed">Fixed</s:String>
+    <s:String x:Key="ui.SN.Random">Random</s:String>
+    <s:String x:Key="ui.SN.Autoincrement">Autoincrement</s:String>
+    <s:String x:Key="ui.SN.Delete">Delete</s:String>
+    <s:String x:Key="ui.SN.HelpInfo" xml:space="preserve">SN format description：&#xA;F: Fixed, Input hex string；&#xA;R: Random, Input random bytes length；&#xA;I: Autoincrement, Input initial hex string;</s:String>
+
+    <s:String x:Key="ui.DeviceUpdate.Title">Device Update</s:String>
+    <s:String x:Key="ui.DeviceUpdate.UpdateButton">Update</s:String>
+
+    <s:String x:Key="ui.SecurityUpdate.Title">Security Update</s:String>
+    <s:String x:Key="ui.SecurityUpdate.KeyFile">Key</s:String>
+    <s:String x:Key="ui.SecurityUpdate.Timeout">Timeout</s:String>
+    <s:String x:Key="ui.SecurityUpdate.CheckMap">Check Map</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashEncryption">Flash Encryption</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashTrueRandom">Flash True Random</s:String>
+    <s:String x:Key="ui.SecurityUpdate.OTPTrueRandom">OTP True Random</s:String>
+    <s:String x:Key="ui.SecurityUpdate.FlashFix">Flash Fix</s:String>
+    <s:String x:Key="ui.SecurityUpdate.UpdateButton">Update</s:String>
+
+    <s:String x:Key="Stage.Unknown">Disconnected</s:String>
+    <s:String x:Key="Stage.Wafer">Wafer</s:String>
+    <s:String x:Key="Stage.Chip">Chip</s:String>
+    <s:String x:Key="Stage.Device">Device</s:String>
+    <s:String x:Key="Stage.Secure">Secure</s:String>
+
+    <s:String x:Key="ui.Connect.Title">Connect</s:String>
+    <s:String x:Key="ui.Connect.PortLabel">Port</s:String>
+    <s:String x:Key="ui.Connect.BaudrateLabel">Baudrate</s:String>
+    <s:String x:Key="ui.Connect.UserBootCheckBox">UserBoot</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connect">Connect</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connecting">Connecting...</s:String>
+    <s:String x:Key="ui.Connect.ConnectButton.Connected">Disconnect</s:String>
+
+    <s:String x:Key="ui.Flash.Title">Flash</s:String>
+    <s:String x:Key="ui.Flash.Info.Title">Flash Info</s:String>
+    <s:String x:Key="ui.Flash.Info.NameLabel">Name:</s:String>
+    <s:String x:Key="ui.Flash.Info.IDLabel">ID:</s:String>
+    <s:String x:Key="ui.Flash.Info.ManuLabel">Manu:</s:String>
+    <s:String x:Key="ui.Flash.Info.SizeLabel">Size:</s:String>
+    <s:String x:Key="ui.Flash.Info.OTPCheckBox">Write OTP</s:String>
+    <s:String x:Key="ui.Flash.FileSelectButton">Reload</s:String>
+
+    <s:String x:Key="ui.Flash.Parameter.Title">Flash Parameter</s:String>
+    <s:String x:Key="ui.Flash.EditButton.Edit">Edit</s:String>
+    <s:String x:Key="ui.Flash.EditButton.Save">Save</s:String>
+    <s:String x:Key="ui.Flash.AddButton.Edit">Add</s:String>
+    <s:String x:Key="ui.Flash.AddButton.Save">Save</s:String>
+    <s:String x:Key="ui.Flash.ReloadButton.Normal">Reload</s:String>
+    <s:String x:Key="ui.Flash.ReloadButton.Cancel">Cancel</s:String>
+    <s:String x:Key="ui.Flash.DeleteButton">Delete</s:String>
+
+    <s:String x:Key="ui.Flash.GroupBox">Flash</s:String>
+
+    <s:String x:Key="ui.SelfCheck.Title">Self Check</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckAllButton">Check all</s:String>
+    <s:String x:Key="ui.SelfCheck.InverseButton">Inverse</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckButton">Check</s:String>
+    <s:String x:Key="ui.SelfCheck.ReadResultButton">Read result</s:String>
+    <s:String x:Key="ui.SelfCheck.CheckBootButton">Check boot</s:String>
+    <s:String x:Key="ui.SelfCheck.ClearResultButton">Clear result</s:String>
+
+    <s:String x:Key="ui.Flash.IDButton">Read ID</s:String>
+    <s:String x:Key="ui.Flash.SetButton">Write</s:String>
+
+    <s:String x:Key="ui.AutoTask.Title">Auto Task</s:String>
+    <s:String x:Key="ui.AutoTask.Reconnect">Reconnect</s:String>
+    
+    <s:String x:Key="ui.AutoTask.DeviceUpdate">Device Update</s:String>
+    <s:String x:Key="ui.AutoTask.LoadFirmware">Load Firmware</s:String>
+    <s:String x:Key="ui.AutoTask.WaitTimeLabel">Wait</s:String>
+    <s:String x:Key="ui.AutoTask.AutoButton.Start">Start Auto Task</s:String>
+    <s:String x:Key="ui.AutoTask.AutoButton.Stop">Stop Auto Task</s:String>
+
+    <s:String x:Key="ui.LogGroupBox">Log</s:String>
+    <s:String x:Key="ui.LogClear">Double click to clear the log.</s:String>
+
+    <s:String x:Key="ui.ChipInfo.Title">Chip Info</s:String>
+    <s:String x:Key="ui.ChipInfo.StageLabel">Stage:</s:String>
+    <s:String x:Key="ui.ChipInfo.VersionLabel">Version:</s:String>
+    <s:String x:Key="ui.ChipInfo.ChipSNLabel">Chip SN:</s:String>
+    <s:String x:Key="ui.ChipInfo.DeviceSNLabel">Device SN:</s:String>
+
+</ResourceDictionary>

@@ -1,0 +1,41 @@
+﻿<Window x:Class="MHTool.UI.SNFormatSetting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Closing="OnClosing"
+        SizeToContent="WidthAndHeight"
+        ShowInTaskbar="False"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Title="{DynamicResource ui.SN.Title}"
+        >
+    <StackPanel VerticalAlignment="Center" MinWidth="360" Margin="10" HorizontalAlignment="Center">
+        <Grid Margin="0,0,0,10">
+            <Label HorizontalAlignment="Left" Width="75" Margin="0,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{DynamicResource ui.SN.SNFormat}"/>
+            <Label VerticalAlignment="Top" Height="30" Margin="80,0,0,0" Padding="5" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="#FFD5DFE5" FontFamily="Consolas" FontSize="11" Content="{Binding SNFormatText}" />
+        </Grid>
+        <Grid Margin="0,0,0,10">
+            <Label HorizontalAlignment="Left" Width="75" Margin="0,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{DynamicResource ui.SN.SNPreview}"/>
+            <Label VerticalAlignment="Top" Height="30" Margin="80,0,0,0" Padding="5" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="#FFD5DFE5" FontFamily="Consolas" FontSize="11" Content="{Binding SNPreviewText}"/>
+        </Grid>
+        <Grid Margin="0,0,0,10">
+            <TextBox VerticalAlignment="Top" Height="30" Margin="0,0,105,0" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" IsReadOnly="False" Text="{Binding FixedText}"/>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="30" Margin="0" Click="FixedButtonClick" Content="{DynamicResource ui.SN.Fixed}"/>
+        </Grid>
+        <Grid Margin="0,0,0,10">
+            <TextBox VerticalAlignment="Top" Height="30" Margin="0,0,105,0" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" IsReadOnly="False" Text="{Binding RandomText}"/>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="30" Margin="0" Click="RandomButtonClick" Content="{DynamicResource ui.SN.Random}"/>
+        </Grid>
+        <Grid Margin="0,0,0,10">
+            <TextBox VerticalAlignment="Top" Height="30" Margin="0,0,105,0" VerticalContentAlignment="Center" BorderBrush="#FFD5DFE5" IsReadOnly="False" Text="{Binding AutoincrementText}"/>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="30" Margin="0" Click="AutoincrementButtonClick" Content="{DynamicResource ui.SN.Autoincrement}" />
+        </Grid>
+        <Grid Margin="0,0,0,0">
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="30" Margin="0" Click="DeleteButtonClick" Content="{DynamicResource ui.SN.Delete}"        />
+            <Label VerticalAlignment="Top" Margin="0,0,105,0" Content="{DynamicResource ui.SN.HelpInfo}"/>
+        </Grid>
+    </StackPanel>
+</Window>
