@@ -5,8 +5,11 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
+#include "sign_verify.h"
+
 void app_main (void *argument) {
     for (long long i = 0;; i++) {
+        sign_verify_demo();
         printf("%lld\n\r", i);      
         osDelay(300);
     }

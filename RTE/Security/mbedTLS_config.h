@@ -139,7 +139,7 @@
 //#define MBEDTLS_RSA_C
 //#define MBEDTLS_SHA1_C
 //#define MBEDTLS_SHA256_C
-//#define MBEDTLS_SHA512_C
+#define MBEDTLS_SHA512_C
 //#define MBEDTLS_THREADING_C
 //#define MBEDTLS_TIMING_C
 //#define MBEDTLS_VERSION_C
