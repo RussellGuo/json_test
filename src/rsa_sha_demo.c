@@ -12,8 +12,8 @@
 
 #define RSA_PADDING_MODE RSA_PKCS1_PADDING
 
-inline static int private_encrypt(uint8_t *data, size_t data_len, const char *key, uint8_t *encrypted) {
-    FILE *f = fopen(key, "rb");
+inline static int private_encrypt(uint8_t *data, size_t data_len, const char *private_key_pem_filename, uint8_t *encrypted) {
+    FILE *f = fopen(private_key_pem_filename, "rb");
     if (f == NULL) {
         return -1;
     }
@@ -30,8 +30,8 @@ inline static int private_encrypt(uint8_t *data, size_t data_len, const char *ke
     return result;
 }
 
-inline static int public_decrypt(uint8_t *enc_data, size_t data_len, const char *key, uint8_t *decrypted) {
-    FILE *f = fopen(key, "rb");
+inline static int public_decrypt(uint8_t *enc_data, size_t data_len, const char *public_key_pem_filename, uint8_t *decrypted) {
+    FILE *f = fopen(public_key_pem_filename, "rb");
     if (f == NULL) {
         return -1;
     }
@@ -80,4 +80,21 @@ void sha_main(void) {
     bool is_ok = SHA512((const uint8_t *)"1234", 4, sha512_result) != NULL;
     (void)is_ok;
     memset(sha512_result, 0, sizeof sha512_result);
+}
+
+#define SHA512_RESULT_LEN SHA512_DIGEST_LENGTH
+#define RSA2048_RESULT_LEN 256
+
+bool sign_by_sha512_rsa2048_pkcs1_padding(
+    const char *rsa_private_key_pem_filename,
+    const uint8_t *origin_data, size_t origin_size,
+    uint8_t sign_data[RSA2048_RESULT_LEN]) {
+    //
+    uint8_t sha512_result[SHA512_DIGEST_LENGTH] = {0};
+    bool is_ok = SHA512(origin_data, origin_size, sha512_result) != NULL;
+    if (!is_ok) {
+        return false;
+    }
+    int encrypted_length = private_encrypt(sha512_result, sizeof sha512_result, rsa_private_key_pem_filename, sign_data);
+    return encrypted_length == RSA2048_RESULT_LEN;
 }
