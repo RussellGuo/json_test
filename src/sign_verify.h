@@ -5,6 +5,11 @@
     ARM MCU端签名验证模块
     郭强(guoqiang@huaqin.com)
     2023-11-24 创建
+    注意！！！
+        本模块“魔改”了malloc/free体系，使得签名验证过程简化存储分配活动
+        所以本函数是不可重入的
+        *** 系统的其它部分也不得使用malloc/free族函数***
+    
  */
 
 #include <stdint.h>

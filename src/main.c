@@ -7,32 +7,14 @@
 
 #include "sign_verify.h"
 
-static void sign_verify_demo(void);
+static bool sign_verify_demo(void);
 
 void app_main (void *argument) {
     for (long long i = 0;; i++) {
-        sign_verify_demo();
-        printf("%lld\n\r", i);      
+        bool is_ok = sign_verify_demo();
+        printf("%lld: signature veritification ret: %d\n\r", i, is_ok);      
         osDelay(300);
     }
-}
-
-#define OWN_MEM_BLOCK_SIZE 8192
-static unsigned char mem_block[OWN_MEM_BLOCK_SIZE];
-static size_t mem_top = 0;
-void *malloc(size_t n)
-{
-    size_t new_top = mem_top + ((n - 1) / 8 + 1)* 8;
-    if (new_top > OWN_MEM_BLOCK_SIZE) {
-        return 0;
-    }
-    void *result = mem_block + mem_top;
-    mem_top = new_top;
-    return result;
-}
-
-void free(void *p)
-{
 }
 
 #define STACK_SIZE_OF_APP_THREAD 4096
@@ -59,7 +41,7 @@ int main (void) {
   while(1);
 }
 
-static const unsigned char pub_key_pem_string[] =
+static uint8_t pub_key_pem_string[] =
     "-----BEGIN PUBLIC KEY-----\r\n"
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxo1YWUCtl1RFCz9J9dq/\r\n"
     "mx7QFySWCQbnx8YmZfCdjKXLGiP5pJQ2++Ml1n6cUKasfgeJAF40tE68aI8hv1pW\r\n"
@@ -71,8 +53,8 @@ static const unsigned char pub_key_pem_string[] =
     "-----END PUBLIC KEY-----\r\n"
 ;
 
-const unsigned char orig_data[] = { '1', '2', '3', '4' };
-static const unsigned char sign_data[] = {
+static const uint8_t orig_data[] = { '1', '2', '3', '4' };
+static const uint8_t sign_data[] = {
     0x0A, 0x8E, 0xD1, 0x81, 0x21, 0x78, 0x5F, 0xE2, 0xE6, 0xBD, 0xD9, 0x8C, 0x2D, 0xD0, 0x93, 0xE5,
     0x09, 0x03, 0x69, 0x1F, 0xBC, 0x04, 0xE7, 0x1B, 0x8C, 0x79, 0xDB, 0xFC, 0x21, 0xCC, 0x59, 0x8F,
     0x48, 0xD3, 0xB4, 0xCE, 0x19, 0xE7, 0xB7, 0x7A, 0x6B, 0x20, 0xF8, 0x9D, 0xFD, 0x37, 0x84, 0x60,
@@ -91,9 +73,9 @@ static const unsigned char sign_data[] = {
     0x14, 0x5F, 0x9D, 0x03, 0xB7, 0xD1, 0x04, 0xD7, 0x37, 0xF5, 0x9C, 0xAB, 0xAC, 0x0A, 0xC4, 0x2D,
 };
 
-static void sign_verify_demo(void)
+static bool sign_verify_demo(void)
 {
     bool ret = sign_verify_sha512_rsa2048_pkcs1_padding(pub_key_pem_string, orig_data, sizeof orig_data, sign_data);
-    free(0);
+    return ret;
 }
 
