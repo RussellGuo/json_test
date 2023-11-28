@@ -1,75 +1,109 @@
 #include "sign_verify.h"
 
+/*
+    ARM MCU端签名验证模块
+    郭强(guoqiang@huaqin.com)
+    2023-11-24 创建
+    注意！！！
+        本模块“魔改”了malloc/free体系，使得签名验证过程简化存储分配活动
+        所以本函数是不可重入的
+        *** 系统的其它部分也不得使用malloc/free族函数***
+    
+ */
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "mbedtls/sha512.h"
 #include "mbedtls/pk.h"
 
-static void sha512_demo(void);
-static void rsa_demo(void);
+// 重置malloc/free族函数。请谨慎使用
+void reset_malloc(void);
 
-void sign_verify_demo(void)
+#define CHECK_RESULT \
+    if (ret) {\
+        break; \
+    } else
+
+/*
+    用途： 签名验证。
+    说明： 签名端需要对数据签名，签名用私钥， 规格是2048的RSA算法，采用PKSC1方案填充，摘要则使用SHA512
+    参数rsa_public_key_pem_string，pem格式的公钥字串
+    参数origin_data/origin_size，被签名对象以及长度
+    参数sign_data， 签名本身
+    返回值： true表示签名通过，反之反是
+ */
+bool sign_verify_sha512_rsa2048_pkcs1_padding(
+    const uint8_t *rsa_public_key_pem_string,
+    const uint8_t *origin_data,
+    size_t origin_size,
+    const uint8_t sign_data[RSA2048_RESULT_LEN]
+)
 {
-    sha512_demo();
-    rsa_demo();
-}
-
-// mbedtls_pk_parse_public_key
-static void sha512_demo(void)
-{
-    const unsigned char data[] = { '1', '2', '3', '4' };
-    unsigned char result[64];
-    int ret = mbedtls_sha512_ret(data, sizeof data, result, false);
-    printf("sha512 for '1234': ret = %d, result is ", ret);
-    for (int i = 0; i < sizeof result; i++) {
-        printf("%02x", result[i]);
-    }
-    printf("\n\r");
-}
-
-static unsigned char pub_key_pem_string[] =
-    "-----BEGIN PUBLIC KEY-----\r\n"
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxo1YWUCtl1RFCz9J9dq/\r\n"
-    "mx7QFySWCQbnx8YmZfCdjKXLGiP5pJQ2++Ml1n6cUKasfgeJAF40tE68aI8hv1pW\r\n"
-    "BTXFDW2BTnV0owdQQYGXqUBgOG/nBxNxlaqj6VynnXVq1IBZkVZ33VLFN2B8qbFf\r\n"
-    "1gY/qzAprexOdagpZ9lMP5ksHbgS1EvohXFpEoBODBQnsZ9gFYsNbqEYMgMFFYfs\r\n"
-    "Q6D/iKa9URqGfvNcMTfJmFv9sgOC4S6ZCsXyrJHZm+BRec6xy3zNY8JQtZ0sSDj8\r\n"
-    "P5D2s0TYGSpPlBTe/PtLSTqzsozYePrMiPCxqFR1+G2pQPpTRv5Atq92e+HYjsJP\r\n"
-    "JQIDAQAB\r\n"
-    "-----END PUBLIC KEY-----\r\n"
-;
-
-static unsigned char sign_string[] = {
-    0x0A, 0x8E, 0xD1, 0x81, 0x21, 0x78, 0x5F, 0xE2, 0xE6, 0xBD, 0xD9, 0x8C, 0x2D, 0xD0, 0x93, 0xE5,
-    0x09, 0x03, 0x69, 0x1F, 0xBC, 0x04, 0xE7, 0x1B, 0x8C, 0x79, 0xDB, 0xFC, 0x21, 0xCC, 0x59, 0x8F,
-    0x48, 0xD3, 0xB4, 0xCE, 0x19, 0xE7, 0xB7, 0x7A, 0x6B, 0x20, 0xF8, 0x9D, 0xFD, 0x37, 0x84, 0x60,
-    0xA1, 0xF0, 0x69, 0x0C, 0xAE, 0x32, 0x5D, 0x5F, 0x7B, 0xCD, 0xB2, 0xC0, 0xF9, 0x33, 0x60, 0x8F,
-    0x03, 0x5C, 0xFC, 0x91, 0xB5, 0x2E, 0xB4, 0x73, 0x65, 0x6D, 0x40, 0xE4, 0xA6, 0x75, 0x79, 0x1A,
-    0x01, 0x98, 0x40, 0xEC, 0x97, 0xB9, 0xEC, 0x0C, 0x89, 0xAF, 0x7B, 0xFD, 0x49, 0xD1, 0xBB, 0xCB,
-    0x6F, 0xA0, 0x1F, 0x7A, 0x37, 0x78, 0xB6, 0x0B, 0x0A, 0xD5, 0x07, 0xA1, 0x51, 0xA3, 0x6E, 0xF1,
-    0xE5, 0x11, 0x64, 0x61, 0x8B, 0x38, 0xCA, 0x52, 0x8D, 0x0A, 0x38, 0xD6, 0xFB, 0x24, 0xD6, 0x5B,
-    0x58, 0xF5, 0x00, 0xC0, 0x94, 0x04, 0x78, 0xAC, 0x97, 0x08, 0x5D, 0xFE, 0xBD, 0xD1, 0xC5, 0x4E,
-    0x42, 0xCD, 0xE3, 0x0F, 0x62, 0xC6, 0xD5, 0xFE, 0x32, 0x7D, 0xD4, 0x72, 0xDE, 0xFD, 0x43, 0x63,
-    0x4D, 0x24, 0xF4, 0x00, 0x44, 0x63, 0x61, 0x08, 0x8B, 0xA6, 0x23, 0x9C, 0x13, 0x81, 0x2D, 0x63,
-    0x96, 0x1C, 0x6E, 0x6A, 0x76, 0xBE, 0x4B, 0xBB, 0xDA, 0x11, 0x5F, 0x4E, 0x85, 0x14, 0x12, 0xF4,
-    0x40, 0x18, 0x9D, 0x59, 0xAA, 0x4E, 0x1A, 0x8B, 0xE7, 0x4A, 0x85, 0x77, 0x84, 0x5A, 0x9C, 0x30,
-    0x07, 0xAC, 0x4E, 0x2C, 0xC0, 0x04, 0xE2, 0x8C, 0x24, 0xF7, 0x77, 0x5B, 0x5D, 0x35, 0x36, 0x7A,
-    0x63, 0x40, 0x2B, 0x90, 0xBE, 0x3C, 0xEE, 0x89, 0xE3, 0x0C, 0x88, 0x92, 0xAB, 0x2D, 0x4F, 0x96,
-    0x14, 0x5F, 0x9D, 0x03, 0xB7, 0xD1, 0x04, 0xD7, 0x37, 0xF5, 0x9C, 0xAB, 0xAC, 0x0A, 0xC4, 0x2D,
-};
-
-static unsigned char u[256];
-
-void rsa_demo(void)
-{
-    mbedtls_pk_context ctx_pk;
-    mbedtls_pk_init(&ctx_pk);
+    reset_malloc(); // 专用内存清除
     int ret;
-    ret = mbedtls_pk_parse_public_key(&ctx_pk, pub_key_pem_string, sizeof pub_key_pem_string);
-    mbedtls_rsa_context *rsa = (mbedtls_rsa_context*)ctx_pk.pk_ctx;
-    mbedtls_rsa_set_padding(rsa, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA512);
-    ret = mbedtls_rsa_check_pubkey(rsa);
-    ret = mbedtls_rsa_complete(rsa);
-    ret = mbedtls_rsa_public(rsa, sign_string, u);
-    ret = 1;
+
+    mbedtls_pk_context ctx_pk; // 公钥
+    mbedtls_rsa_context *rsa;  // rsa公钥，指向ctx_pk
+    uint8_t sha512_value[SHA512_RESULT_LEN] = {0};       // 存放sha512
+    uint8_t rsa2048_decrypted[RSA2048_RESULT_LEN] = {0}; // rsa解码存放的数据
+
+    do {
+        mbedtls_pk_init(&ctx_pk); // 初始化之
+        ret = mbedtls_pk_parse_public_key(&ctx_pk, rsa_public_key_pem_string, strlen((const char *)rsa_public_key_pem_string) + 1); // 从pem中获得公钥
+        CHECK_RESULT;
+
+        rsa = (mbedtls_rsa_context*)ctx_pk.pk_ctx; // 取得rsa公钥
+        mbedtls_rsa_set_padding(rsa, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA512); // 基本初始化，可以不理
+        ret = mbedtls_rsa_check_pubkey(rsa); // 检查rsa公钥是否正常（基本上）
+        CHECK_RESULT;
+
+        ret = mbedtls_rsa_public(rsa, sign_data, rsa2048_decrypted);  // 最复杂的部分：用RSA公钥还原签名对应的数据
+        CHECK_RESULT;
+
+        ret = mbedtls_sha512_ret(origin_data, origin_size, sha512_value, false); // 自己计算一下hash
+        CHECK_RESULT;
+
+        ret = memcmp(rsa2048_decrypted + RSA2048_RESULT_LEN - SHA512_RESULT_LEN, sha512_value, SHA512_RESULT_LEN); // 对比hash。解码数据前面是填充，后面是数据
+        CHECK_RESULT;
+    } while (false); // do while(0) 结构是标准套路
+
+    reset_malloc(); // 专用内存清除
+    return ret == 0; // 全部通过才算验签完成
+}
+
+// 设定了一个8K的内存区域供malloc/free使用。
+// 策略极其简单：忽略释放函数；申请函数线性增长；用完了后集体释放
+// 这是个“魔改”方案，请慎重使用
+
+// 内存块和已使用大小
+#define OWN_MEM_BLOCK_SIZE 8192
+static uint8_t mem_block[OWN_MEM_BLOCK_SIZE];
+static size_t mem_top = 0;
+
+// 覆盖了标准malloc
+void *malloc(size_t n)
+{
+    // 对n搞8字节对齐，并累计到申请总大小
+    size_t new_top = mem_top + ((n - 1) / 8 + 1)* 8;
+    // 超出则不分配
+    if (new_top > OWN_MEM_BLOCK_SIZE) {
+        return 0;
+    }
+    // 没超，返回前一次的头。
+    void *result = mem_block + mem_top;
+    mem_top = new_top;
+    return result;
+}
+
+// 啥也不干
+void free(void *p)
+{
+}
+
+// 总清除函数
+void reset_malloc(void)
+{
+    mem_top = 0;
 }
