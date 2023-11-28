@@ -5,31 +5,25 @@
 #include <fstream>
 #include <iostream>
 
-#include "json.hpp"
+#include "gen_signature.hpp"
 
-extern "C" int rsa_main(void);
-extern "C" void sha_main(void);
-extern "C" bool sign_by_sha512_rsa2048_pkcs1_padding(
-    const char *rsa_private_key_pem_filename,
-    const uint8_t *origin_data, size_t origin_size,
-    uint8_t sign_data[]);
-
+// 目前主程序就是一个示例。对 '1234'这个字串签名并验证。
 int main(int, char *[]) {
-    auto js = R"({})"_json;
-    js["name"] = "Hello";
-    std::cout << js.dump(4) << std::endl;
-    sha_main();
-    rsa_main();
+    uint8_t sign_data[RSA2048_RESULT_LEN] = {0};
+    auto ret = sign_by_sha512_rsa2048_pkcs1_padding("financial.pem", (const uint8_t *)"1234", 4, sign_data);  // 签名
+    if (ret) {
+        ret = verify_sign_by_sha512_rsa2048_pkcs1_padding("financial_pub.pem", (const uint8_t *)"1234", 4, sign_data);  // 验证签名
+    }
 
-    uint8_t sign_data[1024] = {0};
-    auto ret = sign_by_sha512_rsa2048_pkcs1_padding("financial.pem", (const uint8_t *)"1234", 4, sign_data);
-
-    for (int i = 0; i < 256; i++) {
-        fprintf(stderr, "    0x%02X,", sign_data[i]);
-        if (i % 16 == 15) {
-            fprintf(stderr, "\n");
+    if (ret) {
+        for (int i = 0; i < 256; i++) {  // 打印签名数据的C数组形式。为的是复制后贴入MCU端看那边解码是否正确
+            fprintf(stderr, "    0x%02X,", sign_data[i]);
+            if (i % 16 == 15) {
+                fprintf(stderr, "\n");
+            }
         }
     }
 
+    printf("sign/verify return %d\n", ret);
     return ret ? 0 : 1;
 }

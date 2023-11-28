@@ -11,7 +11,7 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 
 add_executable(sign_firmware_pc
     main.cpp
-    rsa_sha_demo.c
+    gen_signature.hpp
 )
 
 target_compile_options(sign_firmware_pc PRIVATE -Wall -Wextra -Werror)
