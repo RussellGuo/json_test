@@ -7,15 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#include "firmware_layout_constant.h"
 #include "gen_signature.hpp"
-
-constexpr size_t TOTAL_FIRMWARE_MAX_SIZE = 2 * 1024 * 1024;           // 整体firmware的最大尺寸
-constexpr size_t SIGNATURE_POS = 0;                                   // 签名的位置
-constexpr size_t SIGNATURE_SIZE = RSA2048_RESULT_LEN;                 // 签名的大小
-constexpr size_t EXEC_LEN_ADDR = SIGNATURE_POS + SIGNATURE_SIZE + 0;  // 可执行体的大小，放在firmware的这个偏移地址上
-constexpr size_t EXEC_LEN_SIZE = 4;                                   // 长度是4字节。little-endian。
-constexpr size_t EXEC_BLOCK_POS = 512;                                // MCU的bin文件起始地址
-constexpr size_t EXEC_BLOCK_MAX_SIZE = TOTAL_FIRMWARE_MAX_SIZE - EXEC_BLOCK_POS;
 
 uint8_t firmware_memory[TOTAL_FIRMWARE_MAX_SIZE];
 
@@ -156,7 +149,7 @@ int main(int argc, char *argv[]) {
     bool ret;
     ret = sign_by_sha512_rsa2048_pkcs1_padding(
         private_key_pem_filename,
-        firmware_memory + EXEC_BLOCK_POS, exec_len,
+        firmware_memory + BEGIN_POS_OF_PLAIN, EXEC_BLOCK_POS + exec_len - BEGIN_POS_OF_PLAIN,
         firmware_memory + SIGNATURE_POS);  // 签名
     if (!ret) {
         fprintf(stderr, "signing signature failed\n");
@@ -168,7 +161,7 @@ int main(int argc, char *argv[]) {
 
     ret = verify_sign_by_sha512_rsa2048_pkcs1_padding(
         public_key_pem_filename,
-        firmware_memory + EXEC_BLOCK_POS, exec_len_inside_firmware_memory,
+        firmware_memory + BEGIN_POS_OF_PLAIN, EXEC_BLOCK_POS + exec_len_inside_firmware_memory - BEGIN_POS_OF_PLAIN,
         firmware_memory + SIGNATURE_POS);  // 验证签名
     if (!ret) {
         fprintf(stderr, "signature verification failed\n");
@@ -190,8 +183,8 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "saving firmware.inc failed\n");
             exit(1);
         }
+        fprintf(stderr, "saving firmware.inc: OK\n");
     }
-    fprintf(stderr, "saving firmware.inc: OK\n");
 
     return 0;
 }
