@@ -8,11 +8,9 @@
         本模块“魔改”了malloc/free体系，使得签名验证过程简化存储分配活动
         所以本函数是不可重入的
         *** 系统的其它部分也不得使用malloc/free族函数***
-    
+
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "mbedtls/sha512.h"

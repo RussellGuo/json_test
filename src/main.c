@@ -6,13 +6,14 @@
 #include CMSIS_device_header
 
 #include "sign_verify.h"
+#include "firmware_sign_verify.h"
 
 static bool sign_verify_demo(void);
 
 void app_main (void *argument) {
     for (long long i = 0;; i++) {
         bool is_ok = sign_verify_demo();
-        printf("%lld: signature veritification ret: %d\n\r", i, is_ok);      
+        printf("%lld: signature veritification ret: %d\n\r", i, is_ok);
         osDelay(300);
     }
 }
@@ -42,15 +43,7 @@ int main (void) {
 }
 
 static uint8_t pub_key_pem_string[] =
-    "-----BEGIN PUBLIC KEY-----\r\n"
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxo1YWUCtl1RFCz9J9dq/\r\n"
-    "mx7QFySWCQbnx8YmZfCdjKXLGiP5pJQ2++Ml1n6cUKasfgeJAF40tE68aI8hv1pW\r\n"
-    "BTXFDW2BTnV0owdQQYGXqUBgOG/nBxNxlaqj6VynnXVq1IBZkVZ33VLFN2B8qbFf\r\n"
-    "1gY/qzAprexOdagpZ9lMP5ksHbgS1EvohXFpEoBODBQnsZ9gFYsNbqEYMgMFFYfs\r\n"
-    "Q6D/iKa9URqGfvNcMTfJmFv9sgOC4S6ZCsXyrJHZm+BRec6xy3zNY8JQtZ0sSDj8\r\n"
-    "P5D2s0TYGSpPlBTe/PtLSTqzsozYePrMiPCxqFR1+G2pQPpTRv5Atq92e+HYjsJP\r\n"
-    "JQIDAQAB\r\n"
-    "-----END PUBLIC KEY-----\r\n"
+#include "financial_pub.pem.inc"
 ;
 
 static const uint8_t orig_data[] = { '1', '2', '3', '4' };
@@ -73,9 +66,14 @@ static const uint8_t sign_data[] = {
         0xC3, 0x92, 0xE5, 0x7F, 0xA3, 0x44, 0x2C, 0x96, 0x55, 0x0C, 0x72, 0xF2, 0xD9, 0xA3, 0x28, 0xEC,
 };
 
+static const uint8_t firmware_data[] = {
+#include "firmware.bin.inc"
+};
+
 static bool sign_verify_demo(void)
 {
     bool ret = sign_verify_sha512_rsa2048_pkcs1_padding(pub_key_pem_string, orig_data, sizeof orig_data, sign_data);
+    ret &= firmware_sign_verify(firmware_data, pub_key_pem_string);
     return ret;
 }
 

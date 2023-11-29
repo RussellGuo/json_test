@@ -5,10 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "pub pem to C-inc file",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/src/pub_pem_into_inc.py",
+            "cwd": "${workspaceFolder}/src",
+            "args": [
+                "financial_pub.pem",
+                "financial_pub.pem.inc"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }

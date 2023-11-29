@@ -399,6 +399,21 @@
               <FileType>5</FileType>
               <FilePath>.\src\sign_verify.h</FilePath>
             </File>
+            <File>
+              <FileName>firmware_sign_verify.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\firmware_sign_verify.c</FilePath>
+            </File>
+            <File>
+              <FileName>firmware_sign_verify.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\firmware_sign_verify.h</FilePath>
+            </File>
+            <File>
+              <FileName>firmware_layout_constant.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\firmware_layout_constant.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
