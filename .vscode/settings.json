@@ -5,7 +5,7 @@
         "cwd": "${workspaceRoot}",
         "environment": [],
         "args": [
-            "-s",
+            "-i",
             "-r",
             "financial.pem",
             "-u",
@@ -13,7 +13,7 @@
             "-o",
             "firmware.bin",
             "-e",
-            "src/main.cpp"
+            "1234.txt"
         ]
     }
 

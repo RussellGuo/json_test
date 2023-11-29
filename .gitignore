@@ -1,2 +1,4 @@
 /.vscode-ctags
 /build*/
+*.bin
+*.inc
