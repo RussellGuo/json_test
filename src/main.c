@@ -1,3 +1,9 @@
+/*
+    MCU端签名验证程序
+    2023-11-20 郭强
+    这个程序是验证签名算法的。首先针对普通的签名验证，其次是针对特定固件布局的验证
+ */
+
 #include <stdio.h>
 
 #include "cmsis_os2.h"                  // ARM::CMSIS:RTOS2:Keil RTX5
@@ -8,8 +14,10 @@
 #include "sign_verify.h"
 #include "firmware_sign_verify.h"
 
+// 签名验证主入口
 static bool sign_verify_demo(void);
 
+// 这个程序放在RTOS的环境中运行
 void app_main (void *argument) {
     for (long long i = 0;; i++) {
         bool is_ok = sign_verify_demo();
@@ -18,35 +26,41 @@ void app_main (void *argument) {
     }
 }
 
+// 签名需要较大的堆栈来存放局部变量，所以指定了特有的空间做堆栈
 #define STACK_SIZE_OF_APP_THREAD 4096
-__ALIGNED(8) static uint8_t stack_of_thread[STACK_SIZE_OF_APP_THREAD];
+__ALIGNED(8) static uint8_t stack_of_thread[STACK_SIZE_OF_APP_THREAD]; // 注意是8字节对齐
 
-// task thread attribute
+// 签名线程的属性
 static const osThreadAttr_t thread_attr_app = {
-    .name = "app_main",
-    .priority = osPriorityRealtime4,
-    .stack_mem  = stack_of_thread,
-    .stack_size = sizeof(stack_of_thread),
+    .name = "app_main",                     // 线程名称
+    .priority = osPriorityRealtime4,        // 优先级
+    .stack_mem  = stack_of_thread,          // 堆栈
+    .stack_size = sizeof(stack_of_thread),  // 堆栈大小
 };
+
 int main (void) {
 
-  // System Initialization
-  SystemCoreClockUpdate();
-  // ...
-  osKernelInitialize();                 // Initialize CMSIS-RTOS
-  osThreadId_t id = osThreadNew(app_main, NULL, &thread_attr_app);
-  if (osKernelGetState() == osKernelReady) {
-    osKernelStart();                    // Start thread execution
-  }
+    //RTOS的套路
+    // System Initialization
+    SystemCoreClockUpdate();
+    // ...
+    osKernelInitialize();                 // Initialize CMSIS-RTOS
+    osThreadId_t id = osThreadNew(app_main, NULL, &thread_attr_app);
+    if (osKernelGetState() == osKernelReady) {
+        osKernelStart();                    // Start thread execution
+    }
 
-  while(1);
+    while(1);
 }
 
+// 公钥。 inc文件是由python程序pub_pem_into_inc.py生成的。原始文件就是pem格式的公钥
 static uint8_t pub_key_pem_string[] =
 #include "financial_pub.pem.inc"
 ;
 
+// 直接的签名验证数据 1234
 static const uint8_t orig_data[] = { '1', '2', '3', '4' };
+// 从别处copy来的签名结果
 static const uint8_t sign_data[] = {
         0x1A, 0x30, 0x28, 0xBF, 0x54, 0xA1, 0x04, 0xBD, 0xE7, 0x57, 0xFF, 0xEE, 0x28, 0x0B, 0xC1, 0x8A,
         0x9B, 0x92, 0xB5, 0xAF, 0x3D, 0x74, 0x0F, 0x2D, 0xC1, 0x54, 0x4A, 0xF3, 0x16, 0x75, 0x6C, 0xBC,
@@ -66,13 +80,16 @@ static const uint8_t sign_data[] = {
         0xC3, 0x92, 0xE5, 0x7F, 0xA3, 0x44, 0x2C, 0x96, 0x55, 0x0C, 0x72, 0xF2, 0xD9, 0xA3, 0x28, 0xEC,
 };
 
+// 特定固件的签名验证。数据是“加密机”端的签名程序生成并复制过来的
 static const uint8_t firmware_data[] = {
 #include "firmware.bin.inc"
 };
 
 static bool sign_verify_demo(void)
 {
+    // 针对1234的签名验证
     bool ret = sign_verify_sha512_rsa2048_pkcs1_padding(pub_key_pem_string, orig_data, sizeof orig_data, sign_data);
+    // 针对固件的签名验证
     ret &= firmware_sign_verify(firmware_data, pub_key_pem_string);
     return ret;
 }
