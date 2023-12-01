@@ -6,51 +6,19 @@
 
 #include <stdio.h>
 
-#include "cmsis_os2.h"                  // ARM::CMSIS:RTOS2:Keil RTX5
-
-#include "RTE_Components.h"
-#include CMSIS_device_header
-
 #include "sign_verify.h"
 #include "firmware_sign_verify.h"
 
 // 签名验证主入口
 static bool sign_verify_demo(void);
 
-// 这个程序放在RTOS的环境中运行
-void app_main (void *argument) {
-    for (long long i = 0;; i++) {
-        bool is_ok = sign_verify_demo();
-        printf("%lld: signature veritification ret: %d\n\r", i, is_ok);
-        osDelay(300);
-    }
-}
-
-// 签名需要较大的堆栈来存放局部变量，所以指定了特有的空间做堆栈
-#define STACK_SIZE_OF_APP_THREAD 4096
-__ALIGNED(8) static uint8_t stack_of_thread[STACK_SIZE_OF_APP_THREAD]; // 注意是8字节对齐
-
-// 签名线程的属性
-static const osThreadAttr_t thread_attr_app = {
-    .name = "app_main",                     // 线程名称
-    .priority = osPriorityRealtime4,        // 优先级
-    .stack_mem  = stack_of_thread,          // 堆栈
-    .stack_size = sizeof(stack_of_thread),  // 堆栈大小
-};
-
 int main (void) {
-
-    //RTOS的套路
-    // System Initialization
-    SystemCoreClockUpdate();
-    // ...
-    osKernelInitialize();                 // Initialize CMSIS-RTOS
-    osThreadId_t id = osThreadNew(app_main, NULL, &thread_attr_app);
-    if (osKernelGetState() == osKernelReady) {
-        osKernelStart();                    // Start thread execution
+    volatile unsigned long long total = 0, failed_count = 0;
+    while(true) {
+        bool is_ok = sign_verify_demo();
+        failed_count += !is_ok;
+        total++;
     }
-
-    while(1);
 }
 
 // 公钥。 inc文件是由python程序pub_pem_into_inc.py生成的。原始文件就是pem格式的公钥
