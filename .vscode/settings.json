@@ -5,6 +5,15 @@
         "cwd": "${workspaceRoot}",
         "environment": [],
         "args": [
+            "-i",
+            "-r",
+            "financial.pem",
+            "-u",
+            "financial_pub.pem",
+            "-o",
+            "firmware.bin",
+            "-e",
+            "1234.txt"
         ]
     }
 
