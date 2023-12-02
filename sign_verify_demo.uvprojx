@@ -10,9 +10,9 @@
       <TargetName>Simulation</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pArmCC>6190000::V6.19::ARMCLANG</pArmCC>
+      <pCCUsed>6190000::V6.19::ARMCLANG</pCCUsed>
+      <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>ARMCM3</Device>
@@ -187,6 +187,7 @@
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -323,14 +324,14 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>3</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>3</v6Lang>
-            <v6LangP>3</v6LangP>
+            <v6LangP>5</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
@@ -371,7 +372,7 @@
             <TextAddressRange></TextAddressRange>
             <DataAddressRange></DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\RTE\Device\ARMCM3\ARMCM3_ac5.sct</ScatterFile>
+            <ScatterFile>.\RTE\Device\ARMCM3\ARMCM3_ac6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -471,18 +472,18 @@
         <targetInfos/>
       </file>
       <file attr="config" category="linkerScript" condition="ARMCC5" name="Device\ARM\ARMCM3\Source\ARM\ARMCM3_ac5.sct" version="1.0.0">
-        <instance index="0">RTE\Device\ARMCM3\ARMCM3_ac5.sct</instance>
+        <instance index="0" removed="1">RTE\Device\ARMCM3\ARMCM3_ac5.sct</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvariant="C Startup" Cvendor="ARM" Cversion="2.0.3" condition="ARMCM3 CMSIS" isDefaultVariant="1"/>
+        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
+        <targetInfos/>
+      </file>
+      <file attr="config" category="linkerScript" condition="ARMCC6" name="Device\ARM\ARMCM3\Source\ARM\ARMCM3_ac6.sct" version="1.0.0">
+        <instance index="0">RTE\Device\ARMCM3\ARMCM3_ac6.sct</instance>
         <component Cclass="Device" Cgroup="Startup" Cvariant="C Startup" Cvendor="ARM" Cversion="2.0.3" condition="ARMCM3 CMSIS" isDefaultVariant="1"/>
         <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
         <targetInfos>
           <targetInfo name="Simulation"/>
         </targetInfos>
-      </file>
-      <file attr="config" category="linkerScript" condition="ARMCC6" name="Device\ARM\ARMCM3\Source\ARM\ARMCM3_ac6.sct" version="1.0.0">
-        <instance index="0" removed="1">RTE\Device\ARMCM3\ARMCM3_ac6.sct</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvariant="C Startup" Cvendor="ARM" Cversion="2.0.3" condition="ARMCM3 CMSIS" isDefaultVariant="1"/>
-        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
-        <targetInfos/>
       </file>
       <file attr="config" category="sourceC" name="Device\ARM\ARMCM3\Source\startup_ARMCM3.c" version="2.0.3">
         <instance index="0">RTE\Device\ARMCM3\startup_ARMCM3.c</instance>
