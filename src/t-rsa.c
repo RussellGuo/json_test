@@ -7,6 +7,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/rsa.h>
@@ -304,61 +305,28 @@ int make_keys(EVP_PKEY** skey, EVP_PKEY** vkey)
         *vkey = NULL;
     }
     
-    RSA* rsa = NULL;
-    
     do
     {
-        *skey = EVP_PKEY_new();
+        FILE *f;
+        f = fopen("financial.pem", "rb");
+        *skey = PEM_read_PrivateKey(f, NULL, NULL, NULL);
+        fclose(f);
         assert(*skey != NULL);
         if(*skey == NULL) {
-            printf("EVP_PKEY_new failed (1), error 0x%lx\n", ERR_get_error());
+            printf("PEM_read_PrivateKey failed (1), error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        *vkey = EVP_PKEY_new();
+        f = fopen("financial_pub.pem", "rb");
+        *vkey = PEM_read_PUBKEY(f, NULL, NULL, NULL);
+        fclose(f);
         assert(*vkey != NULL);
         if(*vkey == NULL) {
             printf("EVP_PKEY_new failed (2), error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
-        
-        rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
-        assert(rsa != NULL);
-        if(rsa == NULL) {
-            printf("RSA_generate_key failed, error 0x%lx\n", ERR_get_error());
-            break; /* failed */
-        }
-        
-        /* Set signing key */
-        int rc = EVP_PKEY_assign_RSA(*skey, RSAPrivateKey_dup(rsa));
-        assert(rc == 1);
-        if(rc != 1) {
-            printf("EVP_PKEY_assign_RSA (1) failed, error 0x%lx\n", ERR_get_error());
-            break; /* failed */
-        }
-        
-        /* Sanity check. Verify private exponent is present */
-        /* assert(EVP_PKEY_get0_RSA(*skey)->d != NULL); */
-
-        /* Set verifier key */
-        rc = EVP_PKEY_assign_RSA(*vkey, RSAPublicKey_dup(rsa));
-        assert(rc == 1);
-        if(rc != 1) {
-            printf("EVP_PKEY_assign_RSA (2) failed, error 0x%lx\n", ERR_get_error());
-            break; /* failed */
-        }
-        
-        /* Sanity check. Verify private exponent is missing */
-        /* assert(EVP_PKEY_get0_RSA(*vkey)->d == NULL); */
-        
         result = 0;
-        
     } while(0);
-    
-    if(rsa) {
-        RSA_free(rsa);
-        rsa = NULL;
-    }
-    
+
     return !!result;
 }
