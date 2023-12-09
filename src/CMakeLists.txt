@@ -20,4 +20,5 @@ target_compile_options(sign_firmware_pc PRIVATE -Wall -Wextra)
 target_link_libraries(sign_firmware_pc OpenSSL::SSL)
 
 add_executable(t t-rsa.c)
+target_compile_options(t PRIVATE -Wall -Wextra)
 target_link_libraries(t OpenSSL::SSL)

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
-#include <assert.h>
 
 #include <openssl/pem.h>
 #include <openssl/evp.h>
@@ -16,7 +15,7 @@
 
 typedef unsigned char byte;
 #define UNUSED(x) ((void)x)
-const char hn[] = "SHA256";
+const char hn[] = "SHA512";
 
 /* Returns 0 for success, non-0 otherwise */
 int make_keys(EVP_PKEY** skey, EVP_PKEY** vkey);
@@ -28,9 +27,9 @@ int sign_it(const byte* msg, size_t mlen, byte** sig, size_t* slen, EVP_PKEY* pk
 int verify_it(const byte* msg, size_t mlen, const byte* sig, size_t slen, EVP_PKEY* pkey);
 
 /* Prints a buffer to stdout. Label is optional */
-void print_it(const char* label, const byte* buff, size_t len);
+int print_it(const byte* buff, size_t len);
 
-int main(int argc, char* argv[])
+int main(void)
 {
     printf("Testing RSA functions with EVP_DigestSign and EVP_DigestVerify\n");
     
@@ -40,25 +39,21 @@ int main(int argc, char* argv[])
     EVP_PKEY *skey = NULL, *vkey = NULL;
     
     int rc = make_keys(&skey, &vkey);
-    assert(rc == 0);
     if(rc != 0)
         exit(1);
     
-    assert(skey != NULL);
     if(skey == NULL)
         exit(1);
     
-    assert(vkey != NULL);
     if(vkey == NULL)
         exit(1);
     
-    const byte msg[] = "Now is the time for all good men to come to the aide of their country";
+    const byte msg[] = {'1', '2', '3', '4'};
     byte* sig = NULL;
     size_t slen = 0;
     
     /* Using the skey or signing key */
     rc = sign_it(msg, sizeof(msg), &sig, &slen, skey);
-    assert(rc == 0);
     if(rc == 0) {
         printf("Created signature\n");
     } else {
@@ -66,7 +61,7 @@ int main(int argc, char* argv[])
         exit(1); /* Should cleanup here */
     }
     
-    print_it("Signature", sig, slen);
+    print_it(sig, slen);
     
 #if 0
     /* Tamper with signature */
@@ -106,7 +101,6 @@ int sign_it(const byte* msg, size_t mlen, byte** sig, size_t* slen, EVP_PKEY* pk
     int result = -1;
     
     if(!msg || !mlen || !sig || !pkey) {
-        assert(0);
         return -1;
     }
     
@@ -121,35 +115,33 @@ int sign_it(const byte* msg, size_t mlen, byte** sig, size_t* slen, EVP_PKEY* pk
     do
     {
         ctx = EVP_MD_CTX_create();
-        assert(ctx != NULL);
         if(ctx == NULL) {
             printf("EVP_MD_CTX_create failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        const EVP_MD* md = EVP_get_digestbyname(hn);
-        assert(md != NULL);
+        const EVP_MD* md = EVP_sha512();
         if(md == NULL) {
             printf("EVP_get_digestbyname failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        int rc = EVP_DigestInit_ex(ctx, md, NULL);
-        assert(rc == 1);
+        int rc = EVP_DigestInit(ctx, md);
         if(rc != 1) {
             printf("EVP_DigestInit_ex failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        rc = EVP_DigestSignInit(ctx, NULL, md, NULL, pkey);
-        assert(rc == 1);
+        EVP_PKEY_CTX *pkey_ctx = NULL;
+        rc = EVP_DigestSignInit(ctx, &pkey_ctx, md, NULL, pkey);
         if(rc != 1) {
             printf("EVP_DigestSignInit failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
+        rc = EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
+        rc = EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, EVP_sha512());
         
         rc = EVP_DigestSignUpdate(ctx, msg, mlen);
-        assert(rc == 1);
         if(rc != 1) {
             printf("EVP_DigestSignUpdate failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
@@ -157,20 +149,17 @@ int sign_it(const byte* msg, size_t mlen, byte** sig, size_t* slen, EVP_PKEY* pk
         
         size_t req = 0;
         rc = EVP_DigestSignFinal(ctx, NULL, &req);
-        assert(rc == 1);
         if(rc != 1) {
             printf("EVP_DigestSignFinal failed (1), error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        assert(req > 0);
         if(!(req > 0)) {
             printf("EVP_DigestSignFinal failed (2), error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
         *sig = OPENSSL_malloc(req);
-        assert(*sig != NULL);
         if(*sig == NULL) {
             printf("OPENSSL_malloc failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
@@ -178,15 +167,13 @@ int sign_it(const byte* msg, size_t mlen, byte** sig, size_t* slen, EVP_PKEY* pk
         
         *slen = req;
         rc = EVP_DigestSignFinal(ctx, *sig, slen);
-        assert(rc == 1);
         if(rc != 1) {
             printf("EVP_DigestSignFinal failed (3), return code %d, error 0x%lx\n", rc, ERR_get_error());
             break; /* failed */
         }
         
-        assert(req == *slen);
         if(rc != 1) {
-            printf("EVP_DigestSignFinal failed, mismatched signature sizes %ld, %ld", req, *slen);
+            printf("EVP_DigestSignFinal failed, mismatched signature sizes %zd, %zd", req, *slen);
             break; /* failed */
         }
         
@@ -208,7 +195,6 @@ int verify_it(const byte* msg, size_t mlen, const byte* sig, size_t slen, EVP_PK
     int result = -1;
     
     if(!msg || !mlen || !sig || !slen || !pkey) {
-        assert(0);
         return -1;
     }
     
@@ -217,35 +203,33 @@ int verify_it(const byte* msg, size_t mlen, const byte* sig, size_t slen, EVP_PK
     do
     {
         ctx = EVP_MD_CTX_create();
-        assert(ctx != NULL);
         if(ctx == NULL) {
             printf("EVP_MD_CTX_create failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        const EVP_MD* md = EVP_get_digestbyname(hn);
-        assert(md != NULL);
+        const EVP_MD* md = EVP_sha512();
         if(md == NULL) {
             printf("EVP_get_digestbyname failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        int rc = EVP_DigestInit_ex(ctx, md, NULL);
-        assert(rc == 1);
+        int rc = EVP_DigestInit(ctx, md);
         if(rc != 1) {
             printf("EVP_DigestInit_ex failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
         
-        rc = EVP_DigestVerifyInit(ctx, NULL, md, NULL, pkey);
-        assert(rc == 1);
+        EVP_PKEY_CTX *pkey_ctx = NULL;
+        rc = EVP_DigestVerifyInit(ctx, &pkey_ctx, md, NULL, pkey);
         if(rc != 1) {
             printf("EVP_DigestVerifyInit failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
+        rc = EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
+        rc = EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, EVP_sha512());
         
         rc = EVP_DigestVerifyUpdate(ctx, msg, mlen);
-        assert(rc == 1);
         if(rc != 1) {
             printf("EVP_DigestVerifyUpdate failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
@@ -255,7 +239,6 @@ int verify_it(const byte* msg, size_t mlen, const byte* sig, size_t slen, EVP_PK
         ERR_clear_error();
         
         rc = EVP_DigestVerifyFinal(ctx, sig, slen);
-        assert(rc == 1);
         if(rc != 1) {
             printf("EVP_DigestVerifyFinal failed, error 0x%lx\n", ERR_get_error());
             break; /* failed */
@@ -274,18 +257,22 @@ int verify_it(const byte* msg, size_t mlen, const byte* sig, size_t slen, EVP_PK
 
 }
 
-void print_it(const char* label, const byte* buff, size_t len)
+int print_it(const byte* buff, size_t len)
 {
-    if(!buff || !len)
-        return;
-    
-    if(label)
-        printf("%s: ", label);
-    
-    for(size_t i=0; i < len; ++i)
-        printf("%02X", buff[i]);
-    
-    printf("\n");
+    FILE *f = stderr;
+
+    // 打印签名数据的C数组形式。为的是复制后贴入MCU端看那边解码是否正确
+    for (size_t i = 0; i < len; i++) {
+        fprintf(f, "%s", i % 16 == 0 ? "    " : " ");  // 往下都是格式控制
+        fprintf(f, "0x%02X,", buff[i]);
+        if (i % 16 == 15) {
+            fprintf(f, "\n");
+        }
+    }
+    fprintf(f, "\n");
+    int is_ok = !ferror(f);
+    is_ok &= fclose(f) == 0;  // 各种检查
+    return is_ok;
 }
 
 int make_keys(EVP_PKEY** skey, EVP_PKEY** vkey)
@@ -311,7 +298,6 @@ int make_keys(EVP_PKEY** skey, EVP_PKEY** vkey)
         f = fopen("financial.pem", "rb");
         *skey = PEM_read_PrivateKey(f, NULL, NULL, NULL);
         fclose(f);
-        assert(*skey != NULL);
         if(*skey == NULL) {
             printf("PEM_read_PrivateKey failed (1), error 0x%lx\n", ERR_get_error());
             break; /* failed */
@@ -320,11 +306,17 @@ int make_keys(EVP_PKEY** skey, EVP_PKEY** vkey)
         f = fopen("financial_pub.pem", "rb");
         *vkey = PEM_read_PUBKEY(f, NULL, NULL, NULL);
         fclose(f);
-        assert(*vkey != NULL);
         if(*vkey == NULL) {
             printf("EVP_PKEY_new failed (2), error 0x%lx\n", ERR_get_error());
             break; /* failed */
         }
+        result = EVP_PKEY_get_bits(*skey);
+        result = EVP_PKEY_get_bits(*vkey);
+        result = EVP_PKEY_get_id(*skey);
+        result = EVP_PKEY_get_id(*vkey);
+        result = EVP_PKEY_get_base_id(*skey);
+        result = EVP_PKEY_get_base_id(*vkey);
+
         result = 0;
     } while(0);
 
