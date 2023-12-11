@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
 
     // 对指定区域做摘要以及签名
     bool ret;
-    ret = sign_by_sha512_rsa2048_pkcs1_padding(
+    ret = sign_by_sha512_rsa2048_pkcs1_pss_padding(
         private_key_pem_filename,
         firmware_memory + BEGIN_POS_OF_PLAIN, EXEC_BODY_POS + exec_len - BEGIN_POS_OF_PLAIN,
         firmware_memory + SIGNATURE_POS);  // 签名
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
     assert(exec_len_inside_firmware_memory == exec_len);
 
     // 用公钥验证签名
-    ret = verify_sign_by_sha512_rsa2048_pkcs1_padding(
+    ret = verify_sign_by_sha512_rsa2048_pkcs1_pss_padding(
         public_key_pem_filename,
         firmware_memory + BEGIN_POS_OF_PLAIN, EXEC_BODY_POS + exec_len_inside_firmware_memory - BEGIN_POS_OF_PLAIN,
         firmware_memory + SIGNATURE_POS);  // 验证签名
