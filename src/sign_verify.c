@@ -9,7 +9,9 @@
         所以本函数是不可重入的
         *** 系统的其它部分也不得使用malloc/free族函数***
 
- */
+    2023-12-09 签名方案修改为更先进的PSS
+
+*/
 
 #include <string.h>
 
@@ -26,13 +28,13 @@ void reset_malloc(void);
 
 /*
     用途： 签名验证。
-    说明： 签名端需要对数据签名，签名用私钥， 规格是2048的RSA算法，采用PKSC1方案填充，摘要则使用SHA512
+    说明： 签名端需要对数据签名，签名用私钥， 规格是2048的RSA算法，采用PKSC1 PSS方案填充，摘要则使用SHA512
     参数rsa_public_key_pem_string，pem格式的公钥字串
     参数origin_data/origin_size，被签名对象以及长度
     参数sign_data， 签名本身
     返回值： true表示签名通过，反之反是
  */
-bool sign_verify_sha512_rsa2048_pkcs1_padding(
+bool sign_verify_sha512_rsa2048_pkcs1_pss_padding(
     const uint8_t *rsa_public_key_pem_string,
     const uint8_t *origin_data,
     size_t origin_size,
@@ -45,7 +47,6 @@ bool sign_verify_sha512_rsa2048_pkcs1_padding(
     mbedtls_pk_context ctx_pk; // 公钥
     mbedtls_rsa_context *rsa;  // rsa公钥，指向ctx_pk
     uint8_t sha512_value[SHA512_RESULT_LEN] = {0};       // 存放sha512
-    uint8_t rsa2048_decrypted[RSA2048_RESULT_LEN] = {0}; // rsa解码存放的数据
 
     do {
         mbedtls_pk_init(&ctx_pk); // 初始化之
@@ -57,13 +58,10 @@ bool sign_verify_sha512_rsa2048_pkcs1_padding(
         ret = mbedtls_rsa_check_pubkey(rsa); // 检查rsa公钥是否正常（基本上）
         CHECK_RESULT;
 
-        ret = mbedtls_rsa_public(rsa, sign_data, rsa2048_decrypted);  // 最复杂的部分：用RSA公钥还原签名对应的数据
-        CHECK_RESULT;
-
         ret = mbedtls_sha512_ret(origin_data, origin_size, sha512_value, false); // 自己计算一下hash
         CHECK_RESULT;
 
-        ret = memcmp(rsa2048_decrypted + RSA2048_RESULT_LEN - SHA512_RESULT_LEN, sha512_value, SHA512_RESULT_LEN); // 对比hash。解码数据前面是填充，后面是数据
+        ret = mbedtls_rsa_pkcs1_verify(rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA512, SHA512_RESULT_LEN, sha512_value, sign_data); // 系统的验签函数
         CHECK_RESULT;
     } while (false); // do while(0) 结构是标准套路
 

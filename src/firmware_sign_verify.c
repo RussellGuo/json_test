@@ -4,6 +4,8 @@
     郭强(guoqiang@huaqin.com)
     2023-11-30 创建
 
+    2023-12-09 签名方案修改为更先进的PSS
+
  */
 
 #include "firmware_sign_verify.h"
@@ -36,7 +38,7 @@ bool firmware_sign_verify(const uint8_t *firmware_memory, const uint8_t *public_
     }
 
     // 有了长度，就可以验证签名了
-    bool ret = sign_verify_sha512_rsa2048_pkcs1_padding(
+    bool ret = sign_verify_sha512_rsa2048_pkcs1_pss_padding(
         public_key_pem_string,                         // 公钥字串
         firmware_memory + BEGIN_POS_OF_PLAIN,          // 被签名数据的起始地址
         EXEC_BODY_POS + exec_len - BEGIN_POS_OF_PLAIN, // 被签名数据的长度
