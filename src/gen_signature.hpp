@@ -46,13 +46,13 @@ static inline bool sign_by_sha512_rsa2048_pkcs1_pss_padding(
     do {
         f = fopen(rsa_private_key_pem_filename, "rb");  // 打开pem文件供读入私钥
         if (f == NULL) {
-            break;;
+            break;
         }
         key = PEM_read_PrivateKey(f, NULL, NULL, NULL);  // 读入私钥
         if (key == nullptr) {
             break;
         }
-        if (!EVP_PKEY_is_a(key, SIGN_ALG_NAME) || EVP_PKEY_get_bits(key) != SIGN_BITLEN) {  // 检查签名钥的规格
+        if (EVP_PKEY_id(key) != EVP_PKEY_RSA || EVP_PKEY_bits(key) != SIGN_BITLEN) {  // 检查签名钥的规格
             break;
         }
 
@@ -98,6 +98,10 @@ static inline bool sign_by_sha512_rsa2048_pkcs1_pss_padding(
 
     // TODO: 申请资源未释放，目前没搞清楚哪些资源需要释放
     // 作为一次性签名的子函数，不释放没问题
+    // 猜测是下面俩调用：
+    //   EVP_MD_CTX_free(digest_md_ctx);
+    //   EVP_PKEY_free(key);
+
     return is_ok;
 }
 
@@ -130,7 +134,7 @@ static inline bool verify_sign_by_sha512_rsa2048_pkcs1_pss_padding(
         if (key == nullptr) {
             break;
         }
-        if (!EVP_PKEY_is_a(key, SIGN_ALG_NAME) || EVP_PKEY_get_bits(key) != SIGN_BITLEN) {  // 检查验签钥的规格
+        if (EVP_PKEY_id(key) != EVP_PKEY_RSA || EVP_PKEY_bits(key) != SIGN_BITLEN) {  // 检查验签钥的规格
             break;
         }
 
@@ -172,6 +176,10 @@ static inline bool verify_sign_by_sha512_rsa2048_pkcs1_pss_padding(
 
     // TODO: 申请资源未释放，目前没搞清楚哪些资源需要释放
     // 作为一次性签名验证的子函数，不释放没问题
+    // 猜测是下面俩调用：
+    //   EVP_MD_CTX_free(digest_md_ctx);
+    //   EVP_PKEY_free(key);
+
     return is_ok;
 }
 
